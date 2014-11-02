@@ -7,15 +7,17 @@ import re
 import pprint
 import numpy as np
 
+__all__ = ['PsiBlast_pssm_score']
+
 def PsiBlast_pssm_score(handle):
-    """ 
-      Parse pssm ascii output 
+    """
+      Parse pssm ascii output
         order='ARNDCQEGHILKMFPSTWYV' output from psiblast
     """
     order='ARNDCQEGHILKMFPSTWYV'
     pssm_scores = []
     pssm_obs_percent = []
-    #information per position, 
+    #information per position,
     info_per_pos = []
     #relative weight of gapless real matches to pseudocounts
     relative_weight_gapless_pseudocounts = []
@@ -45,7 +47,7 @@ def PsiBlast_pssm_score(handle):
                         continue
 
                     content = line.split()
-                    
+
                     if content[0].isdigit():
                         # matrix line
                         aa_in_pos[content[0]] = content[1]
