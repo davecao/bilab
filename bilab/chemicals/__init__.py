@@ -2,9 +2,9 @@
 
 __all__ = []
 
-#from . import covalent_radius
+#from . import elements
 # add to chemicals
-from .covalent_radius import *
-#__all__.extend(covalent_radius.__all__)
+from .elements import *
+#__all__.extend(elements.__all__)
 
-#from .covalent_radius import get_covalent_radius
+#from .elements import get_elements
