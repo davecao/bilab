@@ -49,6 +49,11 @@ class ElementProperties(object):
         if self.depr is not None:
             self.depr_pl = kwargs.get('depr_pl', self.depr + 's')
 
+    def getDocstr(self, meth, plural=True):
+        """ Return docstring for the field """
+        assert meth in ('set', 'get', '_get'), "meth must be 'set' or 'get'"
+        assert isinstance(plural, bool), 'plural must be a boolean'
+
 # Periodic table
 #         Group 1, 2, ... , 18
 # Period  H
@@ -89,56 +94,79 @@ class ElementProperties(object):
 ELEMENT_FIELDS = {
     'AtomicNumber': ElementProperties('AtomicNumber', int, 
                     doc='atomic number Z'),
+
     'AtomicWeight': ElementProperties('AtomicWeight', float, 
                     doc='atomic weight'),
+
     'AtomicMass' : ElementProperties('AtomicMass', float, 
                    doc='Atomic mass of the element' ),
+
     'Symbol' : ElementProperties('Symbol', DTYPE+'1', 
                     doc=' the symbol of the element'),
+
     'Color' : ElementProperties('Color', float, ndim=3, 
                     doc=' the color of the element'),
+
     'Block' : ElementProperties('Block', DTYPE+'1',
                     doc='the block of the element in the periodic table'),
+
     'Group' : ElementProperties('Group', int,
                     doc='the group of the element in the periodic table'),
+
     'Period' : ElementProperties('Period', int,
                     doc='the period of the element in the periodic table'),
+
     'Series' : ElementProperties('Series', int,
                     doc='the series of the element in the periodic table'),
+
     'CrystalStructure': ElementProperties('CrystalStructure', DTYPE+'1',
                     doc='the type of crystal structure'),
+
     'LatticeAngles' : ElementProperties('LatticeAngles', float, ndim=3,
                     doc='lattic angle in crystal structure'),
+
     'SpaceGroupNumber' : ElementProperties('SpaceGroupNumber',int,
                     doc='space group number.'),
+
     'SpaceGroup' : ElementProperties('SpaceGroup', DTYPE+'1', 
                     doc='space group., i.e., P63/mmc'),
+
     'AtomicRadius' : ElementProperties('AtomicRadius', float, 
                     doc='atmoic radius of the element'),
+
     'CovalentRadius': ElementProperties('CovalentRadius', float, 
                     doc='covalent raidus of the element'),
+
     'VanDerWaalsRadius': ElementProperties('VanDerWaalsRadius', float,
                     doc='van der Waal radius of the element.'),
+
     'ElectronConfiguration' : ElementProperties('ElectronConfiguration', DTYPE+'1',
                     doc='The electron configuration., i.e., H for 1s1'),
+
     'ElectronConfigurationString' : ElementProperties('ElectronConfigurationString', DTYPE+'1',
                     doc='A string of the electron configuration'),
+
     'ElectronShellConfiguration': ElementProperties('ElectronShellConfiguration', DTYPE+'1',
                     doc='The electron shell configuration., i.e., '),
+
     'IonizationEnergies' : ElementProperties('IonizationEnergies', float,
                     doc='Ionization energy of the element. i.e., H for 1312kj/mol'),
+
     'QuantumNumbers' : ElementProperties('QuantumNumbers', DTYPE+'1', 
                     doc='Quantum number of the element'),
+
     'Abbreviation' : ElementProperties('Abbreviation', DTYPE+'1', 
                     doc='Abbreviation of the element'),
-    'AllotropeName' : ElementProperties(),
+
     'CASNumber' : ElementProperties('CASNumber', DTYPE+'1',
                     doc='CAS number of the element'),
+
     'PubChemCID' : ElementProperties('PubChemCID', DTYPE+'1', 
                     doc='PubChem CID of the element'),
-    'Name' : ElementProperties('Name', ),
+
     'StandardName' : ElementProperties('StandardName', DTYPE+'1', 
                     doc='Name of the element, e.g., Hydrogen'),
+
     'Category' : ElementProperties('Category', DTYPE+'1', 
                     doc='Category of the element, e.g., Metal, Nonmetal')
 }
@@ -290,6 +318,20 @@ class ElementData(object):
     """ Checmical elements data in periodic table """
     __slots__ = []
 
+    def __init__(self, title='Periodic Table'):
+        self._title = str(title)
+
+
+def wrapGetMethod(fn):
+    def getMethod(self):
+        return fn(self)
+    return getMethod
+
+
+def wrapSetMethod(fn):
+    def setMethod(self, data):
+        return fn(self, data)
+    return setMethod
 
 for fname, eprop in ELEMENT_FIELDS.items():
     meth = eprop.meth_pl
@@ -321,3 +363,51 @@ for fname, eprop in ELEMENT_FIELDS.items():
 
         def _getData(self, var=fname):
             return self._data.get(var)
+
+    if not eprop.private:
+        getData = wrapGetMethod(getData)
+        getData.__name__ = getMeth
+        getData.__doc__ = eprop.getDocstr('get')
+        setattr(ElementData, getMeth, getData)
+
+    _getData = wrapGetMethod(_getData)
+    _getData.__name__ = '_' + getMeth
+    _getData.__doc__ = eprop.getDocstr('_get')
+    setattr(ElementData, '_' + getMeth, _getData)
+
+
+    # Define public method for setting values in data array
+    def setData(self, array, var=fname, dtype=eprop.dtype,
+                ndim=eprop.ndim, none=eprop.none, flags=eprop.flags):
+        if array is None:
+            self._data.pop(var, None)
+        else:
+            if self._n_atoms == 0:
+                self._n_atoms = len(array)
+            elif len(array) != self._n_atoms:
+                raise ValueError('length of array must match number '
+                                 'of atoms')
+
+            if isinstance(array, list):
+                array = np.array(array, dtype)
+            elif not isinstance(array, np.ndarray):
+                raise TypeError('array must be an ndarray or a list')
+            elif array.ndim != ndim:
+                    raise ValueError('array must be {0} '
+                                     'dimensional'.format(ndim))
+            elif array.dtype != dtype:
+                try:
+                    array = array.astype(dtype)
+                except ValueError:
+                    raise ValueError('array cannot be assigned type '
+                                     '{0}'.format(dtype))
+            self._data[var] = array
+
+    setData = wrapSetMethod(setData)
+    setData.__name__ = setMeth
+    setData.__doc__ = eprop.getDocstr('set')
+    setattr(eprop, setMeth, setData)
+
+del getData
+del _getData
+del setData
