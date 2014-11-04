@@ -44,7 +44,7 @@ class ElementProperties(object):
         #: deprecated method name
         self.depr = kwargs.get('depr')
         #: deprecated method name in plural form
-
+        self.call = kwargs.get('call', None)
         self.depr_pl = None
         if self.depr is not None:
             self.depr_pl = kwargs.get('depr_pl', self.depr + 's')
