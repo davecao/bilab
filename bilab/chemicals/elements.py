@@ -337,7 +337,7 @@ for fname, eprop in ELEMENT_FIELDS.items():
     meth = eprop.meth_pl
     getMeth = 'get' + meth
     setMeth = 'set' + meth
-    if Eprop.call:
+    if eprop.call:
         # define public method 
         if eprop.private:
             def getData(self, var=fname, call=eprop.call):
