@@ -19,7 +19,7 @@ code should normally be used only by people who can't compile C code.
 
 from math import sqrt, atan2, pi
 
-__all__ = ['tesselate']
+__all__ = ['tesselate', 'tesselate_by_sprial']
 
 def _normalize(x, y, z):
     length = sqrt(x*x + y*y + z*z)
@@ -71,3 +71,26 @@ def tesselate(num_points):
     tess_triangle((south, dusk, noon), npts, r, pt_dict)
     tess_triangle((south, noon, dawn), npts, r, pt_dict)
     return r
+
+def tesselate_by_sprial(num_points):
+    """
+    Returns list of 3d coordinates of points on a sphere using the
+    Golden Section Spiral algorithm.
+
+    .. Note:
+        Routines to calculate the Accessible Surface Area of a set of atoms.
+        The algorithm is adapted from the Rose lab's chasa.py, which uses
+        the dot density technique found in:
+
+        Shrake, A., and J. A. Rupley. "Environment and Exposure to Solvent
+        of Protein Atoms. Lysozyme and Insulin." JMB (1973) 79:351-371.
+    """
+    points = []
+    inc = math.pi * (3 - math.sqrt(5))
+    offset = 2 / float(n)
+    for k in range(int(n)):
+        y = k * offset - 1 + (offset / 2)
+        r = math.sqrt(1 - y*y)
+        phi = k * inc
+        points.append([math.cos(phi)*r, y, math.sin(phi)*r])
+    return points

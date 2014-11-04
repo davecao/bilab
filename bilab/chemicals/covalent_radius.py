@@ -1,9 +1,69 @@
 # -*- coding: utf-8 -*-
 
+from numpy import array
+
 # Literature:
-#  1. Beatriz et al. Covalent radii revisited, Dalton Trans(21):2832-2838.
+#   Beatriz et al. Covalent radii revisited, Dalton Trans(21):2832-2838.
 #      doi:10.1039/b801115j Table 2 1-96
 __all__ = ['get_covalent_radius']
+
+READONLY = set()
+
+DTYPE = array(['a']).dtype.char  # 'S' for PY2K and 'U' for PY3K
+
+class ElementProperties(object):
+    """Element data field."""
+
+    __slots__ = ['name', 'dtype',  'doc', 'doc_pl', 'meth', 'meth_pl',
+                 'ndim', 'none', 'selstr', 'synonym', 'readonly', 'call',
+                 'private', 'depr', 'depr_pl', 'desc', 'flags']
+
+    def __init__(self, name, dtype, **kwargs):
+
+        #: data field name used in atom selections
+        self.name = name
+        #: data type (primitive Python types)
+        self.dtype = dtype
+        #: internal variable name used as key for :class:`.AtomGroup` ``_data``
+        self.doc = kwargs.get('doc', name)
+        #: plural form for documentation
+        self.doc_pl = kwargs.get('doc_pl', self.doc + 's')
+        #: description of data field, used in documentation
+        self.desc = kwargs.get('desc')
+        #: expected dimension of the data array
+        self.ndim = kwargs.get('ndim', 1)
+        #: atomic get/set method name
+        self.meth = kwargs.get('meth', name.capitalize())
+        #: get/set method name in plural form
+        self.meth_pl = kwargs.get('meth_pl', self.meth + 's')
+        #: :class:`.AtomGroup` attributes to be set None, when ``setMethod``
+        #: is called
+        self.none = kwargs.get('none')
+        #: list of selection string examples
+        self.selstr = kwargs.get('selstr')
+        #: deprecated method name
+        self.depr = kwargs.get('depr')
+        #: deprecated method name in plural form
+        self.depr_pl = None
+        if self.depr is not None:
+            self.depr_pl = kwargs.get('depr_pl', self.depr + 's')
+        #: synonym used in atom selections
+        self.synonym = kwargs.get('synonym')
+        #: read-only attribute without a set method
+        self.readonly = kwargs.get('readonly', False)
+        #: list of :class:`.AtomGroup` methods to call when ``getMethod`` is
+        #: called
+        self.call = kwargs.get('call', None)
+        #: define only _getMethod for :class:`.AtomGroup` to be used by
+        #: :class:`.Select` class
+        self.private = kwargs.get('private', False)
+        #: **True** when there are flags associated with the data field
+        self.flags = kwargs.get('flags', False)
+
+        if self.readonly:
+            READONLY.add(self.name)
+class ElementData(object):
+    """ Checmical elements data in periodic table """
 
 ATOM_COVALENT_RADIUS = {
     'h' :0.31,
