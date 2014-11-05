@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from numpy import array
+import numpy as np
 
 # Literature:
 #   Beatriz et al. Covalent radii revisited, Dalton Trans(21):2832-2838.
 #      doi:10.1039/b801115j Table 2 1-96
-__all__ = ['ElementData', 'get_covalent_radius']
+__all__ = ['ElementData', 'Element','ElementCollection','get_covalent_radius']
 
-DTYPE = array(['a']).dtype.char  # 'S' for PY2K and 'U' for PY3K
+DTYPE = np.array(['a']).dtype.char  # 'S' for PY2K and 'U' for PY3K
 
 ATOM_COVALENT_RADIUS = {
     'h' :0.31,
@@ -179,7 +179,8 @@ class ElementProperties(object):
         #: expected dimension of the data array
         self.ndim = kwargs.get('ndim', 1)
         #: atomic get/set method name
-        self.meth = kwargs.get('meth', name.capitalize())
+        #self.meth = kwargs.get('meth', name.capitalize())
+        self.meth = kwargs.get('meth', name)
         #: get/set method name in plural form
         self.meth_pl = kwargs.get('meth_pl', self.meth + 's')
         #: get/set 
@@ -314,14 +315,12 @@ ELEMENT_FIELDS = {
                     doc='Category of the element, e.g., Metal, Nonmetal')
 }
 
-
-
-class ElementData(object):
-    """ Checmical elements data in periodic table """
+class Element(object):
+    """ Checmical element's data in periodic table """
     __slots__ = ['_el', '_index']
 
-    def __init__(self, title='Periodic Table'):
-        self._title = str(title)
+    def __init__(self):
+        super(Element, self).__init__()
 
     def getData(self, label):
         """ 
@@ -349,7 +348,7 @@ class ElementData(object):
                 self._el._data[label][self._index] = data
             except KeyError:
                 raise AttributeError('data with label {0} must be set for'
-                                ' ElementData first'.format(repr(label)))
+                                ' Element first'.format(repr(label)))
 
 def wrapGetMethod(fn):
     def getMethod(self):
@@ -363,7 +362,8 @@ def wrapSetMethod(fn):
     return setMethod
 
 for fname, eprop in ELEMENT_FIELDS.items():
-    meth = eprop.meth_pl
+    #meth = eprop.meth_pl
+    meth = eprop.meth
     getMeth = 'get' + meth
     setMeth = 'set' + meth
     if eprop.call:
@@ -397,12 +397,12 @@ for fname, eprop in ELEMENT_FIELDS.items():
         getData = wrapGetMethod(getData)
         getData.__name__ = getMeth
         getData.__doc__ = eprop.getDocstr('get')
-        setattr(ElementData, getMeth, getData)
+        setattr(Element, getMeth, getData)
 
     _getData = wrapGetMethod(_getData)
     _getData.__name__ = '_' + getMeth
     _getData.__doc__ = eprop.getDocstr('_get')
-    setattr(ElementData, '_' + getMeth, _getData)
+    setattr(Element, '_' + getMeth, _getData)
 
 
     # Define public method for setting values in data array
@@ -410,11 +410,6 @@ for fname, eprop in ELEMENT_FIELDS.items():
         if array is None:
             self._data.pop(var, None)
         else:
-            if self._n_atoms == 0:
-                self._n_atoms = len(array)
-            elif len(array) != self._n_atoms:
-                raise ValueError('length of array must match number '
-                                 'of atoms')
 
             if isinstance(array, list):
                 array = np.array(array, dtype)
@@ -434,8 +429,40 @@ for fname, eprop in ELEMENT_FIELDS.items():
     setData = wrapSetMethod(setData)
     setData.__name__ = setMeth
     setData.__doc__ = eprop.getDocstr('set')
-    setattr(ElementData, setMeth, setData)
+    setattr(Element, setMeth, setData)
 
 del getData
 del _getData
 del setData
+
+class ElementCollection(object):
+    """
+        Periodic table
+    """
+    __slots__ = ['_elename', '_z', '_el']
+
+    def __init__(self):
+        """ Initialization """
+        super(ElementCollection, self).__init__()
+        self._elename = []
+        self._z = []
+        self._el = []
+
+    def add(self, el):
+        """ Add each element """
+        if isinstance(el, Element):
+            self._elename.append(el.getStandardName())
+            self._z.append(el.getAtomicNumber())
+            self._el.append(el)
+        else:
+            raise TypeError('el must be an instance of Element')
+
+    def __iter__(self):
+        return iter(self._el)
+
+    def __getitem__(self, i):
+        return self._el[i]
+
+
+ElementData = ElementCollection()
+#ElementCollection().add(Element().setData())
