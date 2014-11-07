@@ -5,9 +5,15 @@ import numpy as np
 # Literature:
 #   Beatriz et al. Covalent radii revisited, Dalton Trans(21):2832-2838.
 #      doi:10.1039/b801115j Table 2 1-96
-__all__ = ['ElementData', 'Element','ElementCollection','get_covalent_radius']
+__all__ = [ 'ElementData', 
+            'Element',
+            'ElementCollection',
+            'PeriodicTable',
+            'get_covalent_radius']
 
-DTYPE = np.array(['a']).dtype.char  # 'S' for PY2K and 'U' for PY3K
+#DTYPE = np.array(['a']).dtype.char  # 'S' for PY2K and 'U' for PY3K
+DTYPE = np.str
+PI = np.pi
 
 ATOM_COVALENT_RADIUS = {
     'h' :0.31,
@@ -203,7 +209,18 @@ class ElementProperties(object):
 # Period  H
 #         Li
 
-# Categories:
+#  Block
+#  g1                                                                       g18
+# H 1s  | g2                                               g13,14,15,16,17 1s->|
+# Li <- 2s ->|                                            |<---- 2p          ->|
+# Na <- 3s ->|            g3 g4 g5 g6 g7 g8 g9 g10 g11 g12|<---- 3p          ->|
+# K  <- 4s ->|           |<--        3d                -->|<---- 4p          ->|
+# Rb <- 5s ->|           |<--        4d                -->|<---- 5p          ->|
+# Cs <- 6s ->|<-- 4f  -->|<--        5d                -->|<---- 6p          ->|
+# Fr <- 7s ->|<-- 5f  -->|<--        6d                -->|<---- 7p          ->|
+# <-s-block->|<-f-block->|<--       d-block            -->|<---- p-block     ->|
+
+# Categories/Series:
 #  Actinide  
 #  AlkaliMetal
 #  Gas         standard temprature and pressure
@@ -236,22 +253,33 @@ class ElementProperties(object):
 #    ...
 
 ELEMENT_FIELDS = {
+
+    'StandardName' : ElementProperties('StandardName', np.str, 
+                    doc='Name of the element, e.g., Hydrogen'),
+
+    'Symbol' : ElementProperties('Symbol', DTYPE, 
+                    doc=' the symbol of the element'),
+
+    'Abbreviation' : ElementProperties('Abbreviation', DTYPE, 
+                    doc='Abbreviation of the element'),
+
     'AtomicNumber': ElementProperties('AtomicNumber', int, 
-                    doc='atomic number Z'),
+                    doc='atomic number Z', 
+                    desc="The atomic number of a chemical element (also known"\
+                    +" as its proton number) is the number of protons found"\
+                    +" in nucleus of an atom of the element."),
 
     'AtomicWeight': ElementProperties('AtomicWeight', float, 
                     doc='atomic weight'),
 
-    'AtomicMass' : ElementProperties('AtomicMass', float, 
+    'AtomicMass' : ElementProperties('AtomicMass', DTYPE, 
                    doc='Atomic mass of the element' ),
 
-    'Symbol' : ElementProperties('Symbol', DTYPE+'1', 
-                    doc=' the symbol of the element'),
 
     'Color' : ElementProperties('Color', float, ndim=3, 
                     doc=' the color of the element'),
 
-    'Block' : ElementProperties('Block', DTYPE+'1',
+    'Block' : ElementProperties('Block', DTYPE,
                     doc='the block of the element in the periodic table'),
 
     'Group' : ElementProperties('Group', int,
@@ -260,23 +288,23 @@ ELEMENT_FIELDS = {
     'Period' : ElementProperties('Period', int,
                     doc='the period of the element in the periodic table'),
 
-    'Series' : ElementProperties('Series', int,
-                    doc='the series of the element in the periodic table'),
-
-    'CrystalStructure': ElementProperties('CrystalStructure', DTYPE+'1',
+    'CrystalStructure': ElementProperties('CrystalStructure', DTYPE,
                     doc='the type of crystal structure'),
 
     'LatticeAngles' : ElementProperties('LatticeAngles', float, ndim=3,
                     doc='lattic angle in crystal structure'),
+    
+    'LatticeConstants' : ElementProperties('LatticeAngles', float, ndim=3,
+                    doc='lattic constants(x, y, z) in crystal structure'),
 
     'SpaceGroupNumber' : ElementProperties('SpaceGroupNumber',int,
                     doc='space group number.'),
 
-    'SpaceGroup' : ElementProperties('SpaceGroup', DTYPE+'1', 
+    'SpaceGroup' : ElementProperties('SpaceGroup', DTYPE, 
                     doc='space group., i.e., P63/mmc'),
 
     'AtomicRadius' : ElementProperties('AtomicRadius', float, 
-                    doc='atmoic radius of the element'),
+                    doc='atmoic radius of the element in pm 10x10^-12'),
 
     'CovalentRadius': ElementProperties('CovalentRadius', float, 
                     doc='covalent raidus of the element'),
@@ -284,43 +312,41 @@ ELEMENT_FIELDS = {
     'VanDerWaalsRadius': ElementProperties('VanDerWaalsRadius', float,
                     doc='van der Waal radius of the element.'),
 
-    'ElectronConfiguration' : ElementProperties('ElectronConfiguration', DTYPE+'1',
+    'ElectronConfiguration' : ElementProperties('ElectronConfiguration', DTYPE,
                     doc='The electron configuration., i.e., H for 1s1'),
 
-    'ElectronConfigurationString' : ElementProperties('ElectronConfigurationString', DTYPE+'1',
+    'ElectronConfigurationString' : ElementProperties('ElectronConfigurationString', DTYPE,
                     doc='A string of the electron configuration'),
 
-    'ElectronShellConfiguration': ElementProperties('ElectronShellConfiguration', DTYPE+'1',
+    'ElectronShellConfiguration': ElementProperties('ElectronShellConfiguration', DTYPE,
                     doc='The electron shell configuration., i.e., '),
 
     'IonizationEnergies' : ElementProperties('IonizationEnergies', float,
-                    doc='Ionization energy of the element. i.e., H for 1312kj/mol'),
+                    doc='First ionization energy of the element. i.e., H for 1312kj/mol'),
 
-    'QuantumNumbers' : ElementProperties('QuantumNumbers', DTYPE+'1', 
+    'QuantumNumbers' : ElementProperties('QuantumNumbers', DTYPE, 
                     doc='Quantum number of the element'),
 
-    'Abbreviation' : ElementProperties('Abbreviation', DTYPE+'1', 
-                    doc='Abbreviation of the element'),
 
-    'CASNumber' : ElementProperties('CASNumber', DTYPE+'1',
+    'CASNumber' : ElementProperties('CASNumber', DTYPE,
                     doc='CAS number of the element'),
 
-    'PubChemCID' : ElementProperties('PubChemCID', DTYPE+'1', 
+    'PubChemCID' : ElementProperties('PubChemCID', DTYPE, 
                     doc='PubChem CID of the element'),
 
-    'StandardName' : ElementProperties('StandardName', DTYPE+'1', 
-                    doc='Name of the element, e.g., Hydrogen'),
-
-    'Category' : ElementProperties('Category', DTYPE+'1', 
+    'Category' : ElementProperties('Category', DTYPE, 
                     doc='Category of the element, e.g., Metal, Nonmetal')
 }
 
 class Element(object):
     """ Checmical element's data in periodic table """
-    __slots__ = ['_el', '_index']
+    __slots__ = ['_el', '_index', '_data']
 
     def __init__(self):
         super(Element, self).__init__()
+        self._data = dict()
+        self._el = []
+        self._index = []
 
     def getData(self, label):
         """ 
@@ -349,6 +375,7 @@ class Element(object):
             except KeyError:
                 raise AttributeError('data with label {0} must be set for'
                                 ' Element first'.format(repr(label)))
+        return self
 
 def wrapGetMethod(fn):
     def getMethod(self):
@@ -451,11 +478,23 @@ class ElementCollection(object):
     def add(self, el):
         """ Add each element """
         if isinstance(el, Element):
-            self._elename.append(el.getStandardName())
-            self._z.append(el.getAtomicNumber())
-            self._el.append(el)
+            self._add_element(el)
+        elif isinstance(el, dict):
+            element_instance = Element()
+            for key, val in el.iteritems():
+                print("key:{} val:{}".format(key, val))
+                if val.isdigit():
+                    element_instance.setData(key, np.array(val))
+                else:
+                    element_instance.setData(key, val)
+
+            self._add_element(element_instance)
         else:
             raise TypeError('el must be an instance of Element')
+    def _add_element(self, el):
+        self._elename.append(el.getAbbreviation())
+        self._z.append(el.getAtomicNumber())
+        self._el.append(el)
 
     def __iter__(self):
         return iter(self._el)
@@ -463,6 +502,334 @@ class ElementCollection(object):
     def __getitem__(self, i):
         return self._el[i]
 
+    def __len__(self):
+        return len(self._el)
+
+    def get(name):
+
+# 1 angstrom = 100 pm
+# atomic radius: mainly use empirical data, 
+#      calculated data will be used if empirical ones are not available
+#      even calculated ones are not available. see Wikioedia.org
+#   http://en.wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page)
+
+PeriodicTable =[
+{
+    'StandardName':'Hydrogen',
+    'Symbol': 'H',
+    'Abbreviation' : 'h',
+    'AtomicNumber': 1,
+    'AtomicWeight': 1.00794,
+    'AtomicMass'  : '1.00794u',
+    'Color' : [],
+    'Block' : 's',
+    'Group' : 1,
+    'Period': 1,
+    'CrystalStructure': 'Simple Hexagonal',
+    'LatticeAngles' : [PI/2, PI/2, 2*PI/3],
+    'LatticeConstants': [470, 470, 340],
+    'SpaceGroupNumber' : 194,
+    'SpaceGroup' : 'P63/mmc',
+    'AtomicRadius' : 25,
+    'CovalentRadius': 31,
+    'VanDerWaalsRadius': 120,
+    'ElectronConfiguration' : '1s1',
+    'ElectronConfigurationString' : '1s1',
+    'ElectronShellConfiguration': '',
+    'IonizationEnergies' : 1312,
+    'QuantumNumbers' : '2S1/2',
+    'CASNumber' : '1333-74-0',
+    'PubChemCID' : '783',
+    'Category' : ''
+    },
+{
+    'StandardName':'Helium',
+    'Symbol': 'He',
+    'Abbreviation' : 'he',
+    'AtomicNumber': 2,
+    'AtomicWeight': 4.002602,
+    'AtomicMass'  : '4.002602u',
+    'Color' : [],
+    'Block' : 's',
+    'Group' : 18,
+    'Period': 1,
+    'CrystalStructure': 'Face Centered Cubic',
+    'LatticeAngles' : [PI/2, PI/2, PI/2],
+    'LatticeConstants': [424.2, 424.2, 424.2],
+    'SpaceGroupNumber' : 225,
+    'SpaceGroup' : 'Fm_3m',
+    'AtomicRadius' : 31,
+    'CovalentRadius': 28,
+    'VanDerWaalsRadius': 140,
+    'ElectronConfiguration' : '1s2',
+    'ElectronConfigurationString' : '1s2',
+    'ElectronShellConfiguration': '',
+    'IonizationEnergies' : 2372.3,
+    'QuantumNumbers' : '1S0',
+    'CASNumber' : '7440-59-7',
+    'PubChemCID' : '23987',
+    'Category' : ''
+},
+{
+    'StandardName':'Lithium',
+    'Symbol': 'Li',
+    'Abbreviation' : 'li',
+    'AtomicNumber': 3,
+    'AtomicWeight': 6.941,
+    'AtomicMass'  : '6.941u',
+    'Color' : [192, 192, 192],
+    'Block' : 's',
+    'Group' : 1,
+    'Period': 2,
+    'CrystalStructure': 'Body Centered Cubic',
+    'LatticeAngles' : [PI/2, PI/2, PI/2],
+    'LatticeConstants': [351, 351, 351],
+    'SpaceGroupNumber' : 229,
+    'SpaceGroup' : 'lm_3m',
+    'AtomicRadius' : 145,
+    'CovalentRadius': 128,
+    'VanDerWaalsRadius': 182,
+    'ElectronConfiguration' : '[He]2s1',
+    'ElectronConfigurationString' : '[He]2s1',
+    'ElectronShellConfiguration': '',
+    'IonizationEnergies' : 520.2,
+    'QuantumNumbers' : '2S1/2',
+    'CASNumber' : '7439-93-2',
+    'PubChemCID' : '3028194',
+    'Category' : ''
+},
+{
+    'StandardName':'Beryllium',
+    'Symbol': 'Be',
+    'Abbreviation' : 'be',
+    'AtomicNumber': 4,
+    'AtomicWeight': 9.012182,
+    'AtomicMass'  : '9.012182u',
+    'Color' : [112, 128, 144],
+    'Block' : 's',
+    'Group' : 2,
+    'Period': 2,
+    'CrystalStructure': 'Simple Hexagonal',
+    'LatticeAngles' : [PI/2, PI/2, 2*PI/3],
+    'LatticeConstants': [228.58, 228.58, 358.43],
+    'SpaceGroupNumber' : 194,
+    'SpaceGroup' : 'P63/mmc',
+    'AtomicRadius' : 105,
+    'CovalentRadius': 96,
+    'VanDerWaalsRadius': 153,
+    'ElectronConfiguration' : '[He]2s2',
+    'ElectronConfigurationString' : '[He]2s2',
+    'ElectronShellConfiguration': '',
+    'IonizationEnergies' : 889.5,
+    'QuantumNumbers' : '1S0',
+    'CASNumber' : '7440-41-7',
+    'PubChemCID' : '5460467',
+    'Category' : ''
+},
+{
+    'StandardName':'Boron',
+    'Symbol': 'B',
+    'Abbreviation' : 'b',
+    'AtomicNumber': 5,
+    'AtomicWeight': 10.811,
+    'AtomicMass'  : '10.811u',
+    'Color' : [0, 0, 0],
+    'Block' : 'p',
+    'Group' : 13,
+    'Period': 2,
+    'CrystalStructure': 'Simple Trigonal',
+    'LatticeAngles' : [1.01334, 1.01334, 1.01334],
+    'LatticeConstants': [506, 506, 506],
+    'SpaceGroupNumber' : 166,
+    'SpaceGroup' : 'R_3m',
+    'AtomicRadius' : 85,
+    'CovalentRadius': 84,
+    'VanDerWaalsRadius': None,
+    'ElectronConfiguration' : '[He]2s1',
+    'ElectronConfigurationString' : '[He]2s1',
+    'ElectronShellConfiguration': '',
+    'IonizationEnergies' : 889.5,
+    'QuantumNumbers' : '2P1/2',
+    'CASNumber' : '7440-42-8',
+    'PubChemCID' : '5462311',
+    'Category' : ''
+},
+
+{
+    'StandardName':'Carbon',
+    'Symbol': 'C',
+    'Abbreviation' : 'c',
+    'AtomicNumber': 6,
+    'AtomicWeight': 12.0107,
+    'AtomicMass'  : '12.0107u',
+    'Color' : [0, 0, 0],
+    'Block' : 'p',
+    'Group' : 14,
+    'Period': 2,
+    'CrystalStructure': 'Simple Hexagonale',
+    'LatticeAngles' : [PI/2, PI/2, 2*PI/3],
+    'LatticeConstants': [246.4, 246.4, 671.1],
+    'SpaceGroupNumber' : 194,
+    'SpaceGroup' : 'P63/mmc',
+    'AtomicRadius' : 70,
+    'CovalentRadius': 76,
+    'VanDerWaalsRadius': 170,
+    'ElectronConfiguration' : '[He]2s2,2p2',
+    'ElectronConfigurationString' : '[He]2s2,2p2',
+    'ElectronShellConfiguration': '',
+    'IonizationEnergies' : 1086.5,
+    'QuantumNumbers' : '3P0',
+    'CASNumber' : '7440-44-0',
+    'PubChemCID' : '5462310',
+    'Category' : ''
+},
+{
+    'StandardName':'Nitrogen',
+    'Symbol': 'N',
+    'Abbreviation' : 'n',
+    'AtomicNumber': 7,
+    'AtomicWeight': 14.0067,
+    'AtomicMass'  : '14.0067u',
+    'Color' : [],
+    'Block' : 'p',
+    'Group' : 15,
+    'Period': 2,
+    'CrystalStructure': 'Simple Hexagonale',
+    'LatticeAngles' : [PI/2, PI/2, 2*PI/3],
+    'LatticeConstants': [386.1, 386.1, 626.5],
+    'SpaceGroupNumber' : 194,
+    'SpaceGroup' : 'P63/mmc',
+    'AtomicRadius' : 65,
+    'CovalentRadius': 71,
+    'VanDerWaalsRadius': 155,
+    'ElectronConfiguration' : '[He]2s2,2p3',
+    'ElectronConfigurationString' : '[He]2s2,2p3',
+    'ElectronShellConfiguration': '',
+    'IonizationEnergies' : 1402.3,
+    'QuantumNumbers' : '4S3/2',
+    'CASNumber' : '7727-37-9',
+    'PubChemCID' : '947',
+    'Category' : ''
+},
+{
+    'StandardName':'Oxygen',
+    'Symbol': 'O',
+    'Abbreviation' : 'o',
+    'AtomicNumber': 8,
+    'AtomicWeight': 15.9994,
+    'AtomicMass'  : '15.9994u',
+    'Color' : [],
+    'Block' : 'p',
+    'Group' : 16,
+    'Period': 2,
+    'CrystalStructure': 'Base Centered Monoclinic',
+    'LatticeAngles' : [PI/2, 2.313085, PI/2],
+    'LatticeConstants': [540.3, 342.9, 508.6],
+    'SpaceGroupNumber' : 12,
+    'SpaceGroup' : 'C12/m1',
+    'AtomicRadius' : 60,
+    'CovalentRadius': 66,
+    'VanDerWaalsRadius': 152,
+    'ElectronConfiguration' : '[He]2s2,2p4',
+    'ElectronConfigurationString' : '[He]2s2,2p4',
+    'ElectronShellConfiguration': '',
+    'IonizationEnergies' : 1313.9,
+    'QuantumNumbers' : '3P2',
+    'CASNumber' : '7782-44-7',
+    'PubChemCID' : '977',
+    'Category' : ''
+},
+{
+    'StandardName':'Fluorine',
+    'Symbol': 'F',
+    'Abbreviation' : 'f',
+    'AtomicNumber': 9,
+    'AtomicWeight': 18.9984032,
+    'AtomicMass'  : '18.9984032u',
+    'Color' : [],
+    'Block' : 'p',
+    'Group' : 17,
+    'Period': 2,
+    'CrystalStructure': 'Base Centered Monoclinic',
+    'LatticeAngles' : [PI/2, PI/2, PI/2],
+    'LatticeConstants': [550, 328, 728],
+    'SpaceGroupNumber' : 15,
+    'SpaceGroup' : 'C12/c1',
+    'AtomicRadius' : 50,
+    'CovalentRadius': 57,
+    'VanDerWaalsRadius': 147,
+    'ElectronConfiguration' : '[He]2s2,2p5',
+    'ElectronConfigurationString' : '[He]2s2,2p5',
+    'ElectronShellConfiguration': '',
+    'IonizationEnergies' : 1681,
+    'QuantumNumbers' : '2P3/2',
+    'CASNumber' : '7782-41-4',
+    'PubChemCID' : '24524',
+    'Category' : ''
+},
+{
+    'StandardName':'Neon',
+    'Symbol': 'Ne',
+    'Abbreviation' : 'ne',
+    'AtomicNumber': 10,
+    'AtomicWeight': 20.1797,
+    'AtomicMass'  : '20.1797u',
+    'Color' : [],
+    'Block' : 'p',
+    'Group' : 18,
+    'Period': 2,
+    'CrystalStructure': 'Face Centered Cubic',
+    'LatticeAngles' : [PI/2, PI/2, PI/2],
+    'LatticeConstants': [442.9, 442.9, 442.9],
+    'SpaceGroupNumber' : 225,
+    'SpaceGroup' : 'Fm_3m',
+    'AtomicRadius' : 50,
+    'CovalentRadius': 57,
+    'VanDerWaalsRadius': 147,
+    'ElectronConfiguration' : '[He]2s2,2p6',
+    'ElectronConfigurationString' : '[He]2s2,2p6',
+    'ElectronShellConfiguration': '',
+    'IonizationEnergies' : 1681,
+    'QuantumNumbers' : '1S0',
+    'CASNumber' : '7782-41-4',
+    'PubChemCID' : '24524',
+    'Category' : ''
+},
+{
+    'StandardName':'Sodium',
+    'Symbol': 'Na',
+    'Abbreviation' : 'na',
+    'AtomicNumber': 11,
+    'AtomicWeight': 22.98977,
+    'AtomicMass'  : '22.98977u',
+    'Color' : [192, 192, 192],
+    'Block' : 's',
+    'Group' : 1,
+    'Period': 3,
+    'CrystalStructure': 'Body Centered Cubic',
+    'LatticeAngles' : [PI/2, PI/2, PI/2],
+    'LatticeConstants': [429.06, 429.06, 429.06],
+    'SpaceGroupNumber' : 229,
+    'SpaceGroup' : 'lm_3m',
+    'AtomicRadius' : 180,
+    'CovalentRadius': 166,
+    'VanDerWaalsRadius': 227,
+    'ElectronConfiguration' : '[Ne]3s1',
+    'ElectronConfigurationString' : '[Ne]3s1',
+    'ElectronShellConfiguration': '',
+    'IonizationEnergies' : 495.8,
+    'QuantumNumbers' : '2S1/2',
+    'CASNumber' : '7440-23-5',
+    'PubChemCID' : '5360545',
+    'Category' : ''
+},
+
+]
 
 ElementData = ElementCollection()
-#ElementCollection().add(Element().setData())
+
+for ele in PeriodicTable:
+    ele_obj = Element()
+    for key, val in ele.iteritems():
+        ele_obj.setData(key, [val])
+    ElementData.add(ele_obj)
