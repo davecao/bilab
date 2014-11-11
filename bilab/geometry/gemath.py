@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-
+import math
 import numpy as np
 
-__all__ = [ 'unit', 'degree' ]
+__all__ = [ 'unit', 'degree', 'normal_vector_from_matrix' ]
 
 def unit(vec):
     """ unitify a given vector 
@@ -63,3 +63,52 @@ def degree(vec1, vec2):
     angle_deg = angle_rad * 180 / np.pi
     return  180 - angle_deg if angle_deg > 90 else angle_deg
 
+
+def normal_vector_from_matrix(matrix, eps=1e-8):
+    """
+    Calculate the normal vector from point matrix through svd decomposition
+
+    Args:
+        matrix(numpy array): nx3
+
+    Returns:
+        normal (1x3 array): the normal vector defined by points
+
+    """
+    if not isinstance(matrix, (np.ndarray, np.generic)) or matrix.ndim != 2:
+        raise ValueError("{}:Inappropriate argument value, it should be a 2d numpy array".format('normal_vector_from_matrix'))
+
+    M = np.matrix(matrix, dtype=np.float64, copy=True)
+
+    # Centralized by column
+    centeroid = np.mean(M, axis=0)
+    M -= centeroid
+
+    # covariance matrix (3xn x nx3)= 3x3
+    cov_matrix = M.T * M
+    # SVD decomposition
+    U, s, V = np.linalg.svd(cov_matrix)
+    i = np.where(abs(np.real(s)) < eps)[0]
+    # normal: unit eigenvector corresponding to lowest eigenvalue
+    normal = np.real(V[:, i[0]]).squeeze()
+
+    return normal
+
+def projection_vector(vec_u, vec_v):
+    """
+        Project the vector 'u' to the vector 'v'
+
+        Args:
+           vec_u (array, 1x3): vector U
+           vec_v (array, 1x3): vector V
+        return a coordinate of the projected point
+
+                        dot(U, V)       V
+         Prj(u to v) = ----------- * --------
+                         norm(V)      norm(V)
+    """
+    magnitude_v = np.linalg.norm(vec_v)
+    norm_v = vec_v / magnitude_v
+    dot_uv = np.dot(vec_u, vec_v)
+    
+    return (dot_uv / magnitude_v * norm_v).tolist()

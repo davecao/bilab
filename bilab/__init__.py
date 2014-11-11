@@ -19,7 +19,7 @@ except ImportError:
     raise ImportError('Numpy is a required package for ProDy')
 else:
     if tuple(map(int, np.__version__.split('.')[:2])) < (1, 8):
-        raise ImportError('Numpy v1.4 or later is required.')
+        raise ImportError('Numpy v1.8 or later is required.')
 
 from .utilities import PackageLogger, PackageSettings
 from .utilities import getPackagePath, joinRepr, tabulate
