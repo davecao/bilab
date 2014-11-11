@@ -2,7 +2,7 @@
 import math
 import numpy as np
 
-__all__ = [ 'unit', 'degree', 'normal_vector_from_matrix' ]
+__all__ = [ 'unit', 'degree', 'mean', 'normal_vector_from_matrix' ]
 
 def unit(vec):
     """ unitify a given vector 
@@ -63,6 +63,18 @@ def degree(vec1, vec2):
     angle_deg = angle_rad * 180 / np.pi
     return  180 - angle_deg if angle_deg > 90 else angle_deg
 
+def mean(data):
+    """ Calculate the mean of a vector/ matrix 
+    Args:
+        data (array or list): a numpy array or a list
+
+    Returns:
+        a numpy array
+    """
+    d = np.array(data, dtype=np.float64, copy=True)
+    if d.ndim < 2:
+        return d
+    return d.mean(0)
 
 def normal_vector_from_matrix(matrix, eps=1e-8):
     """
