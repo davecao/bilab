@@ -96,7 +96,8 @@ def cylinder_fitting(points, imax=64, jmax=64, description=None,verbose=False):
     minError = np.inf
     data_mat = np.asmatrix(points)
     # zero mean
-    sample = data_mat - data_mat.mean(0)
+    data_mean = data_mat.mean(0)
+    sample = data_mat - data_mean
     w_direct = np.zeros(3)
     c_center = np.zeros(3)
     r_sqr    = 0
@@ -129,6 +130,7 @@ def cylinder_fitting(points, imax=64, jmax=64, description=None,verbose=False):
                 if verbose:
                     print "{0:8.3f} {1:8.3f} {2:8.3f} {3:8.3f}".format(phi,
                               theta, r_sqr, error)
+    c_data = c_center + data_mean.T
     return (np.array(w_direct).flatten().tolist(),
-            np.array(c_center).flatten().tolist(),
+            np.array(c_data).flatten().tolist(),
             float(r_sqr), float(minError))
