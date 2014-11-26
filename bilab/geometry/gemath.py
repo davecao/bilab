@@ -2,7 +2,11 @@
 import math
 import numpy as np
 
-__all__ = [ 'unit', 'degree', 'mean', 'normal_vector_from_matrix' ]
+__all__ = [ 'unit', 
+            'degree', 
+            'mean', 
+            'normal_vector_from_matrix', 
+            'projection_vector' ]
 
 def unit(vec):
     """ unitify a given vector 

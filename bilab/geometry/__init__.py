@@ -13,3 +13,6 @@ from .fitting import *
 #__all__.extend(covalent_radius.__all__)
 
 from .tess import *
+
+# 
+from .distance import *
