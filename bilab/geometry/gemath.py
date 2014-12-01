@@ -50,7 +50,8 @@ def degree(vec1, vec2):
     v2 = np.array(vec2, dtype=np.float64, copy=True).squeeze()
 
     if v1.shape != v2.shape:
-        raise ValueError("Two input vectors are not in the same shape")
+        raise ValueError("Two input vectors are not in the same shape " \
+            " v1:{}, v2:{}".format(v1.shape, v2.shape))
 
     unit_vec1 = unit(v1)
     unit_vec2 = unit(v2)
