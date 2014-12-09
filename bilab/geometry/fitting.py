@@ -2,7 +2,43 @@
 
 import numpy as np
 
+from threading import Thread
+try:
+    from Queue import Queue, Empty
+except ImportError:
+    from queue import Queue, Empty
+
+
 __all__ = ['cylinder_fitting']
+
+class Worker(Thread):
+    """Thread executing tasks from a given tasks queue"""
+    def __init__(self, tasks):
+        Thread.__init__(self)
+        self.tasks = tasks
+        self.daemon = True
+        self.start()
+    
+    def run(self):
+        while True:
+            func, args, kargs = self.tasks.get()
+            try: func(*args, **kargs)
+            except Exception, e: print e
+            self.tasks.task_done()
+
+class ThreadPool:
+    """Pool of threads consuming tasks from a queue"""
+    def __init__(self, num_threads):
+        self.tasks = Queue(num_threads)
+        for _ in range(num_threads): Worker(self.tasks)
+
+    def add_task(self, func, *args, **kargs):
+        """Add a task to the queue"""
+        self.tasks.put((func, args, kargs))
+
+    def wait_completion(self):
+        """Wait for completion of all the tasks in the queue"""
+        self.tasks.join()
 
 def global_eval(x, W):
     # P = I -W*W^T projection matrix
@@ -53,7 +89,79 @@ def global_eval(x, W):
     r_sqr = np.sum(np.sum(np.square(diff), 0)) / n
     return (error, PC, r_sqr)
 
-def cylinder_fitting(points, imax=64, jmax=64, description=None,verbose=False):
+def fit_multi(data, imax, jmax, num_threads=2, verbose=False):
+    """ 
+        Multiple threaded fitting 
+    """
+    minError = np.inf
+    w_direct = np.zeros(3)
+    c_center = np.zeros(3)
+    r_sqr    = 0
+    half_pi = np.pi / 2
+    two_pi  = 2 * np.pi
+
+    thread_pool = ThreadPool(num_threads)
+
+    for j in range(jmax):
+        phi = half_pi * j / jmax
+        cos_phi = np.cos(phi)
+        sin_phi = np.sin(phi)
+
+        for i in range(imax):
+            theta = two_pi * i / imax
+            cos_theta = np.cos(theta)
+            sin_theta = np.sin(theta)
+            curr_w = np.matrix([cos_theta * sin_phi,
+                                sin_theta * sin_phi,
+                                cos_phi])
+
+            #worker = Thread(target=global_eval, args=(data, curr_w))
+            #worker.setDaemon(True)
+            #worker.start()
+            thread_pool.add_task(global_eval, data, curr_w)
+
+    return (w_direct, c_center, float(r_sqr), float(minError))
+
+def fit_single(data, imax, jmax, verbose=False):
+    """
+        Single threaded fitting
+    """
+    minError = np.inf
+    w_direct = np.zeros(3)
+    c_center = np.zeros(3)
+    r_sqr    = 0
+    half_pi = np.pi / 2
+    two_pi  = 2 * np.pi
+
+    for j in range(jmax):
+        phi = half_pi * j / jmax
+        cos_phi = np.cos(phi)
+        sin_phi = np.sin(phi)
+
+        for i in range(imax):
+            theta = two_pi * i / imax
+            cos_theta = np.cos(theta)
+            sin_theta = np.sin(theta)
+            curr_w = np.matrix([cos_theta * sin_phi,
+                                   sin_theta * sin_phi,
+                                   cos_phi])
+            error, curr_c, curr_rsqr = global_eval(data, curr_w)
+
+            if error < minError:
+                minError = error
+                w_direct = curr_w
+                c_center = curr_c
+                r_sqr = curr_rsqr
+                if verbose:
+                    print "{0:8.3f} {1:8.3f} {2:8.3f} {3:8.3f}".format(phi,
+                              theta, r_sqr, error)
+
+    return (w_direct, c_center, float(r_sqr), float(minError))
+
+def cylinder_fitting(points, imax=64, jmax=64, 
+                    description=None, 
+                    verbose=False,
+                    num_threads = 1):
     """
     Fitting a cylinder to a set of points:
     
@@ -95,6 +203,7 @@ def cylinder_fitting(points, imax=64, jmax=64, description=None,verbose=False):
     
     minError = np.inf
     data_mat = np.asmatrix(points)
+
     # zero mean
     data_mean = data_mat.mean(0)
     sample = data_mat - data_mean
@@ -103,34 +212,41 @@ def cylinder_fitting(points, imax=64, jmax=64, description=None,verbose=False):
     r_sqr    = 0
     half_pi = np.pi / 2
     two_pi  = 2 * np.pi
+
     if verbose:
         print "phi  theta  r2 error {}x{}".format(imax,jmax)
-    for j in range(jmax):
-        phi = half_pi * j / jmax
-        cos_phi = np.cos(phi)
-        sin_phi = np.sin(phi)
-        for i in range(imax):
-            theta = two_pi * i / imax
-            cos_theta = np.cos(theta)
-            sin_theta = np.sin(theta)
-            curr_w = np.matrix([cos_theta * sin_phi,
-                                   sin_theta * sin_phi,
-                                   cos_phi])
-            error, curr_c, curr_rsqr = global_eval(sample, curr_w)
-            #if description is None:
-            #    print("err: %s" % error)
-            #else:
-            #    print("%s err:%s" % (description,error))
 
-            if error < minError:
-                minError = error
-                w_direct = curr_w
-                c_center = curr_c
-                r_sqr = curr_rsqr
-                if verbose:
-                    print "{0:8.3f} {1:8.3f} {2:8.3f} {3:8.3f}".format(phi,
-                              theta, r_sqr, error)
+#    for j in range(jmax):
+#        phi = half_pi * j / jmax
+#        cos_phi = np.cos(phi)
+#        sin_phi = np.sin(phi)
+#
+#        for i in range(imax):
+#            theta = two_pi * i / imax
+#            cos_theta = np.cos(theta)
+#            sin_theta = np.sin(theta)
+#            curr_w = np.matrix([cos_theta * sin_phi,
+#                                   sin_theta * sin_phi,
+#                                   cos_phi])
+#            error, curr_c, curr_rsqr = global_eval(sample, curr_w)
+#
+#            if error < minError:
+#                minError = error
+#                w_direct = curr_w
+#                c_center = curr_c
+#                r_sqr = curr_rsqr
+#                if verbose:
+#                    print "{0:8.3f} {1:8.3f} {2:8.3f} {3:8.3f}".format(phi,
+#                              theta, r_sqr, error)
+    if num_threads == 1:
+        w_direct, c_center, r_sqr, minError = \
+            fit_single(sample, imax, jmax, verbose=False)
+    else:
+        w_direct, c_center, r_sqr, minError = \
+            fit_multi(sample, imax, jmax, num_threads=2, verbose=False)
+
     c_data = c_center + data_mean.T
+
     return (np.array(w_direct).flatten().tolist(),
             np.array(c_data).flatten().tolist(),
             float(r_sqr), float(minError))
