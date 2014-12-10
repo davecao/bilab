@@ -53,7 +53,7 @@ def global_eval(x, W):
     r_sqr = np.sum(np.sum(np.square(diff), 0)) / n
     return (error, PC, r_sqr)
 
-def fit_multi(data, imax, jmax, num_threads=2, verbose=False):
+def fit_multi(data, imax, jmax, num_threads=2, verbose=False, callback=None):
     """ 
         Multiple threaded fitting 
     """
@@ -78,9 +78,9 @@ def fit_multi(data, imax, jmax, num_threads=2, verbose=False):
             curr_w = np.matrix([cos_theta * sin_phi,
                                 sin_theta * sin_phi,
                                 cos_phi])
-
-            #print("add task ({}, {})".format(i,j))
-            thread_pool.add_task(global_eval, data, curr_w)
+            thread_pool.add_task(global_eval, 
+                                 (data, curr_w), 
+                                 callback=callback)
 
     thread_pool.wait_completion()
 
@@ -125,7 +125,8 @@ def fit_single(data, imax, jmax, verbose=False):
 def cylinder_fitting(points, imax=64, jmax=64, 
                     description=None, 
                     verbose=False,
-                    num_threads = 1):
+                    num_threads = 1, 
+                    callback=None):
     """
     Fitting a cylinder to a set of points:
     
@@ -208,7 +209,8 @@ def cylinder_fitting(points, imax=64, jmax=64,
             fit_single(sample, imax, jmax, verbose=False)
     else:
         w_direct, c_center, r_sqr, minError = \
-            fit_multi(sample, imax, jmax, num_threads=2, verbose=False)
+            fit_multi(sample, imax, jmax, num_threads=num_threads, 
+                      verbose=False, callback=callback)
 
     c_data = c_center + data_mean.T
 
