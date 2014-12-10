@@ -2,43 +2,7 @@
 
 import numpy as np
 
-from threading import Thread
-try:
-    from Queue import Queue, Empty
-except ImportError:
-    from queue import Queue, Empty
-
-
-__all__ = ['cylinder_fitting']
-
-class Worker(Thread):
-    """Thread executing tasks from a given tasks queue"""
-    def __init__(self, tasks):
-        Thread.__init__(self)
-        self.tasks = tasks
-        self.daemon = True
-        self.start()
-    
-    def run(self):
-        while True:
-            func, args, kargs = self.tasks.get()
-            try: func(*args, **kargs)
-            except Exception, e: print e
-            self.tasks.task_done()
-
-class ThreadPool:
-    """Pool of threads consuming tasks from a queue"""
-    def __init__(self, num_threads):
-        self.tasks = Queue(num_threads)
-        for _ in range(num_threads): Worker(self.tasks)
-
-    def add_task(self, func, *args, **kargs):
-        """Add a task to the queue"""
-        self.tasks.put((func, args, kargs))
-
-    def wait_completion(self):
-        """Wait for completion of all the tasks in the queue"""
-        self.tasks.join()
+from bilab.concurrent import ThreadPool
 
 def global_eval(x, W):
     # P = I -W*W^T projection matrix
@@ -115,10 +79,10 @@ def fit_multi(data, imax, jmax, num_threads=2, verbose=False):
                                 sin_theta * sin_phi,
                                 cos_phi])
 
-            #worker = Thread(target=global_eval, args=(data, curr_w))
-            #worker.setDaemon(True)
-            #worker.start()
+            #print("add task ({}, {})".format(i,j))
             thread_pool.add_task(global_eval, data, curr_w)
+
+    thread_pool.wait_completion()
 
     return (w_direct, c_center, float(r_sqr), float(minError))
 
@@ -200,10 +164,11 @@ def cylinder_fitting(points, imax=64, jmax=64,
         W (array) : direction 3x1
     
     """
-    
+    if not type(num_threads) == int:
+        raise ValueError("Error: option num_threads should be an integer")
+
     minError = np.inf
     data_mat = np.asmatrix(points)
-
     # zero mean
     data_mean = data_mat.mean(0)
     sample = data_mat - data_mean
