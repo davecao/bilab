@@ -26,8 +26,9 @@ class Worker(Thread):
         """
         while not self._dismissed.isSet():
             # Thread blocks here, if queue is empty
-            func, args, kwargs = self.__pool.getNextTask()
-            callback = kwargs.pop("callback", None)
+            print("{}, Task size:{}".format(self.getName(), 
+                                            self.__pool.tasks.qsize()))
+            func, args, kwargs, callback = self.__pool.getNextTask()
             #try: 
             #    func(*args, **kargs)
             #except Exception, e: 
@@ -36,9 +37,9 @@ class Worker(Thread):
             if func is None:
                 sleep(Worker.threadSleepTime)
             elif callback is None:
-                func(args, kwargs)
+                func(*args, **kwargs)
             else:
-                callback(func(args))
+                callback(func(*args, **kwargs))
 
     def dismiss(self):
         """
@@ -53,11 +54,11 @@ class ThreadPool(object):
     def __init__(self, num_threads):
         
         super(ThreadPool, self).__init__()
-        #task: (func, args, kwargs)
+
         self.tasks = Queue()
         self.resultsQueue = Queue()
 
-        self.__threads = num_threads
+        self.__threads = []
         self.__isJoining = False
         self.__resizeLock = Condition(Lock())
         self.__taskLock = Condition(Lock())
@@ -86,19 +87,16 @@ class ThreadPool(object):
         Set the current pool size, spawning or terminating threads
         if necessary. Internal use only; assume the resizing lock is held.
         """
-        # If need to grow the pool, do so
-        if num_threads > self.__threads:
-            # resize the size of the task queue
 
-        while num_threads > self.__threads:
+        while num_threads > len(self.__threads):
             newThread = Worker(self)
-            try:
-                self.tasks.put(newThread)
-            except Exception, e:
+            self.__threads.append(newThread)
+            #newThread.start()
 
         # if need to shrink the pool, do so
-        while num_threads < self.__threads:
-            self.tasks.pop(0).dismiss()
+        while num_threads < len(self.__threads):
+            self.__threads[0].dismiss()
+            del self.__threads[0]
 
     def getThreadCount(self):
         """ Return the number of threads in the pool """
@@ -108,19 +106,20 @@ class ThreadPool(object):
         finally:
             self.__resizeLock.release()
 
-    def dismissWokers(self, num_threads):
-        """
-        Tell num_threads worker threads to to quit when they're done.
-        """
-        for i in range(min(num_threads, self.__threads)):
-            worker = self.workers.pop()
-            worker.dismiss()
+#    def dismissWokers(self, num_threads):
+#        """
+#        Tell num_threads worker threads to to quit when they're done.
+#        """
+#        for i in range(min(num_threads, self.__threads)):
+#            worker = self.workers.pop()
+#            worker.dismiss()
 
     def add_task(self, task, *args, **kwargs):
         #def add_task(self, func, *args, **kargs):
         """
         Add a task to the queue
         """
+        callback = kwargs.pop("callback", None)
         #self.tasks.put((func, args, kargs))
         if self.__isJoining == True:
             return False
@@ -130,7 +129,7 @@ class ThreadPool(object):
 
         self.__taskLock.acquire()
         try:
-            self.tasks.put((task, args, kwargs))
+            self.tasks.put((task, args, kwargs, callback))
             return True
         finally:
             self.__taskLock.release()
@@ -142,10 +141,10 @@ class ThreadPool(object):
         """
         self.__taskLock.acquire()
         try:
-            if self.tasks.Empty():
-                return (None, None, None)
+            if self.tasks.empty():
+                return (None, None, None, None)
             else:
-                return self.tasks.pop(0)
+                return self.tasks.get(0)
         finally:
             self.__taskLock.release()
 
@@ -153,20 +152,25 @@ class ThreadPool(object):
         """
         Wait for completion of all the tasks in the queue
         """
+        # block task queueing
         self.__isJoining = True
+        # wait for tasks to finish
         if waitForTasks:
-            while self.tasks.noempty():
+            while not self.tasks.empty():
+                #print("Current size of tasks:{}".format(self.tasks.qsize()))
                 sleep(.1)
+        #quit for all threads
         self.__resizeLock.acquire()
         try:
-            self.__setThreadCountNolock(0)
-            self.__isJoining = True
             #Wait until all threads have exited
             if waitForThreads:
-                self.tasks.join()
+                for th in self.__threads:
+                    th.dismiss()
+                for th in self.__threads:
+                    th.join()
+                    del th
+            self.__setThreadCountNolock(0)
             # Reset the pool for potential reuse
             self.__isJoining = False
         finally:
             self.__resizeLock.release()
-
-        #self.tasks.join()

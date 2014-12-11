@@ -53,7 +53,7 @@ def global_eval(x, W):
     r_sqr = np.sum(np.sum(np.square(diff), 0)) / n
     return (error, PC, r_sqr)
 
-def fit_multi(data, imax, jmax, num_threads=2, verbose=False, callback=None):
+def fit_multi(data, imax, jmax, num_threads=12, verbose=False):
     """ 
         Multiple threaded fitting 
     """
@@ -63,6 +63,15 @@ def fit_multi(data, imax, jmax, num_threads=2, verbose=False, callback=None):
     r_sqr    = 0
     half_pi = np.pi / 2
     two_pi  = 2 * np.pi
+
+    def th_callback(data):
+        error, curr_c, curr_rsqr = data
+        if error < minError:
+            minError = error
+            w_direct = curr_w
+            c_center = curr_c
+            r_sqr = curr_rsqr
+        return th_callback
 
     thread_pool = ThreadPool(num_threads)
 
@@ -79,9 +88,8 @@ def fit_multi(data, imax, jmax, num_threads=2, verbose=False, callback=None):
                                 sin_theta * sin_phi,
                                 cos_phi])
             thread_pool.add_task(global_eval, 
-                                 (data, curr_w), 
-                                 callback=callback)
-
+                                 data, curr_w, 
+                                 callback = th_callback)
     thread_pool.wait_completion()
 
     return (w_direct, c_center, float(r_sqr), float(minError))
@@ -125,8 +133,7 @@ def fit_single(data, imax, jmax, verbose=False):
 def cylinder_fitting(points, imax=64, jmax=64, 
                     description=None, 
                     verbose=False,
-                    num_threads = 1, 
-                    callback=None):
+                    num_threads = 1):
     """
     Fitting a cylinder to a set of points:
     
@@ -182,35 +189,15 @@ def cylinder_fitting(points, imax=64, jmax=64,
     if verbose:
         print "phi  theta  r2 error {}x{}".format(imax,jmax)
 
-#    for j in range(jmax):
-#        phi = half_pi * j / jmax
-#        cos_phi = np.cos(phi)
-#        sin_phi = np.sin(phi)
-#
-#        for i in range(imax):
-#            theta = two_pi * i / imax
-#            cos_theta = np.cos(theta)
-#            sin_theta = np.sin(theta)
-#            curr_w = np.matrix([cos_theta * sin_phi,
-#                                   sin_theta * sin_phi,
-#                                   cos_phi])
-#            error, curr_c, curr_rsqr = global_eval(sample, curr_w)
-#
-#            if error < minError:
-#                minError = error
-#                w_direct = curr_w
-#                c_center = curr_c
-#                r_sqr = curr_rsqr
-#                if verbose:
-#                    print "{0:8.3f} {1:8.3f} {2:8.3f} {3:8.3f}".format(phi,
-#                              theta, r_sqr, error)
     if num_threads == 1:
         w_direct, c_center, r_sqr, minError = \
             fit_single(sample, imax, jmax, verbose=False)
     else:
         w_direct, c_center, r_sqr, minError = \
-            fit_multi(sample, imax, jmax, num_threads=num_threads, 
-                      verbose=False, callback=callback)
+            fit_multi(sample, imax, jmax, 
+                      num_threads=num_threads, 
+                      verbose=False)
+        
 
     c_data = c_center + data_mean.T
 
