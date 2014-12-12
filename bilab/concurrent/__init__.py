@@ -2,7 +2,12 @@
 
 __all__ = []
 
-#from . import 
-# add to chemicals
-from .threadpool import *
-#__all__.extend(elements.__all__)
+from .abstractThreadPool import *
+
+from .threadTask import *
+
+from .threadWorker import *
+
+#from . import threadpool
+from .threadPool import *
+#__all__.extend(threadpool.__all__)

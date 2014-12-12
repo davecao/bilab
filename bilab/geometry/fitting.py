@@ -64,7 +64,10 @@ def fit_multi(data, imax, jmax, num_threads=12, verbose=False):
     half_pi = np.pi / 2
     two_pi  = 2 * np.pi
 
-    def th_callback(data):
+    def th_callback(data, minError=minError, 
+                          w_direct=w_direct, 
+                          c_center=c_center,
+                          r_sqr = r_sqr):
         error, curr_c, curr_rsqr = data
         if error < minError:
             minError = error
@@ -87,7 +90,8 @@ def fit_multi(data, imax, jmax, num_threads=12, verbose=False):
             curr_w = np.matrix([cos_theta * sin_phi,
                                 sin_theta * sin_phi,
                                 cos_phi])
-            thread_pool.add_task(global_eval, 
+            taskid = "task_{}_{}".format(j, i)
+            thread_pool.add_task(taskid, global_eval, 
                                  data, curr_w, 
                                  callback = th_callback)
     thread_pool.wait_completion()
@@ -194,10 +198,7 @@ def cylinder_fitting(points, imax=64, jmax=64,
             fit_single(sample, imax, jmax, verbose=False)
     else:
         w_direct, c_center, r_sqr, minError = \
-            fit_multi(sample, imax, jmax, 
-                      num_threads=num_threads, 
-                      verbose=False)
-        
+        fit_multi(sample, imax, jmax, num_threads=num_threads, verbose=False)
 
     c_data = c_center + data_mean.T
 
