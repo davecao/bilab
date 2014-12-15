@@ -18,7 +18,8 @@ class ThreadWorker(Thread):
         self.tasks = tasks
         self.dead_thread_queue = dead_thread_queue
         #self._dismissed = Event()
-        self.__dismissed = thread_event
+        #self.__dismissed = thread_event
+        self.dismissed = thread_event
         self.wait_time = wait_time
 
         self.daemon = True
@@ -34,26 +35,22 @@ class ThreadWorker(Thread):
                 # Thread blocks here, if queue is empty
                 #taskid, func, args, kwargs, callback = self.__pool.getNextTask()
                 #taskid, th_task = self.__pool.getNextTask()
-                taskid, th_task = self.tasks.get(True, self.wait_time)
-                print("{}, Task id:{}".format(self.getName(), taskid))
-                #try: 
-                #    func(*args, **kargs)
-                #except Exception, e: 
-                #    print e
-                #self.tasks.task_done()
-                
-                # record time
-                #task_start_t = time.time()
-                #if func is None:
-                #    sleep(self.wait_time)
-                #elif callback is None:
-                #    func(*args, **kwargs)
-                #else:
-                #    callback(func(*args, **kwargs))
+                th_task = self.tasks.get(True, self.wait_time)
+                #print("{}, Task id:{} TaskSize:{} ".format(
+                #    self.getName(), th_task.name, self.tasks.qsize()))
+                #print("Task: {}".format(th_task))
+                # run the task
                 th_task.run()
-            except:
+#                JobsQueued = self.tasks.qsize()
+#                if JobsQueued > 0:
+#                    JobQText = "Jobs Queued: " + str(self.tasks.qsize())
+#                    JobQText = ('\b' * 40) + JobQText + (' ' * (40 - len(JobQText)))
+#                    print JobQText
+                self.tasks.task_done()
+
+            except Exception as e:
                 # Check event
-                if self.__dismissed.isSet():
+                if self.dismissed.isSet():
                     # Queue is empty
                     self.dead_thread_queue.put(self)
                     return
@@ -61,17 +58,20 @@ class ThreadWorker(Thread):
                     # idle state
                     self.dead_thread_queue.put(self)
                     return
-            # run the task
-            #th_task.run()
-            JobsQueued = self.tasks.qsize()
-            if JobsQueued > 0:
-                JobQText = "Jobs Queued: " + str(self.tasks.qsize())
-                JobQText = ('\b' * 40) + JobQText + (' ' * (40 - len(JobQText)))
-                print JobQText
-            self.tasks.task_done()
 
     def dismiss(self):
         """
         Set a flag to tell the thread to exit when done with current job.
         """
-        self._dismissed.set()
+        self.dismissed.set()
+
+#    def exit(self):
+#        """ 
+#        Force to exit 
+#        Raise the SystemExit exception
+#        """
+#        try:
+#            self.exit()
+#        except SystemExit as e:
+#            print("Error: Thread {} is failed to exit".format(self.getName()))
+#            error_message = "{}\n".format(traceback.format_exc())

@@ -26,21 +26,45 @@ class ThreadPool(AbstractLocalThreadPool):
 
         self._next_thread_id = 0
 
-    def __keep_alive_thread_func(self):
-        self.tasks.join()
-
-    def  __start_keep_alive_thread(self):
+    def __start_keep_alive_thread(self):
         """ Keep alive threads """
         self.keep_alive_thread = Thread(group=None, 
                                     target=self.__keep_alive_thread_func, 
                                     name="Thread_Pool keep alive thread")
         self.keep_alive_thread.start()
 
+    def __has_keep_alive_thread(self):
+
+        if self.keep_alive_thread is None:
+            return False
+        elif self.keep_alive_thread.is_alive() == False:
+            return False
+            
+        return True
+
+    def __keep_alive_thread_func(self):
+        self.tasks.join()
+
+    def remove_finished_threads(self):
+        while not self.dead_thread_queue.empty():
+            try:
+                t = self.dead_thread_queue.get_nowait()
+                if t is None:
+                    break
+                else:  
+                    for i in range(len(self.threads)-1, 0,-1):
+                        if t == self.threads[i]:
+                            del self.threads[i]
+            except queue.Empty as e:
+                return 
+        return
+
     def add_worker_thread(self):
         """
         Implemented by derived class and return a thread object
         """
-        w = ThreadWorker(self, self.dead_thread_queue, 
+        w = ThreadWorker(self.tasks, 
+                         self.dead_thread_queue, 
                          self.shutdown_event,
                          self.WorkerCheckInterval)
         w.name = "Thread pool #{}".format(self._next_thread_id)
@@ -55,7 +79,26 @@ class ThreadPool(AbstractLocalThreadPool):
         self.tasks.put(th_task)
         self.add_threads_if_needed()
 
-        return th_task
+    def shutdown(self):
+        """ 
+        Shutdown the pool 
+        """
+
+        if not self.tasks.empty():
+            self.wait_completion()
+        self.shutdown_event.set()
+        
+        # Check the dead threads
+        while not self.dead_thread_queue.empty():
+            self.dead_thread_queue.get().dismiss()
+        
+        # Give threads time to die gracefully
+        for th in self.threads:
+            time.sleep(self.WorkerCheckInterval + 1)
+            if isinstance(th, ThreadWorker):
+                th.dismiss()
+        del self.threads
+
 
 #    def getNextTask(self):
 #        """ 

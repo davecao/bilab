@@ -81,7 +81,7 @@ class AbstractLocalThreadPool(AbstractThreadPool):
         self.shutdown_event.clear()
         
         self.keep_alive_thread = None
-        self._threads = []
+        self.threads = []
          
         self.WorkerCheckInterval=kwargs.get('WorkerCheckInterval', 0.5)
         self._max_threads = kwargs.get('num_threads', 
@@ -100,13 +100,17 @@ class AbstractLocalThreadPool(AbstractThreadPool):
         """
         Add task into queue
         """
+
     @abstractmethod
+    def shutdown(self):
+        """ Shutdown the pool """
+
     def __start_keep_alive_thread(self):
         """ Keep alive threads """
-#        self.keep_alive_thread = Thread(group=None, 
-#                                    target=self.__keep_alive_thread_func, 
-#                                    name="Thread_Pool keep alive thread")
-#        self.keep_alive_thread.start()
+        self.keep_alive_thread = Thread(group=None, 
+                                    target=self.__keep_alive_thread_func, 
+                                    name="Thread_Pool keep alive thread")
+        self.keep_alive_thread.start()
 
     def __has_keep_alive_thread(self):
 
@@ -118,29 +122,17 @@ class AbstractLocalThreadPool(AbstractThreadPool):
         return True
 
     def __keep_alive_thread_func(self):
-
         self.tasks.join()
-
-
-
-    def shutdown(self):
-
-        self.wait_completion()
-        self.shutdown_event.set()
-
-        # Give threads time to die gracefully
-        time.sleep(self.WorkerCheckInterval + 1)
-        del self._threads
 
     def add_threads_if_needed(self):
         self.remove_finished_threads()
-        num_active_threads = len(self._threads)
+        num_active_threads = len(self.threads)
         num_threads_created = 0
         while num_active_threads < self._max_threads:
             if not self.tasks.empty():
                 t = self.add_worker_thread()
                 assert(isinstance(t, Thread))
-                self._threads.append(t)
+                self.threads.append(t)
                 num_active_threads += 1
                 num_threads_created += 1
             else:
@@ -157,9 +149,9 @@ class AbstractLocalThreadPool(AbstractThreadPool):
                 if t is None:
                     break
                 else:  
-                    for i in range(len(self._threads)-1, 0,-1):
-                        if t == self._threads[i]:
-                            del self._threads[i]
+                    for i in range(len(self.threads)-1, 0,-1):
+                        if t == self.threads[i]:
+                            del self.threads[i]
             except queue.Empty as e:
                 return 
         return
@@ -169,7 +161,6 @@ class AbstractLocalThreadPool(AbstractThreadPool):
         Wait for completion of all the tasks in the queue
         """
         self.tasks.join() 
-
 
 #    @abstractmethod
 #    def getNextTask(self):

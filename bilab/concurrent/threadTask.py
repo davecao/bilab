@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from functools import  wraps
-from threading import Event
+from threading import Event, Thread, currentThread
 import traceback
 import math
 
@@ -37,7 +37,8 @@ class Task(object):
             func(object): the command 
         """
         self.name = name 
-        self.func = func 
+        self.func = func
+        self.callback = kwargs.pop("callback", None) 
         self.args = args
         self.kwargs = kwargs
 
@@ -92,10 +93,23 @@ class ThreadTask(TaskWithEvent):
     def __init__(self, name, func, *args, **kwargs):
 
         super(ThreadTask, self).__init__(name, func, *args, **kwargs)
-        self.callback = kwargs.pop("callback", None)
+        #self.callback = kwargs.pop("callback", None)
         self.verbose = kwargs.pop("verbose", False)
         self.returned_value = None
         self._exception = None
+
+    def __str__(self):
+        """ Representative string """
+        msg = self.func.__name__ 
+        for i, val in enumerate(self.args):
+            msg += 'arg[{}]={} '.format(i, val)
+        for name, val in self.kwargs.items():
+            msg += 'kwargs[{}]={} '.format(name, val)
+
+        return msg
+
+    def __repr__(self):
+        return self.__str__()
 
     def wait(self):
         #self._iscompleted.wait()
@@ -124,14 +138,19 @@ class ThreadTask(TaskWithEvent):
         #    func(*args, **kwargs)
         #else:
         #    callback(func(*args, **kwargs))
+        currTh = currentThread()
+        #print("Thread -{}-, Task name: -{}-".format(currTh.getName(),
+        #                                        self.name))
         try:
             if self.func is None:
                 self.returned_value = self.func()
             elif self.callback is None:
                 self.returned_value = self.func(*self.args, **self.kwargs)
             else:
-                self.returned_value = self.func(*self.args, **self.kwargs)
-                self.callback(self.returned_value)
+                #self.returned_value = self.func(*self.args, **self.kwargs)
+                #self.callback(self.returned_value)
+                self.callback(self.func(*self.args, **self.kwargs))
+
         except Exception as e:
             self.exception = e
             error_message = "\n*** {0}\n{1}\n".format(
