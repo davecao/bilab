@@ -95,21 +95,18 @@ class AbstractLocalThreadPool(AbstractThreadPool):
         Implemented by derived class and return a thread object
         """
 
-
     @abstractmethod
     def add_task(self, taskid, task, *args, **kwargs):
         """
         Add task into queue
         """
-
-    def shutdown(self):
-
-        self.wait_completion()
-        self.shutdown_event.set()
-
-        # Give threads time to die gracefully
-        time.sleep(self.WorkerCheckInterval + 1)
-        del self._threads
+    @abstractmethod
+    def __start_keep_alive_thread(self):
+        """ Keep alive threads """
+#        self.keep_alive_thread = Thread(group=None, 
+#                                    target=self.__keep_alive_thread_func, 
+#                                    name="Thread_Pool keep alive thread")
+#        self.keep_alive_thread.start()
 
     def __has_keep_alive_thread(self):
 
@@ -124,12 +121,16 @@ class AbstractLocalThreadPool(AbstractThreadPool):
 
         self.tasks.join()
 
-    def __start_keep_alive_thread(self):
 
-        self.keep_alive_thread = Thread(group=None, 
-                                    target=self.__keep_alive_thread_func, 
-                                    name="Thread_Pool keep alive thread")
-        self.keep_alive_thread.start()
+
+    def shutdown(self):
+
+        self.wait_completion()
+        self.shutdown_event.set()
+
+        # Give threads time to die gracefully
+        time.sleep(self.WorkerCheckInterval + 1)
+        del self._threads
 
     def add_threads_if_needed(self):
         self.remove_finished_threads()

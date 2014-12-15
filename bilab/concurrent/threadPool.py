@@ -84,8 +84,8 @@ class ThreadPool(AbstractLocalThreadPool):
 #        for i in range(min(num_threads, self.__threads)):
 #            worker = self.workers.pop()
 #            worker.dismiss()
-    def __keep_alive_thread_func(self):
-        self.tasks.join()
+#    def __keep_alive_thread_func(self):
+#        self.tasks.join()
 
     def add_worker_thread(self):
         """
