@@ -53,8 +53,8 @@ class ThreadWorker(Thread):
                     JobsQueued = self.tasks.qsize()
                     if JobsQueued > 0:
                         JobQText = "Jobs Queued: " + str(self.tasks.qsize())
-                        JobQText = ('\b' * 40) + JobQText + (' ' * (40 - len(JobQText)))
-                        print JobQText
+                        #JobQText = ('\b' * 40) + JobQText + (' ' * (40 - len(JobQText)))
+                        logging.debug(JobQText)
                 self.tasks.task_done()
 
             except Exception as e:

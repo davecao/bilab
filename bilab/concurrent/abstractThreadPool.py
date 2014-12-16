@@ -79,15 +79,15 @@ class AbstractLocalThreadPool(AbstractThreadPool):
         
         self.shutdown_event = Event()
         self.shutdown_event.clear()
-        
-        self.keep_alive_thread = None
-        self.threads = []
-         
+
         self.WorkerCheckInterval=kwargs.get('WorkerCheckInterval', 0.5)
         self._max_threads = kwargs.get('num_threads', 
                                         multiprocessing.cpu_count())
         if self._max_threads is None:
             self._max_threads = multiprocessing.cpu_count()
+        
+        self.keep_alive_thread = None
+        self.threads = []
 
     @abstractmethod
     def add_worker_thread(self):

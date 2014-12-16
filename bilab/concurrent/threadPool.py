@@ -55,6 +55,7 @@ class ThreadPool(AbstractLocalThreadPool):
                     for i in range(len(self.threads)-1, 0,-1):
                         if t == self.threads[i]:
                             del self.threads[i]
+                            self._next_thread_id -= 1
             except queue.Empty as e:
                 return 
         return
