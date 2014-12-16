@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
-
+import logging
 from threading import Thread, Condition, Event, Lock
 
 __all__ = ['ThreadWorker']
+
+logging.basicConfig(level=logging.DEBUG, 
+    format='[%(levelname)s] (%(threadName)-10s) %(funcName)s %(message)s',)
 
 class ThreadWorker(Thread):
     """
@@ -11,14 +14,15 @@ class ThreadWorker(Thread):
 #    threadSleepTime = 0.5
 
     def __init__(self, tasks, dead_thread_queue, 
-                       thread_event, wait_time, **kwargs):
+                       thread_event, wait_time, 
+                       verbose=False, 
+                       **kwargs):
 
         super(ThreadWorker, self).__init__(**kwargs)
 
+        self.verbose = verbose
         self.tasks = tasks
         self.dead_thread_queue = dead_thread_queue
-        #self._dismissed = Event()
-        #self.__dismissed = thread_event
         self.dismissed = thread_event
         self.wait_time = wait_time
 
@@ -29,7 +33,7 @@ class ThreadWorker(Thread):
         """
         Repeatedly process the job queue until told to exit.
         """
-        #while not self._dismissed.isSet():
+        #while not self.dismissed.isSet():
         while True:
             try:
                 # Thread blocks here, if queue is empty
@@ -40,12 +44,17 @@ class ThreadWorker(Thread):
                 #    self.getName(), th_task.name, self.tasks.qsize()))
                 #print("Task: {}".format(th_task))
                 # run the task
+                if self.verbose:
+                    logging.debug('Starting {}'.format(th_task))
                 th_task.run()
-#                JobsQueued = self.tasks.qsize()
-#                if JobsQueued > 0:
-#                    JobQText = "Jobs Queued: " + str(self.tasks.qsize())
-#                    JobQText = ('\b' * 40) + JobQText + (' ' * (40 - len(JobQText)))
-#                    print JobQText
+
+                if self.verbose:
+                    logging.debug('Exiting {}'.format(th_task))
+                    JobsQueued = self.tasks.qsize()
+                    if JobsQueued > 0:
+                        JobQText = "Jobs Queued: " + str(self.tasks.qsize())
+                        JobQText = ('\b' * 40) + JobQText + (' ' * (40 - len(JobQText)))
+                        print JobQText
                 self.tasks.task_done()
 
             except Exception as e:
@@ -64,6 +73,7 @@ class ThreadWorker(Thread):
         Set a flag to tell the thread to exit when done with current job.
         """
         self.dismissed.set()
+        self.dismissed.wait()
 
 #    def exit(self):
 #        """ 

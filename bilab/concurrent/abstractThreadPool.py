@@ -140,7 +140,6 @@ class AbstractLocalThreadPool(AbstractThreadPool):
 
         if not self.__has_keep_alive_thread():
             self.__start_keep_alive_thread()
-                
 
     def remove_finished_threads(self):
         while not self.dead_thread_queue.empty():

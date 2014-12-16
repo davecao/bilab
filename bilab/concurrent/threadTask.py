@@ -138,7 +138,7 @@ class ThreadTask(TaskWithEvent):
         #    func(*args, **kwargs)
         #else:
         #    callback(func(*args, **kwargs))
-        currTh = currentThread()
+        #currTh = currentThread()
         #print("Thread -{}-, Task name: -{}-".format(currTh.getName(),
         #                                        self.name))
         try:
@@ -147,9 +147,9 @@ class ThreadTask(TaskWithEvent):
             elif self.callback is None:
                 self.returned_value = self.func(*self.args, **self.kwargs)
             else:
-                #self.returned_value = self.func(*self.args, **self.kwargs)
-                #self.callback(self.returned_value)
-                self.callback(self.func(*self.args, **self.kwargs))
+                self.returned_value = self.func(*self.args, **self.kwargs)
+                self.callback(self.returned_value)
+                #self.callback(self.func(*self.args, **self.kwargs))
 
         except Exception as e:
             self.exception = e

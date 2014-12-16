@@ -19,11 +19,11 @@ class ThreadPool(AbstractLocalThreadPool):
     """
     Pool of threads consuming tasks from a queue
     """
-    def __init__(self, num_threads, CheckInterval = 0.5):
+    def __init__(self, num_threads, CheckInterval = 0.5, verbose=False):
         
         super(ThreadPool, self).__init__(num_threads=num_threads,  
                                         WorkerCheckInterval=CheckInterval)
-
+        self.verbose = verbose
         self._next_thread_id = 0
 
     def __start_keep_alive_thread(self):
@@ -59,6 +59,23 @@ class ThreadPool(AbstractLocalThreadPool):
                 return 
         return
 
+    def add_threads_if_needed(self):
+        self.remove_finished_threads()
+        num_active_threads = len(self.threads)
+        num_threads_created = 0
+        while num_active_threads < self._max_threads:
+            if not self.tasks.empty():
+                t = self.add_worker_thread()
+                assert(isinstance(t, Thread))
+                self.threads.append(t)
+                num_active_threads += 1
+                num_threads_created += 1
+            else:
+                break
+
+        if not self.__has_keep_alive_thread():
+            self.__start_keep_alive_thread()
+
     def add_worker_thread(self):
         """
         Implemented by derived class and return a thread object
@@ -66,7 +83,9 @@ class ThreadPool(AbstractLocalThreadPool):
         w = ThreadWorker(self.tasks, 
                          self.dead_thread_queue, 
                          self.shutdown_event,
-                         self.WorkerCheckInterval)
+                         self.WorkerCheckInterval,
+                         verbose=self.verbose)
+
         w.name = "Thread pool #{}".format(self._next_thread_id)
         self._next_thread_id += 1
         return w
@@ -75,15 +94,18 @@ class ThreadPool(AbstractLocalThreadPool):
         """
         Add a task to the queue
         """
-        th_task = ThreadTask(taskid, func, *args, **kwargs)
-        self.tasks.put(th_task)
-        self.add_threads_if_needed()
+        if not callable(func):
+            return False
+        else:
+            th_task = ThreadTask(taskid, func, *args, **kwargs)
+            self.tasks.put(th_task)
+            self.add_threads_if_needed()
+        return True
 
     def shutdown(self):
         """ 
         Shutdown the pool 
         """
-
         if not self.tasks.empty():
             self.wait_completion()
         self.shutdown_event.set()

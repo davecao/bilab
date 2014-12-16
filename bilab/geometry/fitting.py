@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from bilab.concurrent import ThreadPool
+from bilab.concurrent import ThreadPool, ThreadTask, ThreadWorker
 
 def global_eval(x, W):
     # P = I -W*W^T projection matrix
@@ -76,7 +76,7 @@ def fit_multi(data, imax, jmax, num_threads=12, verbose=False):
             r_sqr = curr_rsqr
         return th_callback
 
-    thread_pool = ThreadPool(num_threads)
+    thread_pool = ThreadPool(num_threads, verbose=verbose)
 
     for j in range(jmax):
         phi = half_pi * j / jmax
@@ -90,10 +90,12 @@ def fit_multi(data, imax, jmax, num_threads=12, verbose=False):
             curr_w = np.matrix([cos_theta * sin_phi,
                                 sin_theta * sin_phi,
                                 cos_phi])
+
             taskid = "task_{}_{}".format(j, i)
-            thread_pool.add_task(taskid, global_eval, 
-                                 data, curr_w, 
-                                 callback = th_callback)
+            #th_task = ThreadTask(taskid, global_eval, data, curr_w, 
+            #        callback = th_callback)
+            thread_pool.add_task(taskid, global_eval, data, curr_w, 
+                     callback = th_callback)
     thread_pool.wait_completion()
 
     return (w_direct, c_center, float(r_sqr), float(minError))
@@ -195,10 +197,11 @@ def cylinder_fitting(points, imax=64, jmax=64,
 
     if num_threads == 1:
         w_direct, c_center, r_sqr, minError = \
-            fit_single(sample, imax, jmax, verbose=False)
+            fit_single(sample, imax, jmax, verbose=verbose)
     else:
         w_direct, c_center, r_sqr, minError = \
-        fit_multi(sample, imax, jmax, num_threads=num_threads, verbose=False)
+        fit_multi(sample, imax, jmax, num_threads=num_threads, 
+                verbose=verbose)
 
     c_data = c_center + data_mean.T
 
