@@ -4,6 +4,9 @@ import numpy as np
 
 from bilab.concurrent import ThreadPool, ThreadTask, ThreadWorker
 
+class CallBackResults():
+    pass
+
 def global_eval(x, W):
     # P = I -W*W^T projection matrix
     # P: 3x3, W: 3x1
@@ -53,6 +56,7 @@ def global_eval(x, W):
     r_sqr = np.sum(np.sum(np.square(diff), 0)) / n
     return (error, PC, r_sqr)
 
+
 def fit_multi(data, imax, jmax, num_threads=12, verbose=False):
     """ 
         Multiple threaded fitting 
@@ -64,17 +68,20 @@ def fit_multi(data, imax, jmax, num_threads=12, verbose=False):
     half_pi = np.pi / 2
     two_pi  = 2 * np.pi
 
-    def th_callback(data, minError=minError, 
-                          w_direct=w_direct, 
-                          c_center=c_center,
-                          r_sqr = r_sqr):
+    cbk = CallBackResults()
+
+    cbk.minError = minError 
+    cbk.w_direct = w_direct 
+    cbk.c_center = c_center
+    cbk.r_sqr    = r_sqr
+
+    def th_callback(data, res=cbk):
         error, curr_c, curr_rsqr = data
-        if error < minError:
-            minError = error
-            w_direct = curr_w
-            c_center = curr_c
-            r_sqr = curr_rsqr
-        return th_callback
+        if error < res.minError:
+            res.minError = error
+            res.w_direct = curr_w
+            res.c_center = curr_c
+            res.r_sqr = curr_rsqr
 
     thread_pool = ThreadPool(num_threads, verbose=verbose)
 
@@ -97,8 +104,12 @@ def fit_multi(data, imax, jmax, num_threads=12, verbose=False):
             thread_pool.add_task(taskid, global_eval, data, curr_w, 
                      callback = th_callback)
     thread_pool.wait_completion()
+    thread_pool.shutdown()
 
-    return (w_direct, c_center, float(r_sqr), float(minError))
+    return (cbk.w_direct, 
+            cbk.c_center, 
+            float(cbk.r_sqr), 
+            float(cbk.minError))
 
 def fit_single(data, imax, jmax, verbose=False):
     """

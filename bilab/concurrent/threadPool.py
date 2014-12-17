@@ -25,6 +25,7 @@ class ThreadPool(AbstractLocalThreadPool):
                                         WorkerCheckInterval=CheckInterval)
         self.verbose = verbose
         self._next_thread_id = 0
+        self.add_threads_if_needed()
 
     def __start_keep_alive_thread(self):
         """ Keep alive threads """
@@ -72,6 +73,12 @@ class ThreadPool(AbstractLocalThreadPool):
                 num_active_threads += 1
                 num_threads_created += 1
             else:
+                if num_active_threads == 0:
+                    t = self.add_worker_thread()
+                    assert(isinstance(t, Thread))
+                    self.threads.append(t)
+                    num_active_threads += 1
+                    num_threads_created += 1
                 break
 
         if not self.__has_keep_alive_thread():

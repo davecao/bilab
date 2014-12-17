@@ -102,7 +102,7 @@ class ThreadTask(TaskWithEvent):
         """ Representative string """
         msg = self.func.__name__ 
         for i, val in enumerate(self.args):
-            msg += 'arg[{}]={} '.format(i, val)
+            msg += ' arg[{}]={} '.format(i, val)
         for name, val in self.kwargs.items():
             msg += 'kwargs[{}]={} '.format(name, val)
 

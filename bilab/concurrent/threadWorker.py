@@ -44,17 +44,19 @@ class ThreadWorker(Thread):
                 #    self.getName(), th_task.name, self.tasks.qsize()))
                 #print("Task: {}".format(th_task))
                 # run the task
-                if self.verbose:
-                    logging.debug('Starting {}'.format(th_task))
+                #if self.verbose:
+                #    logging.debug('Starting {}'.format(th_task))
                 th_task.run()
 
-                if self.verbose:
-                    logging.debug('Exiting {}'.format(th_task))
-                    JobsQueued = self.tasks.qsize()
-                    if JobsQueued > 0:
-                        JobQText = "Jobs Queued: " + str(self.tasks.qsize())
-                        #JobQText = ('\b' * 40) + JobQText + (' ' * (40 - len(JobQText)))
-                        logging.debug(JobQText)
+                #if self.verbose:
+                #    logging.debug('Exiting {}'.format(th_task))
+                #    JobsQueued = self.tasks.qsize()
+                #    if JobsQueued > 0:
+                #        JobQText = "Jobs Queued: " + str(self.tasks.qsize())
+                #        #JobQText = ('\b' * 40) + JobQText + (' ' * (40 - len(JobQText)))
+                #        logging.debug(JobQText)
+
+                # Unblocks the queue.
                 self.tasks.task_done()
 
             except Exception as e:
