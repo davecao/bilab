@@ -4,6 +4,8 @@ __all__ = []
 
 from .abstractThreadPool import *
 
+from .threadCallback import *
+
 from .threadTask import *
 
 from .threadWorker import *
