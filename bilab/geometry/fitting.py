@@ -73,19 +73,39 @@ def fit_multi(data, imax, jmax, num_threads=12, verbose=False):
     cbk.c_center = c_center
     cbk.r_sqr    = r_sqr
 
+#    def th_callback(data, res=cbk):
+#        error, curr_c, curr_rsqr = data
+#        if error < res.minError:
+#            res.minError = error
+#            res.w_direct = curr_w
+#            res.c_center = curr_c
+#            res.r_sqr = curr_rsqr
+
     def th_callback(data, res=cbk):
-        if not res.lock.acquire(False):
-            print("Failed to lock the CallBackResults")
-        else:
-            try:
-                error, curr_c, curr_rsqr = data
-                if error < res.minError:
-                    res.minError = error
-                    res.w_direct = curr_w
-                    res.c_center = curr_c
-                    res.r_sqr = curr_rsqr
-            finally:
-                res.lock.release()
+        try:
+            res.lock.acquire()
+            error, curr_c, curr_rsqr = data
+            if error < res.minError:
+                res.minError = error
+                res.w_direct = curr_w
+                res.c_center = curr_c
+                res.r_sqr = curr_rsqr
+        finally:
+            res.lock.release()
+
+#    def th_callback(data, res=cbk):
+#        if not res.lock.acquire(False):
+#            print("Failed to lock the CallBackResults")
+#        else:
+#            try:
+#                error, curr_c, curr_rsqr = data
+#                if error < res.minError:
+#                    res.minError = error
+#                    res.w_direct = curr_w
+#                    res.c_center = curr_c
+#                    res.r_sqr = curr_rsqr
+#            finally:
+#                res.lock.release()
 
     thread_pool = ThreadPool(num_threads, verbose=verbose)
 
