@@ -2,10 +2,8 @@
 
 import numpy as np
 
-from bilab.concurrent import ThreadPool, ThreadTask, ThreadWorker
-
-class CallBackResults():
-    pass
+from bilab.concurrent import ThreadPool, ThreadTask, \
+                             ThreadWorker, CallBackResults
 
 def global_eval(x, W):
     # P = I -W*W^T projection matrix
@@ -76,12 +74,18 @@ def fit_multi(data, imax, jmax, num_threads=12, verbose=False):
     cbk.r_sqr    = r_sqr
 
     def th_callback(data, res=cbk):
-        error, curr_c, curr_rsqr = data
-        if error < res.minError:
-            res.minError = error
-            res.w_direct = curr_w
-            res.c_center = curr_c
-            res.r_sqr = curr_rsqr
+        if not res.lock.acquire(False):
+            print("Failed to lock the CallBackResults")
+        else:
+            try:
+                error, curr_c, curr_rsqr = data
+                if error < res.minError:
+                    res.minError = error
+                    res.w_direct = curr_w
+                    res.c_center = curr_c
+                    res.r_sqr = curr_rsqr
+            finally:
+                res.lock.release()
 
     thread_pool = ThreadPool(num_threads, verbose=verbose)
 
