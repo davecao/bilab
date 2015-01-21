@@ -14,7 +14,7 @@ def global_eval(x, W):
 
     #pprint.pprint(W)
     # S: 3x3
-    S = np.matrix([ [         0, -1 * W[0,2],     W[0,1] ],
+    S = np.matrix([ [         0,    -1 * W[0,2],     W[0,1] ],
                        [     W[0,2],          0, -1 * W[0,0]],
                        [-1 * W[0,1],     W[0,0],           0]])
     # 3x3
@@ -63,11 +63,11 @@ def fit_multi(data, imax, jmax, num_threads=12, verbose=False):
     w_direct = np.zeros(3)
     c_center = np.zeros(3)
     r_sqr    = 0
-    half_pi = np.pi / 2
-    two_pi  = 2 * np.pi
+    half_pi  = np.pi / 2
+    two_pi   = 2 * np.pi
 
-    cbk = CallBackResults()
-
+    cbk = CallBackResults(10)
+    cbk.curr_w   = w_direct
     cbk.minError = minError 
     cbk.w_direct = w_direct 
     cbk.c_center = c_center
@@ -125,6 +125,7 @@ def fit_multi(data, imax, jmax, num_threads=12, verbose=False):
             taskid = "task_{}_{}".format(j, i)
             #th_task = ThreadTask(taskid, global_eval, data, curr_w, 
             #        callback = th_callback)
+            cbk.curr_w = curr_w
             thread_pool.add_task(taskid, global_eval, data, curr_w, 
                      callback = th_callback)
     thread_pool.wait_completion()
@@ -165,9 +166,9 @@ def fit_single(data, imax, jmax, verbose=False):
                 w_direct = curr_w
                 c_center = curr_c
                 r_sqr = curr_rsqr
-                if verbose:
-                    print "{0:8.3f} {1:8.3f} {2:8.3f} {3:8.3f}".format(phi,
-                              theta, r_sqr, error)
+#            if verbose:
+#                print "{0:8.3f} {1:8.3f} {2:8.3f} {3:8.3f}".format(phi,
+#                              theta, r_sqr, error)
 
     return (w_direct, c_center, float(r_sqr), float(minError))
 
