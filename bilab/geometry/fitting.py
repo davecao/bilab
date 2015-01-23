@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
+import logging
 
 from bilab.concurrent import ThreadPool, ThreadTask, \
                              ThreadWorker, CallBackResults
+logging.basicConfig(level=logging.DEBUG, 
+    format='[%(levelname)s] (%(threadName)-10s) %(funcName)s %(message)s',)
 
 def global_eval(x, W):
     # P = I -W*W^T projection matrix
@@ -85,11 +88,23 @@ def fit_multi(data, imax, jmax, num_threads=12, verbose=False):
         try:
             res.lock.acquire()
             error, curr_c, curr_rsqr = data
+#            logging.info('Return w_direct:{} error:{:.3f} curr_c:{} curr_rsqr:{:.3f}'.format(
+#                ",".join(['{:.3f}'.format(x) for y in w for x in y]),
+#                error, 
+#                ",".join(['{:.3f}'.format(x) for y in c for x in y]), 
+#                curr_rsqr ))
             if error < res.minError:
                 res.minError = error
-                res.w_direct = curr_w
+                res.w_direct = res.curr_w
                 res.c_center = curr_c
                 res.r_sqr = curr_rsqr
+            c_d = np.asarray(res.curr_w).flatten().tolist()
+            w_d = np.asarray(res.w_direct).flatten().tolist()
+            print "r_sqr:{:.3f} error:{} curr_w:{} w_direct:{}"\
+                .format(r_sqr, error,
+                    ",".join(['{:.3f} '.format(x) for x in c_d]),
+                    ",".join(['{:.3f} '.format(z) for z in w_d ])
+                    )
         finally:
             res.lock.release()
 
@@ -166,10 +181,14 @@ def fit_single(data, imax, jmax, verbose=False):
                 w_direct = curr_w
                 c_center = curr_c
                 r_sqr = curr_rsqr
-#            if verbose:
-#                print "{0:8.3f} {1:8.3f} {2:8.3f} {3:8.3f}".format(phi,
-#                              theta, r_sqr, error)
-
+            if verbose:
+                c_d = np.asarray(curr_w).flatten().tolist()
+                w_d = np.asarray(w_direct).flatten().tolist()
+                print "phi:{:.3f} theta:{:.3f} r_sqr:{:.3f} error:{} curr_w:{} w_direct:{}"\
+                .format(phi,theta, r_sqr, error,
+                    ",".join(['{:.3f} '.format(x) for x in c_d]),
+                    ",".join(['{:.3f} '.format(z) for z in w_d ])
+                    )
     return (w_direct, c_center, float(r_sqr), float(minError))
 
 def cylinder_fitting(points, imax=64, jmax=64, 
@@ -228,8 +247,8 @@ def cylinder_fitting(points, imax=64, jmax=64,
     half_pi = np.pi / 2
     two_pi  = 2 * np.pi
 
-    if verbose:
-        print "phi  theta  r2 error {}x{}".format(imax,jmax)
+#    if verbose:
+#        print "phi  theta  r2 error {}x{}".format(imax,jmax)
 
     if num_threads == 1:
         w_direct, c_center, r_sqr, minError = \
