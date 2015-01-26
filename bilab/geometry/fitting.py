@@ -5,7 +5,7 @@ import logging
 
 from bilab.concurrent import ThreadPool, ThreadTask, \
                              ThreadWorker, CallBackResults
-logging.basicConfig(level=logging.DEBUG, 
+logging.basicConfig(level=logging.DEBUG,
     format='[%(levelname)s] (%(threadName)-10s) %(funcName)s %(message)s',)
 
 def global_eval(x, W):
@@ -55,12 +55,12 @@ def global_eval(x, W):
     # PC->3xN
     diff = np.repeat(PC, n, axis = 1) - Y
     r_sqr = np.sum(np.sum(np.square(diff), 0)) / n
-    return (error, PC, r_sqr)
+    return (error, PC, r_sqr, W)
 
 
 def fit_multi(data, imax, jmax, num_threads=12, verbose=False):
-    """ 
-        Multiple threaded fitting 
+    """
+        Multiple threaded fitting
     """
     minError = np.inf
     w_direct = np.zeros(3)
@@ -71,8 +71,8 @@ def fit_multi(data, imax, jmax, num_threads=12, verbose=False):
 
     cbk = CallBackResults(10)
     cbk.curr_w   = w_direct
-    cbk.minError = minError 
-    cbk.w_direct = w_direct 
+    cbk.minError = minError
+    cbk.w_direct = w_direct
     cbk.c_center = c_center
     cbk.r_sqr    = r_sqr
 
@@ -87,15 +87,15 @@ def fit_multi(data, imax, jmax, num_threads=12, verbose=False):
     def th_callback(data, res=cbk):
         try:
             res.lock.acquire()
-            error, curr_c, curr_rsqr = data
+            error, curr_c, curr_rsqr, w_direct = data
 #            logging.info('Return w_direct:{} error:{:.3f} curr_c:{} curr_rsqr:{:.3f}'.format(
 #                ",".join(['{:.3f}'.format(x) for y in w for x in y]),
-#                error, 
-#                ",".join(['{:.3f}'.format(x) for y in c for x in y]), 
+#                error,
+#                ",".join(['{:.3f}'.format(x) for y in c for x in y]),
 #                curr_rsqr ))
             if error < res.minError:
                 res.minError = error
-                res.w_direct = res.curr_w
+                res.w_direct = w_direct
                 res.c_center = curr_c
                 res.r_sqr = curr_rsqr
             c_d = np.asarray(res.curr_w).flatten().tolist()
@@ -138,17 +138,17 @@ def fit_multi(data, imax, jmax, num_threads=12, verbose=False):
                                 cos_phi])
 
             taskid = "task_{}_{}".format(j, i)
-            #th_task = ThreadTask(taskid, global_eval, data, curr_w, 
+            #th_task = ThreadTask(taskid, global_eval, data, curr_w,
             #        callback = th_callback)
             cbk.curr_w = curr_w
-            thread_pool.add_task(taskid, global_eval, data, curr_w, 
+            thread_pool.add_task(taskid, global_eval, data, curr_w,
                      callback = th_callback)
     thread_pool.wait_completion()
     thread_pool.shutdown()
 
-    return (cbk.w_direct, 
-            cbk.c_center, 
-            float(cbk.r_sqr), 
+    return (cbk.w_direct,
+            cbk.c_center,
+            float(cbk.r_sqr),
             float(cbk.minError))
 
 def fit_single(data, imax, jmax, verbose=False):
@@ -191,16 +191,16 @@ def fit_single(data, imax, jmax, verbose=False):
                     )
     return (w_direct, c_center, float(r_sqr), float(minError))
 
-def cylinder_fitting(points, imax=64, jmax=64, 
-                    description=None, 
+def cylinder_fitting(points, imax=64, jmax=64,
+                    description=None,
                     verbose=False,
                     num_threads = 1):
     """
     Fitting a cylinder to a set of points:
-    
+
     The cylinder radius is r, point C lies at the axis and has
     unit-length direction W.
-    
+
     .. note::
         x = X - mean(X) --> sample mean is zero
 
@@ -211,27 +211,27 @@ def cylinder_fitting(points, imax=64, jmax=64,
 
     contains 6 parameters:
     **one** for the squared radius :math:`r^{2}`,
-    :math:`r^{2} = \\frac{1}{n}\\sum_{i=1}^{n}r_{i}^{2}`, 
+    :math:`r^{2} = \\frac{1}{n}\\sum_{i=1}^{n}r_{i}^{2}`,
     **three** for the point C and **two** for the unit-length direction W
 
-    Args: 
+    Args:
         points (array) : nx3 matrix
-        
+
         imax (integer) : grid value for x axis
-        
+
         jmax (integer) : grid value for y axis
-        
-        description (str) : option value 
+
+        description (str) : option value
 
         verbose (bool) : show info in detail
-    
+
     Returns:
         r_sqr (float) : the square of r
 
         C (array)  : center 3x1
 
         W (array) : direction 3x1
-    
+
     """
     if not type(num_threads) == int:
         raise ValueError("Error: option num_threads should be an integer")
@@ -255,7 +255,7 @@ def cylinder_fitting(points, imax=64, jmax=64,
             fit_single(sample, imax, jmax, verbose=verbose)
     else:
         w_direct, c_center, r_sqr, minError = \
-        fit_multi(sample, imax, jmax, num_threads=num_threads, 
+        fit_multi(sample, imax, jmax, num_threads=num_threads,
                 verbose=verbose)
 
     c_data = c_center + data_mean.T
