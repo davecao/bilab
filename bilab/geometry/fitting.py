@@ -76,23 +76,10 @@ def fit_multi(data, imax, jmax, num_threads=12, verbose=False):
     cbk.c_center = c_center
     cbk.r_sqr    = r_sqr
 
-#    def th_callback(data, res=cbk):
-#        error, curr_c, curr_rsqr = data
-#        if error < res.minError:
-#            res.minError = error
-#            res.w_direct = curr_w
-#            res.c_center = curr_c
-#            res.r_sqr = curr_rsqr
-
     def th_callback(data, res=cbk):
         try:
             res.lock.acquire()
             error, curr_c, curr_rsqr, w_direct = data
-#            logging.info('Return w_direct:{} error:{:.3f} curr_c:{} curr_rsqr:{:.3f}'.format(
-#                ",".join(['{:.3f}'.format(x) for y in w for x in y]),
-#                error,
-#                ",".join(['{:.3f}'.format(x) for y in c for x in y]),
-#                curr_rsqr ))
             if error < res.minError:
                 res.minError = error
                 res.w_direct = w_direct
@@ -107,20 +94,6 @@ def fit_multi(data, imax, jmax, num_threads=12, verbose=False):
                     )
         finally:
             res.lock.release()
-
-#    def th_callback(data, res=cbk):
-#        if not res.lock.acquire(False):
-#            print("Failed to lock the CallBackResults")
-#        else:
-#            try:
-#                error, curr_c, curr_rsqr = data
-#                if error < res.minError:
-#                    res.minError = error
-#                    res.w_direct = curr_w
-#                    res.c_center = curr_c
-#                    res.r_sqr = curr_rsqr
-#            finally:
-#                res.lock.release()
 
     thread_pool = ThreadPool(num_threads, verbose=verbose)
 
@@ -138,8 +111,6 @@ def fit_multi(data, imax, jmax, num_threads=12, verbose=False):
                                 cos_phi])
 
             taskid = "task_{}_{}".format(j, i)
-            #th_task = ThreadTask(taskid, global_eval, data, curr_w,
-            #        callback = th_callback)
             cbk.curr_w = curr_w
             thread_pool.add_task(taskid, global_eval, data, curr_w,
                      callback = th_callback)
