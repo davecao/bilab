@@ -25,7 +25,10 @@ class ThreadWorker(Thread):
         self.dead_thread_queue = dead_thread_queue
         self.dismissed = thread_event
         self.wait_time = wait_time
-
+        if wait_time < 0:
+            self.getFuncName = {'get':self.get_nowait}
+        else:
+            self.getFuncName = {'get':self.get}
         self.daemon = True
         self.start()
     
@@ -39,9 +42,11 @@ class ThreadWorker(Thread):
                 # Thread blocks here, if queue is empty
                 #taskid, func, args, kwargs, callback = self.__pool.getNextTask()
                 #taskid, th_task = self.__pool.getNextTask()
-                th_task = self.tasks.get(True, self.wait_time)
-                #print("{}, Task id:{} TaskSize:{} ".format(
-                #    self.getName(), th_task.name, self.tasks.qsize()))
+                #th_task = self.tasks.get(True, self.wait_time)
+                th_task = self.tasks.get_nowait()
+                #th_task = self.__getattr__(self.getFuncName['get'])()
+#                print("{}, Task id:{} TaskSize:{} ".format(
+#                    self.getName(), th_task.name, self.tasks.qsize()))
                 #print("Task: {}".format(th_task))
                 # run the task
                 #if self.verbose:
@@ -69,6 +74,19 @@ class ThreadWorker(Thread):
                     # idle state
                     self.dead_thread_queue.put(self)
                     return
+    def get_nowait():
+        """
+            get a task from task queue immediately
+        """
+        logging.debug(' get_nowait is called.')
+        return self.task.get_nowait()
+
+    def get():
+        """
+            get a task while blocking for timeout
+        """
+        logging.debug(' get is called.')
+        return self.task.get(True, self.wait_time)
 
     def dismiss(self):
         """
@@ -77,6 +95,12 @@ class ThreadWorker(Thread):
         self.dismissed.set()
         self.dismissed.wait()
 
+    def __getattr__(self, attr_name):
+        try:
+            return self.__implementation.__getattribute__(attr_name)
+        except AttributeError:
+            raise AttributeError('{0} object has no attribute `{1}`'
+                .format(self.__class__.__name__, attr_name))
 #    def exit(self):
 #        """ 
 #        Force to exit 

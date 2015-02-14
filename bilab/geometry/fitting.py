@@ -58,7 +58,7 @@ def global_eval(x, W):
     return (error, PC, r_sqr, W)
 
 
-def fit_multi(data, imax, jmax, num_threads=12, verbose=False):
+def fit_multi(data, imax, jmax, num_threads=12, CheckInterval=0.5, verbose=False):
     """
         Multiple threaded fitting
     """
@@ -87,15 +87,17 @@ def fit_multi(data, imax, jmax, num_threads=12, verbose=False):
                 res.r_sqr = curr_rsqr
             c_d = np.asarray(res.curr_w).flatten().tolist()
             w_d = np.asarray(res.w_direct).flatten().tolist()
-            print "r_sqr:{:.3f} error:{} curr_w:{} w_direct:{}"\
-                .format(r_sqr, error,
-                    ",".join(['{:.3f} '.format(x) for x in c_d]),
-                    ",".join(['{:.3f} '.format(z) for z in w_d ])
-                    )
+#            print "r_sqr:{:.3f} error:{} curr_w:{} w_direct:{}"\
+#                .format(r_sqr, error,
+#                    ",".join(['{:.3f} '.format(x) for x in c_d]),
+#                    ",".join(['{:.3f} '.format(z) for z in w_d ])
+#                    )
         finally:
             res.lock.release()
 
-    thread_pool = ThreadPool(num_threads, verbose=verbose)
+    thread_pool = ThreadPool(num_threads, 
+                            CheckInterval = CheckInterval, 
+                            verbose=verbose)
 
     for j in range(jmax):
         phi = half_pi * j / jmax
@@ -145,7 +147,7 @@ def fit_single(data, imax, jmax, verbose=False):
             curr_w = np.matrix([cos_theta * sin_phi,
                                    sin_theta * sin_phi,
                                    cos_phi])
-            error, curr_c, curr_rsqr = global_eval(data, curr_w)
+            error, curr_c, curr_rsqr, w = global_eval(data, curr_w)
 
             if error < minError:
                 minError = error
@@ -155,17 +157,18 @@ def fit_single(data, imax, jmax, verbose=False):
             if verbose:
                 c_d = np.asarray(curr_w).flatten().tolist()
                 w_d = np.asarray(w_direct).flatten().tolist()
-                print "phi:{:.3f} theta:{:.3f} r_sqr:{:.3f} error:{} curr_w:{} w_direct:{}"\
-                .format(phi,theta, r_sqr, error,
-                    ",".join(['{:.3f} '.format(x) for x in c_d]),
-                    ",".join(['{:.3f} '.format(z) for z in w_d ])
-                    )
+#                print "phi:{:.3f} theta:{:.3f} r_sqr:{:.3f} error:{} curr_w:{} w_direct:{}"\
+#                .format(phi,theta, r_sqr, error,
+#                    ",".join(['{:.3f} '.format(x) for x in c_d]),
+#                    ",".join(['{:.3f} '.format(z) for z in w_d ])
+#                    )
     return (w_direct, c_center, float(r_sqr), float(minError))
 
 def cylinder_fitting(points, imax=64, jmax=64,
                     description=None,
                     verbose=False,
-                    num_threads = 1):
+                    num_threads = 1,
+                    CheckInterval = 0.5):
     """
     Fitting a cylinder to a set of points:
 
@@ -226,7 +229,9 @@ def cylinder_fitting(points, imax=64, jmax=64,
             fit_single(sample, imax, jmax, verbose=verbose)
     else:
         w_direct, c_center, r_sqr, minError = \
-        fit_multi(sample, imax, jmax, num_threads=num_threads,
+        fit_multi(sample, imax, jmax, 
+                num_threads=num_threads, 
+                CheckInterval = CheckInterval,
                 verbose=verbose)
 
     c_data = c_center + data_mean.T
