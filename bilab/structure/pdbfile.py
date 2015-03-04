@@ -986,7 +986,8 @@ def parseStride(stridefile, ag, altLoc=False):
             """
             res = ag[(line[9], int(line[10:15]), line[15].strip())]
         except ValueError:
-            raise ValueError("{} could not be converted into integer".format(line[10:15]))
+            #raise ValueError("{} could not be converted into integer".format(line[10:15]))
+            print("{} could not be converted into integer".format(line[10:15]))
         else:
             if altLoc :
                 res = ag[(line[9], line[10:15], line[15].strip())]
