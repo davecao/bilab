@@ -979,6 +979,7 @@ def parseStride(stridefile, ag, altLoc=False):
         if not line.startswith('ASG '):
             continue
         #res = ag[(line[9], int(line[10:15]), line[15].strip())]
+        res = None
         try:
             """ 
             line[9]: chain id
