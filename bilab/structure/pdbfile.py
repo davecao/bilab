@@ -948,7 +948,7 @@ writePDB.__doc__ += _writePDBdoc + """
     :arg autoext: when not present, append extension :file:`.pdb` to *filename*
 """
 
-def parseStride(stridefile, ag, altLoc=False):
+def parseStride(stridefile, ag, altLoc=False, verbose=False):
     """Parse STRIDE output from file *stride* into :class:`~.AtomGroup`
     instance *ag*.  STRIDE output file must be in the new format used
     from July 1995 and onwards.  When *stride* file is parsed, following
@@ -981,15 +981,16 @@ def parseStride(stridefile, ag, altLoc=False):
         #res = ag[(line[9], int(line[10:15]), line[15].strip())]
         res = None
         try:
-            """ 
-            line[9]: chain id
-            line[10:15]: residue number
-            """
+            #line[9]: chain id
+            #line[10:15]: residue number
             res = ag[(line[9], int(line[10:15]), line[15].strip())]
         except ValueError:
             #raise ValueError("{} could not be converted into integer".format(line[10:15]))
-            print("{} could not be converted into integer".format(line[10:15]))
+            pass
         else:
+            if verbose:
+                print("{} could not be converted into integer".format(line[10:15]))
+        finally:
             if altLoc :
                 res = ag[(line[9], line[10:15], line[15].strip())]
 
