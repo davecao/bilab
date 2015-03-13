@@ -40,6 +40,7 @@ class Sequence(object):
         #print("{}".format(id(self)))
         self._obj_id = id(self)
         self._isAligned = kwargs.pop('isAligned',False)
+        self._isalpha = True
         # initial class
         arg_len = len(args)
         if arg_len == 2:
@@ -47,11 +48,11 @@ class Sequence(object):
             try:
                 sequence = ''.join(args[1].split())
                 if not self._isAligned:
-                    _ = sequence.isalpha()
+                    self._isalpha = sequence.isalpha()
             except AttributeError:
                 raise ValueError('sequence must be a string.')
             else:
-                if not _:
+                if not self._isalpha:
                     raise ValueError('not a valid sequence')
             self._sequence = sequence
             self._length = len(sequence)
