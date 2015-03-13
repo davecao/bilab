@@ -25,10 +25,7 @@ class Sequence(object):
     >>> seq.sequence = 'AAA'
 
     """
-
 #        Note: __slots__ works with instance variables
-
-
     _instances = WeakValueDictionary()
     #__slots__ = ['id', 'sequence', '__dict__']
 
@@ -42,13 +39,15 @@ class Sequence(object):
         # weak count
         #print("{}".format(id(self)))
         self._obj_id = id(self)
+        self._isAligned = kwargs.pop('isAligned',False)
         # initial class
         arg_len = len(args)
         if arg_len == 2:
             self._id = args[0]
             try:
                 sequence = ''.join(args[1].split())
-                _ = sequence.isalpha()
+                if not self._isAligned:
+                    _ = sequence.isalpha()
             except AttributeError:
                 raise ValueError('sequence must be a string.')
             else:

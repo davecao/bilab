@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-__all_ = ["Kernel"]
+__all__ = ["Kernel"]
 
 class ClassRegistry(type):
     """ Register all subclasses """
