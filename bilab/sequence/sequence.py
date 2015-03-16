@@ -75,6 +75,8 @@ class Sequence(object):
 #            print 'Last Counter object deleted'
 #        else:
 #            print self.Count, ' Counter objects remaining'
+    def get_obj_id(self):
+        return self._obj_id
 
     def get_sequence(self):
         return self._sequence
