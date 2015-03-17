@@ -2,6 +2,9 @@
 
 __all__ = []
 
+#from . import miscmath
+from .miscmath import *
+
 #from . import psiblastIO
 from .psiblastIO import *
 #__all__.extend(pssm.__all__)

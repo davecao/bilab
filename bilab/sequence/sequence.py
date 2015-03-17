@@ -20,7 +20,7 @@ class Sequence(object):
 
     usage:
 
-    >>> seq = bilab.sequence.Sequence()
+    >>> seq = bilab.sequence.Sequence(header, letters, isAligned=False, alphabet=None)
     >>> seq.id = 'test'
     >>> seq.sequence = 'AAA'
 
@@ -40,6 +40,7 @@ class Sequence(object):
         #print("{}".format(id(self)))
         self._obj_id = id(self)
         self._isAligned = kwargs.pop('isAligned',False)
+        #self._alphabet = kwargs.pop('alphabet',None)
         self._isalpha = True
         # initial class
         arg_len = len(args)
@@ -98,6 +99,8 @@ class Sequence(object):
         counts = np.bincount(a)
         counts = [(unichr(i), v) for i, v in enumerate(counts) if v]
         return dict(counts)
+
+    def 
 
     def to_numeric(self, scale, smooth=False, func=None):
         """Generate a numeric representation by an AAindex scale
