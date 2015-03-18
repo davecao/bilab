@@ -2,8 +2,16 @@
 
 __all__ = []
 
+#--python 3 style
 #from . import miscmath
-from .miscmath import *
+#from miscmath import *
+#--
+
+from . import miscmath
+from miscmath import *
+
+from . import alphabet
+from alphabet import *
 
 #from . import psiblastIO
 from .psiblastIO import *

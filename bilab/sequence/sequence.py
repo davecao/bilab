@@ -11,6 +11,7 @@ import numpy as np
 from weakref import WeakValueDictionary
 from types import *
 from bilab.aaprop import AAindex, AAindex1Parser
+from bilab.sequence import Alphabet, generic_alphabet, protein_alphabet, nucleic_alphabet
 
 __all__ = ['Sequence']
 
@@ -33,36 +34,55 @@ class Sequence(object):
     def Count(self):
         return len(self._instances)
 
-    def __init__(self, *args, **kwargs):
-        
+#    def __new__(cls, obj, 
+#            alphabet= generic_alphabet, name=None,  description=None,
+#            ):
+#        self = str.__new__(cls, obj)
+#        if alphabet is None: 
+#            alphabet = generic_alphabet
+#        if  not isinstance(alphabet, Alphabet): 
+#            alphabet = Alphabet(alphabet)
+#        if not alphabet.alphabetic(self) :
+#            raise ValueError("Sequence not alphabetic %s, '%s'" %(alphabet, self))
+#        
+#        self._alphabet=alphabet
+#        self.name = name
+#        self.description = description
+#                           
+#        return self
+ 
+    # BEGIN PROPERTIES
+            
+    # Make alphabet constant 
+    @property
+    def alphabet(self):
+        return self._alphabet
+
+    def __init__(self, 
+            name=None, 
+            description=None, 
+            alphabet=generic_alphabet,
+            isAligned=False):
+
         super(Sequence, self).__init__()
         # weak count
         #print("{}".format(id(self)))
         self._obj_id = id(self)
-        self._isAligned = kwargs.pop('isAligned',False)
-        #self._alphabet = kwargs.pop('alphabet',None)
-        self._isalpha = True
-        # initial class
-        arg_len = len(args)
-        if arg_len == 2:
-            self._id = args[0]
-            try:
-                sequence = ''.join(args[1].split())
-                if not self._isAligned:
-                    self._isalpha = sequence.isalpha()
-            except AttributeError:
-                raise ValueError('sequence must be a string.')
-            else:
-                if not self._isalpha:
-                    raise ValueError('not a valid sequence')
-            self._sequence = sequence
-            self._length = len(sequence)
-        else:
-            raise ValueError("Wrong number of arguments.")
+        self.isAligned = isAligned
+        if alphabet is None: 
+            alphabet = generic_alphabet
+        if  not isinstance(alphabet, Alphabet): 
+            alphabet = Alphabet(alphabet)
+        if not alphabet.alphabetic(self) :
+            raise ValueError("Sequence not alphabetic %s, '%s'" %(alphabet, self))
+        self._alphabet = alphabet
+        self.name = name
+        self.description = description
+
         self._instances[self._obj_id] = self
 
     def __str__(self):
-        return ">{0}\n{1}".format(self._id, self._sequence)
+        return ">{0}\n{1}".format(self.name, self.alphabet.letters())
 
     def __repr__(self):
         return self.__str__();
@@ -79,28 +99,23 @@ class Sequence(object):
     def get_obj_id(self):
         return self._obj_id
 
-    def get_sequence(self):
-        return self._sequence
-
     def get_id(self):
         return self._id
 
     def get_length(self):
         return self._length
 
-    def get_aa_freq(self):
-        """ aa frequency """
-        if isinstance(self._sequence, bytes):
-            self._sequence = self._sequence.decode("utf-8")
-        enc = 'utf-16' + ('le' if sys.byteorder == 'little' else 'be')
-        # convert into int
-        a = np.frombuffer(self._sequence.encode(enc), dtype = np.uint16)
-        # count occurrences
-        counts = np.bincount(a)
-        counts = [(unichr(i), v) for i, v in enumerate(counts) if v]
-        return dict(counts)
-
-    def 
+#    def get_aa_freq(self):
+#        """ aa frequency """
+#        if isinstance(self._sequence, bytes):
+#            self._sequence = self._sequence.decode("utf-8")
+#        enc = 'utf-16' + ('le' if sys.byteorder == 'little' else 'be')
+#        # convert into int
+#        a = np.frombuffer(self._sequence.encode(enc), dtype = np.uint16)
+#        # count occurrences
+#        counts = np.bincount(a)
+#        counts = [(unichr(i), v) for i, v in enumerate(counts) if v]
+#        return dict(counts)
 
     def to_numeric(self, scale, smooth=False, func=None):
         """Generate a numeric representation by an AAindex scale
@@ -129,7 +144,7 @@ class Sequence(object):
         aa1prop = AAindex(parser = AAindex1Parser)
         numeric_rep = []
         std_aa_only = translator(keep="ACDEFGHILKMNPQRSTVWY")
-        sequence = std_aa_only(self._sequence)
+        sequence = std_aa_only(self.alphabet.letters())
                 # check parameters:
         # if smooth is true and func should be given too
         if smooth and func is None:
