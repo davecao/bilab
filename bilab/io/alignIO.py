@@ -269,6 +269,32 @@ CXCR4_MURINE      LLFVITLPFWAVDAM-ADWYFGKFLCKAVHIIYTVNLYSSVLILAFISLDRYLAIVHATN
     
 
     """
+    class Token(object):
+        """Represents the items returned by a file scanner, normally processed
+        by a parser.
+        
+        Attributes :
+        o typeof    -- a string describing the kind of token
+        o data      -- the value of the token
+        o lineno    -- the line of the file on which the data was found (if known)
+        o offset    -- the offset of the data within the line (if known)
+        """
+        __slots__ = [ 'typeof', 'data', 'lineno', 'offset']
+        def __init__(self, typeof, data=None, lineno=-1, offset=-1) :
+            self.typeof = typeof
+            self.data = data
+            self.lineno = lineno
+            self.offset = offset
+     
+        def __repr__(self) :
+            return stdrepr( self) 
+
+        def __str__(self):
+            coord = str(self.lineno)
+            if self.offset != -1 : coord += ':'+str(self.offset)
+            coord = coord.ljust(7)
+            return (coord+ '  '+ self.typeof +' : ').ljust(32)+ str(self.data or '')
+
     def __init__(self, handle):
         super(ClustalWIO, self).__init__(handle)
 
@@ -301,16 +327,16 @@ CXCR4_MURINE      LLFVITLPFWAVDAM-ADWYFGKFLCKAVHIIYTVNLYSSVLILAFISLDRYLAIVHATN
                     do_something(token)
             """
             header, body, block = range(3)
-            yield Token("begin")
+            yield self.Token("begin")
             leader_width = -1
             state = header
-            for L, line in enumerate(fin):
+            for L, line in enumerate(handle):
                 if state==header :
                     if line.isspace() : continue
                     m = header_line.match(line)
                     state = body
                     if m is not None :
-                        yield Token("header", m.group() )
+                        yield self.Token("header", m.group() )
                         continue
                     # Just keep going and hope for the best.
                     #else :
@@ -318,40 +344,40 @@ CXCR4_MURINE      LLFVITLPFWAVDAM-ADWYFGKFLCKAVHIIYTVNLYSSVLILAFISLDRYLAIVHATN
 
                 if state == body :
                     if line.isspace() : continue
-                    yield Token("begin_block")
+                    yield self.Token("begin_block")
                     state = block
                     # fall through to block
                 
                 if state ==  block:
                     if line.isspace() :
-                        yield Token("end_block")
+                        yield self.Token("end_block")
                         state = body
                         continue
                     
                     m = match_line.match(line)
                     if m is not None :
-                        yield Token("match_line", line[leader_width:-1])
+                        yield self.Token("match_line", line[leader_width:-1])
                         continue
              
                     m = seq_line.match(line) 
                     if m is None: 
                         raise ValueError("Parse error on line: %d (%s)" % (L,line))
                     leader_width = len(m.group(1))
-                    yield Token("seq_id", m.group(1).strip() )
-                    yield Token("seq", m.group(2).strip() )
+                    yield self.Token("seq_id", m.group(1).strip() )
+                    yield self.Token("seq", m.group(2).strip() )
                     if m.group(3)  :
-                        yield Token("seq_num", m.group(3)) 
+                        yield self.Token("seq_num", m.group(3)) 
                     continue
 
                 # END state blocks. If I ever get here something has gone terrible wrong
                 raise RuntimeError()
             
             if state==block:
-                 yield Token("end_block")
-            yield Token("end")     
+                 yield self.Token("end_block")
+            yield self.Token("end")     
             return
 
-        handle = self.__handle
+        handle = self.handle
         header_line = re.compile(r'(CLUSTAL.*)$')
         # (sequence_id) (Sequence) (Optional sequence number)
         seq_line   = re.compile(r'(\s*\S+\s+)(\S+)\s*(\d*)\s*$')
