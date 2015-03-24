@@ -61,6 +61,17 @@ class AlignIO(object):
     """
     .. note::
         This class uses two patterns, composite and registry
+
+        supported format:
+            FASTA, clustalW, Phylip 
+
+    .. ipython:: python
+        from bilab.sequence import Alphabet, generic_alphabet, protein_alphabet, nucleic_alphabet
+        from bilab.io import AlignIO
+        filename="./Desktop/multifasta.aln"
+        parser=AlignIO(filename, ConcreteIO='ClustalWIO')
+        seqs=parser.parse(alphabet=protein_alphabet, isAligned=True)
+
     """
     __metaclass__ = ClassRegistry
 
@@ -411,3 +422,119 @@ CXCR4_MURINE      LLFVITLPFWAVDAM-ADWYFGKFLCKAVHIIYTVNLYSSVLILAFISLDRYLAIVHATN
                 block_count +=1
         seqs = [Sequence("".join(s), alphabet, name=i) for s, i in zip(seqs, seq_ids)]
         return seqs
+
+class PhylipIO(IOBase, AlignIO):
+    """ Derived class 
+    To read multiple alignments in PHYLIP format
+1. First line contains number of species and number of characters in a species
+   sequence.
+2. A user tree may appear at end of the file
+
+    e.g.
+  6   50   W
+W         0101001111 0101110101 01011   
+dmras1    GTCGTCGTTG GACCTGGAGG CGTGG   
+hschras   GTGGTGGTGG GCGCCGGCCG TGTGG
+ddrasa    GTTATTGTTG GTGGTGGTGG TGTCG
+spras     GTAGTTGTAG GAGATGGTGG TGTTG
+scras1    GTAGTTGTCG GTGGAGGTGG CGTTG
+scras2    GTCGTCGTTG GTGGTGGTGG TGTTG
+
+0101001111 0101110101 01011 
+GTCGTCGTTG GACCTGGAGG CGTGG 
+GTGGTGGTGG GCGCCGGCCG TGTGG
+GTTATTGTTG GTGGTGGTGG TGTCG
+GTAGTTGTAG GAGATGGTGG TGTTG
+GTAGTTGTCG GTGGAGGTGG CGTTG
+GTCGTCGTTG GTGGTGGTGG TGTTG
+
+1                   
+((dmras1,ddrasa),((hschras,spras),(scras1,scras2)));
+    """
+    def __init__(self, handle):
+        super(PhylipIO, self).__init__(handle)
+
+    def parse(self, alphabet=None, isAligned=False):
+        """ Parse Phylip format, return a list of bilab.sequence.Sequence
+            See weblog's phylip_io
+        Args:
+
+        Kwargs:
+            alphabet - bilab.sequence.Alphabet
+
+        return:
+            a list of bilab.sequence.Sequence
+        """
+        seqs = []
+        idents=[]
+        num_seq=0
+        num_total_seq=0 #length of sequence of 1 species
+        tracker=0 #track what sequence the line is on
+        usertree_tracker=0 #track usertree lines
+        options='' #options
+        num_options=0 #number/lens of options - U
+        handle = self.handle
+        for lineno, currline in enumerate(handle):
+            #split into fields
+            line = currline.strip("\n").split()
+            if line == []:
+                continue
+
+            if (line[0].isdigit() and len(line) == 1 and 
+                len(seqs) == num_seq and len(seqs[0]) == num_total_seq):
+                usertree_tracker = int(line[0])
+                pass #identifies usertree
+            elif num_options > 0:
+                if len(seqs) < num_seq:
+                    if line[0][0] in options:
+                        num_options -= 1
+                        pass
+                    else:
+                        raise ValueError("Not an option, but it should be one")
+                else:
+                    num_options -= 1
+                    pass
+            elif usertree_tracker > 0:
+                #skip usertree basically
+                if len(seqs[num_seq - 1]) == num_total_seq:
+                    usertree_tracker -= 1
+                    pass
+                else:
+                    raise ValueError('User Tree in Wrong Place')
+            elif line[0].isdigit():
+                if len(line) >= 2 and len(seqs) == 0:
+                    # identifies first line
+                    # number of sequences
+                    num_seq = int(line[0])
+                    # length of sequences
+                    num_total_seq = int(line[1])
+                    if len(line) > 2:
+                        options = (''.join(line[2:]))
+                        num_options = len(options) - options.count('U')
+                    #else:
+                    #    raise ValueError('parse error')
+            elif num_options == 0:
+                if num_seq == 0:
+                    raise ValueError("Empty File, or possibly wrong file")
+                elif tracker < num_seq:
+                    if num_seq > len(seqs):
+                        seqs.append(''.join(currline[10:].split())) # removes species name
+                        idents.append(currline[0:10].strip())
+                        tracker +=1
+                    else:
+                        seqs[tracker] += (''.join(line))
+                        tracker += 1
+                    if tracker == num_seq:
+                        tracker = 0
+                        num_options = len(options) - options.count('U')
+        if len(seqs) != len(idents) or len(seqs)!=num_seq:
+            raise ValueError("Number of different sequences wrong")
+        sequence = []
+        for i in range(0, len(idents)):
+            if len(seqs[i]) == num_total_seq:
+                sequence.append(
+                    Sequence(seqs[i], alphabet=alphabet, 
+                            name=idents[i], isAligned=isAligned))
+            else:
+                raise ValueError("extra sequence in list")
+        return sequence
