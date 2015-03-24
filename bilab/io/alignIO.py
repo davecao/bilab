@@ -63,7 +63,9 @@ class AlignIO(object):
         This class uses two patterns, composite and registry
 
         supported format:
-            FASTA, clustalW, Phylip 
+            FASTA - MultiFastaIO, 
+            clustalW - ClustalWIO, 
+            Phylip - PhylipIO 
 
     .. ipython:: python
         from bilab.sequence import Alphabet, generic_alphabet, protein_alphabet, nucleic_alphabet
@@ -429,8 +431,15 @@ class PhylipIO(IOBase, AlignIO):
 1. First line contains number of species and number of characters in a species
    sequence.
 2. A user tree may appear at end of the file
-
-    e.g.
+3. options
+  U - User Tree
+  G - Global 
+  J - Jumble
+  O - Outgroup
+  T - Threshold
+  M - Multiple data sets
+  W - Weights
+-------------------------------------------
   6   50   W
 W         0101001111 0101110101 01011   
 dmras1    GTCGTCGTTG GACCTGGAGG CGTGG   
@@ -450,6 +459,7 @@ GTCGTCGTTG GTGGTGGTGG TGTTG
 
 1                   
 ((dmras1,ddrasa),((hschras,spras),(scras1,scras2)));
+-----------------------------------------------------
     """
     def __init__(self, handle):
         super(PhylipIO, self).__init__(handle)
@@ -538,3 +548,4 @@ GTCGTCGTTG GTGGTGGTGG TGTTG
             else:
                 raise ValueError("extra sequence in list")
         return sequence
+
