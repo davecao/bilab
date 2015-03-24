@@ -22,10 +22,7 @@ class Profile(object):
             raise ValueError("Unknown alphabet")
         s_ords = []
         for s in self.sequenceList:
-            temp_s = []
-            for aa in s:
-                temp_s.append(alphabet.ords(aa))
-            s_ords.append(temp_s)
+            s_ords.append(s.ords())
         return s_ords
 
     def generate(self, alphabet=None):
