@@ -25,3 +25,6 @@ from .pssm import *
 from .sequence import *
 #__all__.extend(sequence.__all__)
 
+#from . import profile
+from .profile import *
+#__all__.extend(profile.__all__)
