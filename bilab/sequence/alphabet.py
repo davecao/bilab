@@ -351,27 +351,27 @@ class Alphabet(object) :
     def __hash__(self):
         return hash( tuple(self._ord_table))
 
-    @staticmethod 
-    def which(seqs, alphabets=None) :
-        """ 
-        Returns the most appropriate unambiguous protein, RNA or 
-        DNA alphabet for a Seq or SeqList. If a list of alphabets is 
-        supplied, then the best alphabet is selected from that list.
+#    @staticmethod 
+#    def which(seqs, alphabets=None) :
+#        """ 
+#        Returns the most appropriate unambiguous protein, RNA or 
+#        DNA alphabet for a Seq or SeqList. If a list of alphabets is 
+#        supplied, then the best alphabet is selected from that list.
 
-        The heuristic is to count the occurrences of letters for each alphabet 
-        and  downweight longer alphabets by the log of the alphabet length. 
-        Ties go to the first alphabet in the list.
-        """
-        if alphabets is None :
-            alphabets = (unambiguous_dna_alphabet,
-                    unambiguous_rna_alphabet,
-                    unambiguous_protein_alphabet,
-                    )
-        import math
-        score= [sum(seqs.tally(a))/math.log(len(a)) for a in alphabets]
-        best = score.index(max(score))
-        a = alphabets[best]
-        return a
+#        The heuristic is to count the occurrences of letters for each alphabet 
+#        and  downweight longer alphabets by the log of the alphabet length. 
+#        Ties go to the first alphabet in the list.
+#        """
+#        if alphabets is None :
+#            alphabets = (unambiguous_dna_alphabet,
+#                    unambiguous_rna_alphabet,
+#                    unambiguous_protein_alphabet,
+#                    )
+#        import math
+#        score= [sum(seqs.tally(a))/math.log(len(a)) for a in alphabets]
+#        best = score.index(max(score))
+#        a = alphabets[best]
+#        return a
 
 # End class Alphabet
         
