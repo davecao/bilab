@@ -2,6 +2,8 @@
 """This module defines a profile class
 """
 from __future__ import print_function
+
+import numpy as np
 from bilab.sequence import Sequence, Alphabet
 
 __all__ = ['Profile']
@@ -55,7 +57,18 @@ class Profile(object):
         return s_ords
 
     def generate(self, alphabet=None):
-        """ Generate profile """
+        """ Generate frequency profile 
+        Args:
+            alphabet - Amino acids count for each position
+        Kwargs:
+
+        Returns:
+            a numpy 2D array of frequencies of specified amino acids 
+            row means positions of amino acid in the sequence
+            column means frequencies of specified amino acid occurred in the 
+            order of the given alphabet.
+         note: if the value divided by zero, it will return zero, not nan 
+        """
         if not alphabet:
             alphabet = self.alphabet
         if (alphabet is None) or not isinstance(alphabet, Alphabet):
@@ -66,12 +79,22 @@ class Profile(object):
                             gapIndex=gapIndex, 
                             unknownIndex=unknown_Index)
         L = len(ords[0])
-        counts = [ [0,]*N for l in range(0,L)]
-
+        #counts = [ [0,]*N for l in range(0,L)]
+        # L positions and N kinds of amino acids
+        counts = np.zeros((L, N), dtype=float)
         for o in ords :
             if len(o)!=L : 
                 raise ValueError("Sequences are of incommensurate lengths.")
             for j,n in enumerate(o) :
                 if n<N : 
                     counts[ j][n] +=1
-        return counts
+        # sum at each position
+        aa_sum = np.sum(counts, axis=1)
+        # 20 aa at each position
+        # if divisor is zero, 
+        # disable RuntimeWarining: invalid value encountered in divide
+        old_seterr = np.geterr()
+        np.seterr(divide='ignore',invalid='ignore')
+        fre_aa = np.nan_to_num(counts/np.asmatrix(aa_sum).T).flatten().tolist()
+        np.seterr(**old_seterr)
+        return fre_aa
