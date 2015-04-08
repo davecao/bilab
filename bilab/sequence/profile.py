@@ -98,3 +98,10 @@ class Profile(object):
         fre_aa = np.nan_to_num(counts/np.asmatrix(aa_sum).T).flatten().tolist()
         np.seterr(**old_seterr)
         return fre_aa
+
+    def profileHMM(self, alphabet=None):
+        """
+        Generate a profile HMM
+        """
+        # get frequencies of alphabet occurred in positions
+        fre = self.generate(alphabet)
