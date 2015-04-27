@@ -15,3 +15,5 @@ from .transform import *
 from .pdbfile import *
 
 from .contacts import *
+
+from .surface import *

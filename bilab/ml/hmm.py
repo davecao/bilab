@@ -101,10 +101,10 @@ class DiscreteHMM(HMM):
     the physical observations.
     
     Args:
-        hiddenStates -  the alphabets of hidden states (N), list or array
-                         e.g. hiddenStates = ('Rainy', 'Sunny')
-        observedStates - the alphabets of observable symbols (M)
-                         e.g. observedStates = ('walk', 'shop', 'clean')
+        states -  the alphabets of hidden states (N), list or array
+                         e.g. states = ('Rainy', 'Sunny')
+        observations - the alphabets of observable symbols (M)
+                         e.g. observations = ('walk', 'shop', 'clean')
 
     Kwargs:
         transitionProbMatrix - hidden states transition probability matrix 
@@ -125,7 +125,7 @@ class DiscreteHMM(HMM):
       verbose - a flag for printing progress information, mainly when learning
     """
 
-    def __init__(self, hiddenStates, observerStates, 
+    def __init__(self, states, observations, 
                 transitionProbMatrix=None, 
                 emissionProbMatrix=None, 
                 initStatesProb=None, 
@@ -134,30 +134,32 @@ class DiscreteHMM(HMM):
                 verbose=False):
         super(DiscreteHMM, self).__init__():
 
+        self.states = states
+        self.observations = observations
         # Number of hidden states
-        self.numOfStates = len(hiddenStates)
+        self.numOfStates = len(self.states)
         # Number of observations
-        self.numOfObservations = len(observedStates)
+        self.numOfObservations = len(self.observations)
 
         self.transitionProbMatrix = transitionProbMatrix
         self.emissionProbMatrix = emissionProbMatrix
         self.initStatesProb = initStatesProb
         self.precision = precision
         self.verbose = verbose
-        self.setInitialProb()
+        if initPMFtype is None:
+            self.setInitialProb()
 
     def setInitialProb(self):
         if self.initPMFtype == 'uniform':
-            self.stateDistribution = 
-                np.ones( 
-                    (self.numOfHiddenStates), dtype=self.precision) * 
-                    (1.0/self.numOfHiddenStates)
-            self.hiddenTransProbMatrix = np.ones( 
-                (self.numOfHiddenStates, self.numOfHiddenStates), 
-                    dtype=self.precision)*(1.0/self.numOfHiddenStates)
-            self.stateDistribution = np.ones( 
-                (self.numOfHiddenStates,self.numOfObsStates), 
-                    dtype=self.precision)*(1.0/self.numOfObsStates)
+            #initialize start probability of states: 1/N
+            self.initStatesProb = 
+                np.ones((self.numOfStates), dtype=self.precision) * (1.0/self.numOfStates)
+            # transition matrix: NxN 
+            self.transitionProbMatrix = np.ones((self.numOfStates, self.numOfStates), dtype=self.precision)*(1.0/self.numOfStates)
+            # emission matrix: NxM 
+            self.emissionProbMatrix = np.ones( 
+                (self.numOfStates,self.numOfObservations), 
+                    dtype=self.precision)*(1.0/self.numOfObservations)
 
 
 class HMM_Interface(object):
