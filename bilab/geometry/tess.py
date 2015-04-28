@@ -16,8 +16,8 @@ num_points should be 2**(2*N) + 2, where N > 1.
 The C code in MMTK_surfacemodule.c does the same thing faster, so this
 code should normally be used only by people who can't compile C code.
 """
-
-from math import sqrt, atan2, pi
+import math
+from math import sqrt, atan2, pi, cos, sin
 
 __all__ = ['tesselate', 'tesselate_by_sprial']
 
@@ -86,11 +86,11 @@ def tesselate_by_sprial(num_points):
         of Protein Atoms. Lysozyme and Insulin." JMB (1973) 79:351-371.
     """
     points = []
-    inc = math.pi * (3 - math.sqrt(5))
-    offset = 2 / float(n)
-    for k in range(int(n)):
+    inc = pi * (3 - sqrt(5))
+    offset = 2 / float(num_points)
+    for k in range(int(num_points)):
         y = k * offset - 1 + (offset / 2)
-        r = math.sqrt(1 - y*y)
+        r = sqrt(1 - y*y)
         phi = k * inc
-        points.append([math.cos(phi)*r, y, math.sin(phi)*r])
+        points.append([cos(phi)*r, y, sin(phi)*r])
     return points
