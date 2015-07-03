@@ -28,13 +28,15 @@ Test
 -----
     ./prInteract.py --pdbdir . --pdbid 9mht --outfmt txt --out 9mht --distance 5.0 --source protein --target nucleic -v
 
-  the output file named 9mht.txt
-----------------------------------------------------------------------------------------------------
-#ATOM: source : target : the distance : sum of covalent bond length :is a covalent bond (True/False)
-# format of source: resname.chid.Icode.resnum.atomname
-# format of target: resname.chid.Icode.resnum.atomname
-ATOM:TYR.A._.44.OH:DC.C._.402.P:4.612:1.730:False
-ATOM:TYR.A._.44.CE2:DC.C._.402.P:4.829:1.830:False
-ATOM:TYR.A._.44.OH:DC.C._.402.OP2:4.023:1.320:False
-ATOM:TYR.A._.44.CZ:DC.C._.402.OP2:4.305:1.420:False
-ATOM:TYR.A._.44.CE2:DC.C._.402.OP2:3.622:1.420:False
+Output
+--------------
+The result is saved to the file named 9mht.txt    
+
+#ATOM: source : target : the distance : sum of covalent bond length :is a covalent bond (True/False)  
+#format of source: resname.chid.Icode.resnum.atomname  
+#format of target: resname.chid.Icode.resnum.atomname  
+ATOM:TYR.A.\_.44.OH:DC.C.\_.402.P:4.612:1.730:False    
+ATOM:TYR.A.\_.44.CE2:DC.C.\_.402.P:4.829:1.830:False    
+ATOM:TYR.A.\_.44.OH:DC.C.\_.402.OP2:4.023:1.320:False    
+ATOM:TYR.A.\_.44.CZ:DC.C.\_.402.OP2:4.305:1.420:False    
+ATOM:TYR.A.\_.44.CE2:DC.C.\_.402.OP2:3.622:1.420:False    
