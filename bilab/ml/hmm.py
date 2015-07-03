@@ -152,8 +152,8 @@ class DiscreteHMM(HMM):
     def setInitialProb(self):
         if self.initPMFtype == 'uniform':
             #initialize start probability of states: 1/N
-            self.initStatesProb = 
-                np.ones((self.numOfStates), dtype=self.precision) * (1.0/self.numOfStates)
+            self.initStatesProb = np.ones(
+                (self.numOfStates), dtype=self.precision) * (1.0/self.numOfStates)
             # transition matrix: NxN 
             self.transitionProbMatrix = np.ones((self.numOfStates, self.numOfStates), dtype=self.precision)*(1.0/self.numOfStates)
             # emission matrix: NxM 
