@@ -12,13 +12,13 @@ Download and Installation
 -------------------------
 1. Numpy
 
-    git clone git://github.com/numpy/numpy.git numpy
-    cd numpy
-    python setup.py build install
+    git clone git://github.com/numpy/numpy.git numpy  
+    cd numpy  
+    python setup.py build install  
 
-2. Distutil2
-    cd Distutils2-1.0a4
-    python setup.py build install
+2. Distutil2  
+    cd Distutils2-1.0a4  
+    python setup.py build install  
 
 3. bilab
     cd bilab
@@ -26,7 +26,7 @@ Download and Installation
 
 Test
 -----
-    ./prInteract.py --pdbdir . --pdbid 9mht --outfmt txt --out 9mht --distance 5.0 --source protein --target nucleic -v
+    ./prInteract.py --pdbdir . --pdbid 9mht --outfmt txt --out 9mht --distance 5.0 --source protein --target nucleic -v  
 
 Output
 --------------
