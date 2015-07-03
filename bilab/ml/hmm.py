@@ -334,7 +334,7 @@ class HMM_Interface(object):
             # verbose
             if (self.verbose):
                 print("iter: {}, L(model|O) = {}, L(model_new|O) = {}, "
-                    " converging = {}".format ( prob_new-prob_old > thres )
+                    " converging = {}".format ( prob_new-prob_old > thres ))
             if ( abs(prob_new-prob_old) < epsilon ):
-                # converged
+                #converged
                 break
