@@ -132,7 +132,7 @@ class DiscreteHMM(HMM):
                 initPMFtype=None,
                 precision=np.double, 
                 verbose=False):
-        super(DiscreteHMM, self).__init__():
+        super(DiscreteHMM, self).__init__()
 
         self.states = states
         self.observations = observations
