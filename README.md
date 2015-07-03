@@ -32,9 +32,9 @@ Output
 --------------
 The result is saved to the file named 9mht.txt    
 
-#ATOM: source : target : the distance : sum of covalent bond length :is a covalent bond (True/False)  
-#format of source: resname.chid.Icode.resnum.atomname  
-#format of target: resname.chid.Icode.resnum.atomname  
+\#ATOM: source : target : the distance : sum of covalent bond length :is a covalent bond (True/False)  
+\#format of source: resname.chid.Icode.resnum.atomname  
+\#format of target: resname.chid.Icode.resnum.atomname  
 ATOM:TYR.A.\_.44.OH:DC.C.\_.402.P:4.612:1.730:False    
 ATOM:TYR.A.\_.44.CE2:DC.C.\_.402.P:4.829:1.830:False    
 ATOM:TYR.A.\_.44.OH:DC.C.\_.402.OP2:4.023:1.320:False    
