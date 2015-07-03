@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import math
+
+from bilab.geometry.distance import euclidean
 from bilab.geometry.tess import *
 from bilab.utilities import checkCoords
 from bilab.chemicals import ElementData
@@ -8,14 +10,53 @@ from timeit import default_timer as timer
 
 __all__ = [ 'calcASA' ]
 
-def pos_distance(p1, p2):
-  return math.sqrt(pos_distance_sq(p2, p1))
+class Point(object):
+    """ 3D points """
+    def __init__(self, x, y, z, **kwargs):
+        """Initialization.
 
-def pos_distance_sq(p1, p2):
-  x = p1.x - p2.x
-  y = p1.y - p2.y
-  z = p1.z - p2.z
-  return x*x + y*y + z*z;
+        Args:
+           x (float): x coordinate
+           y (float): y coordinate
+           z (float): z coordinate
+           is_accessible (bool) : is it accessible by a probe 
+
+        Kwargs:
+        """
+        super(Point, self).__init__()
+        self.x = x
+        self.y = y
+        self.z = z
+        self.coords = [x, y, z]
+        self.is_accessible = True
+
+    def setAccessibility(self, probe_coords, probe_radius):
+        """ set accessibility for a probe"""
+        dist = euclidean(probe_coords, self.coords)
+        if dist < probe_radius:
+            self.is_accessible = False
+
+class NumericSurface(object):
+    """ 
+        represent an atom with a numerical sphere 
+
+    """
+    def __init__(self, center, radius, n_sphere_point=960):
+        sphere_points = tesselate_by_sprial(n_sphere_point)
+        test_points = sphere_points * radius + center
+        self.points = []
+        self.numOfAccessiblePoints = 0
+        for p in test_points:
+            self.points.append(Point(p[0], p[1], p[2]))
+
+    def setAccessibility(self, c, r):
+        for p in self.points:
+            p.setAccessibility(c, r)
+            if p.is_accessible:
+                self.numOfAccessiblePoints += 1
+
+    def getNumOfAccessiblePoint(self):
+        return self.numOfAccessiblePoints
 
 def getElementVDWRadius(elem_str):
     """ 
@@ -42,7 +83,7 @@ def find_neighbor_indices(atoms, probe, k, verbose=False):
     neighbors = []
     atom_k = atoms[k]
     serial_no = atom_k.getSerial()
-    radius = getElementVDWRadius(atom_k.getName()) + probe + probe
+    radius = getElementVDWRadius(atom_k.getElement()) + probe + probe
     #start =timer()
     #neighbors_pair = findNeighbors(atom_k, radius, atoms2=atoms)
     #end=timer()
@@ -87,24 +128,35 @@ def calcASA(atoms, probe, n_sphere_point=960):
         except TypeError:
             raise TypeError('atoms must be an Atomic instance')
 
-    sphere_points = tesselate_by_sprial(n_sphere_point)
 
-    const = 4.0 * math.pi / len(sphere_points)
+    const = 4.0 * math.pi / n_sphere_point
     #test_point = Vector3d()
     test_point = None
     areas = []
     for i, atom_i in enumerate(atoms):
+        elem_i = atom_i.getElement()
+        center = atom_i.getCoords()
+        radius = getElementVDWRadius(elem_i)
+        # generate surface
+        surface = NumericSurface(center, radius + probe, n_sphere_point=n_sphere_point)
         neighbors = find_neighbor_indices(atoms, probe, i)
-        n_neighbor = len(neighbor_indices)
-        j_closest_neighbor = 0
+        num_neighbors = len(neighbors)
 
-        radius = probe + getElementVDWRadius(atom_i.getName())
-        atom_i_coords = atom_i.getCoords()
-        
-        test_point = sphere_points * radius + atom_i_coords
-        
-        n_accessible_point = 0
-
+        for atom_j in neighbors.iterAtoms():
+            elem_j = atom_j.getElement()
+            atom_j_coord = atom_j.getCoords()
+            r = getElementVDWRadius(elem_j)
+            surface.setAccessibility(atom_j_coord, r + probe)
+        # count accessible-points 
+        n_accessible_point = surface.getNumOfAccessiblePoint()
+#        n_accessible_point = 0
+#        area = 0
+        #loop over neighbours
+#        for atom_j in neighbors.iterAtoms():
+#            atom_j_coord = atom_j.getCoords()
+#            r = getElementVDWRadius(atom_j.getName()) + probe
+#            for inx, test_p in enumerate(test_points):
+                
 #        for point in test_points:
 #            is_accessible = True
 #            test_point.x = point[0]*radius + atom_i.pos.x

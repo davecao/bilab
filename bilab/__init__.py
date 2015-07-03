@@ -27,7 +27,7 @@ from .utilities import getPackagePath, joinRepr, tabulate
 _PY3K = PY3K = sys.version_info[0] > 2
 PY2K = not PY3K
 
-LOGGER = PackageLogger('.bilab')
+LOGGER = PackageLogger('bilab')
 SETTINGS = PackageSettings('bilab', logger=LOGGER)
 SETTINGS.load()
 
