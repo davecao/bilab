@@ -6,6 +6,7 @@ from bilab.geometry.tess import *
 from bilab.utilities import checkCoords
 from bilab.chemicals import ElementData
 from bilab.structure.contacts import findNeighbors
+from bilab.structure.atomic import AtomGroup
 from timeit import default_timer as timer
 
 __all__ = [ 'calcASA' ]
@@ -80,7 +81,7 @@ def find_neighbor_indices(atoms, probe, k, verbose=False):
 
     Note: AtomGroup.select much faster than findNeighbors
     """
-    neighbors = []
+    neighbors = AtomGroup(title="neighbors")
     atom_k = atoms[k]
     serial_no = atom_k.getSerial()
     radius = getElementVDWRadius(atom_k.getElement()) + probe + probe
@@ -92,24 +93,29 @@ def find_neighbor_indices(atoms, probe, k, verbose=False):
     sel_center = "within {} of center".format(radius)
     #neighbors=atoms.select(sel_center, center=atom_k.getCoords()).copy()
     found_neighbors=atoms.select(sel_center, center=atom_k.getCoords())
+
     if found_neighbors:
         neighbors = found_neighbors.copy()
     else:
-        return None
+        return neighbors
     #end=timer()
     neighbors_ex = neighbors.select("not (serial {})".format(serial_no)).copy()
     #print ("{}".format(end-start))
     if verbose:
         for at in neighbors_ex.iterAtoms():
-            print ("Name:{}, Res:{}, ch:{}".format(at.getName(),
+            print ("{} - Name:{}, Res:{}, ch:{}".format(atom_k, at.getName(),
                 at.getResname(),at.getChid()))
     return neighbors_ex
 
 def calcASA(atoms, probe, n_sphere_point=960, verbose=False):
     """
     Calculate accessible surface areas of the atoms, using the probe
-    and atom radius to define the surface.
-
+    and atom radius to define the surface. (Shrake-Rupley algorithm)
+    
+    Reference: A. Shrake & J. A. Rupley. "Environment and Exposure to
+    Solvent of Protein Atoms. Lysozyme and Insulin." 
+    J Mol Biol. 79(1973) 351- 371. 
+    
     Args:
         atoms (class): bilab.structure.AtomGroup
         probe (float): the radius of a probe
@@ -144,9 +150,9 @@ def calcASA(atoms, probe, n_sphere_point=960, verbose=False):
         radius = getElementVDWRadius(elem_i)
         # generate surface
         surface = NumericSurface(center, radius + probe, n_sphere_point=n_sphere_point)
-        neighbors = find_neighbor_indices(atoms, probe, i)
+        neighbors = find_neighbor_indices(atoms, probe, i, verbose=verbose)
         num_neighbors = len(neighbors)
-        print("{} neigbours around {}".format(num_neighbors, elem_i))
+        
         for atom_j in neighbors.iterAtoms():
             elem_j = atom_j.getElement()
             atom_j_coord = atom_j.getCoords()
