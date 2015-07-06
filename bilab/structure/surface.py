@@ -90,7 +90,12 @@ def find_neighbor_indices(atoms, probe, k, verbose=False):
     #print ("{}".format(end-start))
     #start =timer()
     sel_center = "within {} of center".format(radius)
-    neighbors=atoms.select(sel_center, center=atom_k.getCoords()).copy()
+    #neighbors=atoms.select(sel_center, center=atom_k.getCoords()).copy()
+    found_neighbors=atoms.select(sel_center, center=atom_k.getCoords())
+    if found_neighbors:
+        neighbors = found_neighbors.copy()
+    else:
+        return None
     #end=timer()
     neighbors_ex = neighbors.select("not (serial {})".format(serial_no)).copy()
     #print ("{}".format(end-start))
