@@ -89,8 +89,8 @@ def find_neighbor_indices(atoms, probe, k, verbose=False):
     #end=timer()
     #print ("{}".format(end-start))
     #start =timer()
-    neighbors=atoms.select("within {} of center"
-        .format(radius, serial_no), center=atom_k.getCoords()).copy()
+    sel_center = "within {} of center".format(radius)
+    neighbors=atoms.select(sel_center, center=atom_k.getCoords()).copy()
     #end=timer()
     neighbors_ex = neighbors.select("not (serial {})".format(serial_no)).copy()
     #print ("{}".format(end-start))
@@ -100,7 +100,7 @@ def find_neighbor_indices(atoms, probe, k, verbose=False):
                 at.getResname(),at.getChid()))
     return neighbors_ex
 
-def calcASA(atoms, probe, n_sphere_point=960):
+def calcASA(atoms, probe, n_sphere_point=960, verbose=False):
     """
     Calculate accessible surface areas of the atoms, using the probe
     and atom radius to define the surface.
@@ -141,7 +141,7 @@ def calcASA(atoms, probe, n_sphere_point=960):
         surface = NumericSurface(center, radius + probe, n_sphere_point=n_sphere_point)
         neighbors = find_neighbor_indices(atoms, probe, i)
         num_neighbors = len(neighbors)
-
+        print("{} neigbours around {}".format(num_neighbors, elem_i))
         for atom_j in neighbors.iterAtoms():
             elem_j = atom_j.getElement()
             atom_j_coord = atom_j.getCoords()
