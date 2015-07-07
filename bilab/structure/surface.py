@@ -103,7 +103,8 @@ def find_neighbor_indices(atoms, probe, k, verbose=False):
     #print ("{}".format(end-start))
     if verbose:
         for at in neighbors_ex.iterAtoms():
-            print ("{} - Name:{}, Res:{}, ch:{}".format(atom_k, at.getName(),
+            print ("{}_{} - Name:{}, sn:{}, Res:{}, ch:{}".format(
+                atom_k, atom_k.getSerial(), at.getName(), at.getSerial(),
                 at.getResname(),at.getChid()))
     return neighbors_ex
 
