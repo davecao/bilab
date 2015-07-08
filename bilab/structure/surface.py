@@ -85,13 +85,9 @@ def find_neighbor_indices(atoms, probe, k, verbose=False):
     atom_k = atoms[k]
     serial_no = atom_k.getSerial()
     radius = getElementVDWRadius(atom_k.getElement()) + probe + probe
-    #start =timer()
-    #neighbors_pair = findNeighbors(atom_k, radius, atoms2=atoms)
-    #end=timer()
-    #print ("{}".format(end-start))
+
     #start =timer()
     sel_center = "within {} of center".format(radius)
-    #neighbors=atoms.select(sel_center, center=atom_k.getCoords()).copy()
     found_neighbors=atoms.select(sel_center, center=atom_k.getCoords())
 
     if found_neighbors:
@@ -105,7 +101,7 @@ def find_neighbor_indices(atoms, probe, k, verbose=False):
         for at in neighbors_ex.iterAtoms():
             print ("{}_{} - Name:{}, sn:{}, Res:{}, ch:{}".format(
                 atom_k, atom_k.getSerial(), at.getName(), at.getSerial(),
-                at.getResname(),at.getChid()))
+                at.getResname(), at.getChid()))
     return neighbors_ex
 
 def calcASA(atoms, probe, n_sphere_point=960, verbose=False):
@@ -150,7 +146,8 @@ def calcASA(atoms, probe, n_sphere_point=960, verbose=False):
         center = atom_i.getCoords()
         radius = getElementVDWRadius(elem_i)
         # generate surface
-        surface = NumericSurface(center, radius + probe, n_sphere_point=n_sphere_point)
+        surface = NumericSurface(center, radius + probe, 
+                                 n_sphere_point=n_sphere_point)
         neighbors = find_neighbor_indices(atoms, probe, i, verbose=verbose)
         num_neighbors = len(neighbors)
         
@@ -191,5 +188,5 @@ def calcASA(atoms, probe, n_sphere_point=960, verbose=False):
 
         area = const*n_accessible_point*radius*radius
         areas.append(area)
-    print "%.1f angstrom squared." % sum(areas)
+    #print "%.1f angstrom squared." % sum(areas)
     return areas
