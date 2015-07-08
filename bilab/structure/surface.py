@@ -85,7 +85,7 @@ def find_neighbor_indices(atoms, probe, k, verbose=False):
     neighbors = AtomGroup(title="neighbors")
     atom_k = atoms[k]
     serial_no = atom_k.getSerial()
-    radius = getElementVDWRadius(atom_k.getElement()) + probe + probe
+    radius = getElementVDWRadius(atom_k.getElement()) + probe + probe + 4.0
 
     #start =timer()
     sel_center = "within {} of center".format(radius)
