@@ -1738,6 +1738,6 @@ ElementData = ElementCollection()
 
 for ele in PeriodicTable:
     ele_obj = Element()
-    for key, val in ele.iteritems():
+    for key, val in ele.items():
         ele_obj.setData(key, [val])
     ElementData.add(ele_obj)

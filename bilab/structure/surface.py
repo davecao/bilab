@@ -46,7 +46,7 @@ class NumericSurface(object):
         sphere_points = tesselate_by_sprial(n_sphere_point)
         test_points = sphere_points * radius + center
         self.points = []
-        self.numOfAccessiblePoints = 0
+        self.numOfAccessiblePoints = n_sphere_point
         for p in test_points:
             self.points.append(Point(p[0], p[1], p[2]))
 
@@ -54,7 +54,8 @@ class NumericSurface(object):
         for p in self.points:
             p.setAccessibility(c, r)
             if p.is_accessible:
-                self.numOfAccessiblePoints += 1
+                self.numOfAccessiblePoints -= 1
+                break
 
     def getNumOfAccessiblePoint(self):
         return self.numOfAccessiblePoints
@@ -99,7 +100,7 @@ def find_neighbor_indices(atoms, probe, k, verbose=False):
     #print ("{}".format(end-start))
     if verbose:
         for at in neighbors_ex.iterAtoms():
-            print ("{}_{} - Name:{}, sn:{}, Res:{}, ch:{}".format(
+            print ("{}_{} - Name:{}, SN:{}, Res:{}, Ch:{}".format(
                 atom_k, atom_k.getSerial(), at.getName(), at.getSerial(),
                 at.getResname(), at.getChid()))
     return neighbors_ex
@@ -150,7 +151,7 @@ def calcASA(atoms, probe, n_sphere_point=960, verbose=False):
                                  n_sphere_point=n_sphere_point)
         neighbors = find_neighbor_indices(atoms, probe, i, verbose=verbose)
         num_neighbors = len(neighbors)
-        
+
         for atom_j in neighbors.iterAtoms():
             elem_j = atom_j.getElement()
             atom_j_coord = atom_j.getCoords()
@@ -158,35 +159,9 @@ def calcASA(atoms, probe, n_sphere_point=960, verbose=False):
             surface.setAccessibility(atom_j_coord, r + probe)
         # count accessible-points 
         n_accessible_point = surface.getNumOfAccessiblePoint()
-#        n_accessible_point = 0
-#        area = 0
-        #loop over neighbours
-#        for atom_j in neighbors.iterAtoms():
-#            atom_j_coord = atom_j.getCoords()
-#            r = getElementVDWRadius(atom_j.getName()) + probe
-#            for inx, test_p in enumerate(test_points):
-                
-#        for point in test_points:
-#            is_accessible = True
-#            test_point.x = point[0]*radius + atom_i.pos.x
-#            test_point.y = point[1]*radius + atom_i.pos.y
-#            test_point.z = point[2]*radius + atom_i.pos.z
-#
-#            cycled_indices = range(j_closest_neighbor, n_neighbor)
-#            cycled_indices.extend(range(j_closest_neighbor))
-#
-#            for j in cycled_indices:
-#                atom_j = atoms[neighbor_indices[j]]
-#                r = atom_j.radius + probe
-#                diff_sq = pos_distance_sq(atom_j.pos, test_point)
-#                if diff_sq < r*r:
-#                    j_closest_neighbor = j
-#                    is_accessible = False
-#                    break
-#            if is_accessible:
-#                n_accessible_point += 1
-
         area = const*n_accessible_point*radius*radius
         areas.append(area)
-    #print "%.1f angstrom squared." % sum(areas)
+        if verbose:
+            print("{} -- Res:{}_{}_{}, atom: {}, #access:{}, radius:{:.3f}, area:{:.3f}".format(i, atom_i.getResname(), atom_i.getResnum(), atom_i.getChid(), 
+            atom_i.getName(), n_accessible_point, radius, area))
     return areas

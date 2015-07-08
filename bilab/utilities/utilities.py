@@ -248,13 +248,15 @@ class ProgressBar(Thread):
 
     def run(self):
         if sys.platform.lower().startswith('win'):
-            print self, '\r',
+            print("{}\r".format(self))
+            #print self, '\r',
         else:
-            print self, chr(27) + '[A'
+            print("{}[A".format(chr(27)))
+            #print self, chr(27) + '[A'
         self.update_time(self.elapsed_time())
         time.sleep(self.interval)
         self.counter += self.interval
-        print self
+        print("{}".format(self))
 
     def update_time(self, elapsed_secs):
         self.__update_amount(elapsed_secs)
