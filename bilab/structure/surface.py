@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import math
+import numpy as np
 
 from bilab.geometry.distance import euclidean
 from bilab.geometry.tess import *
@@ -40,25 +41,28 @@ class Point(object):
 class NumericSurface(object):
     """ 
         represent an atom with a numerical sphere 
-
     """
-    def __init__(self, center, radius, n_sphere_point=960):
-        sphere_points = tesselate_by_sprial(n_sphere_point)
-        test_points = sphere_points * radius + center
+    def __init__(self, center, radius, sphere_points):
+        #sphere_points = tesselate_by_sprial(n_sphere_point)
+        test_points = np.array(sphere_points) * radius + center
         self.points = []
-        self.numOfAccessiblePoints = n_sphere_point
+        #self.numOfAccessiblePoints = len(sphere_points)
+        if len(self.points):
+            self.points = []
         for p in test_points:
             self.points.append(Point(p[0], p[1], p[2]))
 
     def setAccessibility(self, c, r):
         for p in self.points:
-            p.setAccessibility(c, r)
             if p.is_accessible:
-                self.numOfAccessiblePoints -= 1
-                break
+                p.setAccessibility(c, r)
 
     def getNumOfAccessiblePoint(self):
-        return self.numOfAccessiblePoints
+        numOfAccessiblePoints = 0
+        for p in self.points:
+            if p.is_accessible:
+                numOfAccessiblePoints += 1
+        return numOfAccessiblePoints
 
 def getElementVDWRadius(elem_str):
     """ 
@@ -140,15 +144,15 @@ def calcASA(atoms, probe, n_sphere_point=960, verbose=False):
 
     const = 4.0 * math.pi / n_sphere_point
     #test_point = Vector3d()
-    test_point = None
+    #test_point = None
     areas = []
+    sphere_points = tesselate_by_sprial(n_sphere_point)
     for i, atom_i in enumerate(atoms):
         elem_i = atom_i.getElement()
         center = atom_i.getCoords()
         radius = getElementVDWRadius(elem_i)
         # generate surface
-        surface = NumericSurface(center, radius + probe, 
-                                 n_sphere_point=n_sphere_point)
+        surface = NumericSurface(center, radius + probe, sphere_points)
         neighbors = find_neighbor_indices(atoms, probe, i, verbose=verbose)
         num_neighbors = len(neighbors)
 
