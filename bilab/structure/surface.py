@@ -35,7 +35,7 @@ class Point(object):
     def setAccessibility(self, probe_coords, probe_radius):
         """ set accessibility for a probe"""
         dist = euclidean(probe_coords, self.coords)
-        if dist < probe_radius:
+        if dist <= probe_radius:
             self.is_accessible = False
 
 class NumericSurface(object):
@@ -74,6 +74,15 @@ def getElementVDWRadius(elem_str):
     elem = ElementData.get(elem_str.lower())
     return elem.getVanDerWaalsRadius()[0]/100
 
+def find_neighbor_2NLR(atoms):
+    pass
+
+def find_neighbor_3NLR(atoms):
+    pass
+
+def find_neighbor_4NLR(atoms):
+    pass
+
 def find_neighbor_indices(atoms, probe, k, verbose=False):
     """
     Args:
@@ -88,9 +97,11 @@ def find_neighbor_indices(atoms, probe, k, verbose=False):
     """
     neighbors = AtomGroup(title="neighbors")
     atom_k = atoms[k]
+    r_atom_k = getElementVDWRadius(atom_k.getElement())
     serial_no = atom_k.getSerial()
-    radius = getElementVDWRadius(atom_k.getElement()) + probe + probe + 4.0
-
+    #radius = getElementVDWRadius(atom_k.getElement()) + probe + probe 
+    radius_offset = 1.8 * 2
+    radius = r_atom_k + probe + probe + radius_offset
     #start =timer()
     sel_center = "within {} of center".format(radius)
     found_neighbors=atoms.select(sel_center, center=atom_k.getCoords())
@@ -141,12 +152,11 @@ def calcASA(atoms, probe, n_sphere_point=960, verbose=False):
         except TypeError:
             raise TypeError('atoms must be an Atomic instance')
 
-
-    const = 4.0 * math.pi / n_sphere_point
     #test_point = Vector3d()
     #test_point = None
     areas = []
     sphere_points = tesselate_by_sprial(n_sphere_point)
+    const = 4.0 * math.pi / len(sphere_points)
     for i, atom_i in enumerate(atoms):
         elem_i = atom_i.getElement()
         center = atom_i.getCoords()
