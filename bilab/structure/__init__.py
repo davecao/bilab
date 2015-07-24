@@ -17,3 +17,5 @@ from .pdbfile import *
 from .contacts import *
 
 from .surface import *
+
+from .density import *

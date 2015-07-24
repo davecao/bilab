@@ -173,7 +173,7 @@ def calcASA(atoms, probe, n_sphere_point=960, verbose=False):
             surface.setAccessibility(atom_j_coord, r + probe)
         # count accessible-points 
         n_accessible_point = surface.getNumOfAccessiblePoint()
-        area = const*n_accessible_point*radius*radius
+        area = const*n_accessible_point*radius*radius*100
         areas.append(area)
         if verbose:
             print("{} -- Res:{}_{}_{}, atom: {}, #access:{}, radius:{:.3f}, area:{:.3f}".format(i, atom_i.getResname(), atom_i.getResnum(), atom_i.getChid(), 
