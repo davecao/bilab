@@ -3,6 +3,7 @@ import codecs
 import io, os, sys
 import glob
 from distutils.core import setup,Extension
+from distutils.sysconfig import get_config_var
 
 #from distutils.command.install_data import install_data
 
@@ -20,6 +21,9 @@ current_dir = os.path.dirname(os.path.realpath(__file__)) + os.sep
 #print("Install data:{}".format(install_data.install_dir))
 np_include_dirs = np.__path__[0] + '/core/include'
 
+_UNWANTED_OPTS = frozenset(['-Wstrict-prototypes'])
+os.environ['OPT'] = ' '.join(
+    _ for _ in get_config_var('OPT').strip().split() if _ not in _UNWANTED_OPTS)
 #boost_root = None
 #if "BOOST_ROOT" in os.environ:
 #    boost_root = os.environ["BOOST_ROOT"]
@@ -28,6 +32,14 @@ np_include_dirs = np.__path__[0] + '/core/include'
 #    sys.exit(0)
 
 #boost_stage_lib = boost_root + os.path.sep + "stage" + os.path.sep + "lib"
+Boost_LIB_PATH = None
+print os.environ
+if 'BOOST_LIBRARYDIR' in os.environ:
+    Boost_LIB_PATH = os.environ['BOOST_LIBRARYDIR']
+else:
+    print("Could not find BOOST_LIBRARYDIR; terminated!!!")
+    sys.exit(0)
+
 
 distance_wrap = Extension('bilab.geometry._distance_wrap',
                     define_macros = [('MAJOR_VERSION', '1'),
@@ -55,6 +67,17 @@ CWMatrix = Extension('bilab.linalg._CWMatrix',
                     sources = ['bilab/linalg/matrix/export.cpp']) 
                                #'bilab/linalg/matrix/matrix.cpp'])
 
+bhtsne_wrap = Extension('bilab.ml.NDR.tSNE._bhtsne_wrap',
+                    define_macros = [('MAJOR_VERSION', '1'),
+                                     ('MINOR_VERSION', '0')],
+                    include_dirs = [np_include_dirs],
+                    library_dirs = [Boost_LIB_PATH],
+                    libraries = ['boost_python'],
+                    extra_compile_args = ['-ftemplate-backtrace-limit=64', 
+                                          '-std=c++11'],
+                    sources = ['bilab/ml/NDR/tSNE/bhtsne_export.cpp',
+                               'bilab/ml/NDR/tSNE/bhtsne.cpp',
+                               'bilab/ml/NDR/tSNE/sptree.cpp'])
 
 def split_multiline(value):
     """Split a multiline string into a list, excluding blank lines."""
@@ -181,7 +204,7 @@ general_settings = cfg_to_args()
 # Key: resources has to be removed
 general_settings.pop('resources')
 #extensions
-general_settings['ext_modules'] = [distance_wrap, kdtree_lib ]
+general_settings['ext_modules'] = [distance_wrap, kdtree_lib, bhtsne_wrap ]
 #                                   CWMatrix]
 setup(**general_settings)
 #setup(**cfg_to_args())

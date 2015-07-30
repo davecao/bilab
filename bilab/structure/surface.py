@@ -2,6 +2,7 @@
 import math
 import numpy as np
 
+from bilab.structure.atomic import ATOMIC_FIELDS
 from bilab.geometry.distance import euclidean
 from bilab.geometry.tess import *
 from bilab.utilities import checkCoords
@@ -178,4 +179,5 @@ def calcASA(atoms, probe, n_sphere_point=960, verbose=False):
         if verbose:
             print("{} -- Res:{}_{}_{}, atom: {}, #access:{}, radius:{:.3f}, area:{:.3f}".format(i, atom_i.getResname(), atom_i.getResnum(), atom_i.getChid(), 
             atom_i.getName(), n_accessible_point, radius, area))
+    atoms.setData('surface_area',np.array(areas))
     return areas

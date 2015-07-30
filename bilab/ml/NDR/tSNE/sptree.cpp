@@ -50,8 +50,8 @@ Cell::Cell(unsigned int inp_dimension, double* inp_corner, double* inp_width) {
     dimension = inp_dimension;
     corner = (double*) malloc(dimension * sizeof(double));
     width  = (double*) malloc(dimension * sizeof(double));
-    for(int d = 0; d < dimension; d++) setCorner(d, inp_corner[d]);
-    for(int d = 0; d < dimension; d++) setWidth( d,  inp_width[d]);
+    for(unsigned int d = 0; d < dimension; d++) setCorner(d, inp_corner[d]);
+    for(unsigned int d = 0; d < dimension; d++) setWidth( d,  inp_width[d]);
 }
 
 // Destructs cell
@@ -79,7 +79,7 @@ void Cell::setWidth(unsigned int d, double val) {
 // Checks whether a point lies in a cell
 bool Cell::containsPoint(double point[])
 {
-    for(int d = 0; d < dimension; d++) {
+    for(unsigned int d = 0; d < dimension; d++) {
         if(corner[d] - width[d] > point[d]) return false;
         if(corner[d] + width[d] < point[d]) return false;
     }
@@ -104,11 +104,12 @@ SPTree::SPTree(unsigned int D, double* inp_data, unsigned int N)
         }
         nD += D;
     }
-    for(int d = 0; d < D; d++) mean_Y[d] /= (double) N;
+    for(unsigned int d = 0; d < D; d++) mean_Y[d] /= (double) N;
     
     // Construct SPTree
     double* width = (double*) malloc(D * sizeof(double));
-    for(int d = 0; d < D; d++) width[d] = fmax(max_Y[d] - mean_Y[d], mean_Y[d] - min_Y[d]) + 1e-5;
+    for(unsigned int d = 0; d < D; d++) width[d] = 
+             fmax(max_Y[d] - mean_Y[d], mean_Y[d] - min_Y[d]) + 1e-5;
     init(NULL, D, inp_data, mean_Y, width);
     fill(N);
     
@@ -298,7 +299,7 @@ bool SPTree::isCorrect()
     }
     if(!is_leaf) {
         bool correct = true;
-        for(int i = 0; i < no_children; i++) correct = correct && children[i]->isCorrect();
+        for(unsigned int i = 0; i < no_children; i++) correct = correct && children[i]->isCorrect();
         return correct;
     }
     else return true;
@@ -323,7 +324,7 @@ unsigned int SPTree::getAllIndices(unsigned int* indices, unsigned int loc)
     
     // Gather indices in children
     if(!is_leaf) {
-        for(int i = 0; i < no_children; i++) loc = children[i]->getAllIndices(indices, loc);
+        for(unsigned int i = 0; i < no_children; i++) loc = children[i]->getAllIndices(indices, loc);
     }
     return loc;
 }
@@ -382,7 +383,7 @@ void SPTree::computeEdgeForces(unsigned int* row_P, unsigned int* col_P, double*
     unsigned int ind1 = 0;
     unsigned int ind2 = 0;
     double D;
-    for(unsigned int n = 0; n < N; n++) {
+    for(int n = 0; n < N; n++) {
         for(unsigned int i = row_P[n]; i < row_P[n + 1]; i++) {
         
             // Compute pairwise distance and Q-value
@@ -410,9 +411,9 @@ void SPTree::print()
 
     if(is_leaf) {
         printf("Leaf node; data = [");
-        for(int i = 0; i < size; i++) {
+        for(unsigned int i = 0; i < size; i++) {
             double* point = data + index[i] * dimension;
-            for(int d = 0; d < dimension; d++) printf("%f, ", point[d]);
+            for(unsigned int d = 0; d < dimension; d++) printf("%f, ", point[d]);
             printf(" (index = %d)", index[i]);
             if(i < size - 1) printf("\n");
             else printf("]\n");
@@ -420,9 +421,9 @@ void SPTree::print()
     }
     else {
         printf("Intersection node with center-of-mass = [");
-        for(int d = 0; d < dimension; d++) printf("%f, ", center_of_mass[d]);
+        for(unsigned int d = 0; d < dimension; d++) printf("%f, ", center_of_mass[d]);
         printf("]; children are:\n");
-        for(int i = 0; i < no_children; i++) children[i]->print();
+        for(unsigned int i = 0; i < no_children; i++) children[i]->print();
     }
 }
 
