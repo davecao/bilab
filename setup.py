@@ -33,7 +33,7 @@ os.environ['OPT'] = ' '.join(
 
 #boost_stage_lib = boost_root + os.path.sep + "stage" + os.path.sep + "lib"
 Boost_LIB_PATH = None
-print os.environ
+
 if 'BOOST_LIBRARYDIR' in os.environ:
     Boost_LIB_PATH = os.environ['BOOST_LIBRARYDIR']
 else:
