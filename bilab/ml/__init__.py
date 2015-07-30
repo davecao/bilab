@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-__all_ = []
+__all__ = []
 
 from .kernel import *
 

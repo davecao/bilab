@@ -14,12 +14,12 @@
 namespace bpy = boost::python;
 
 void export_bhtsne() {
-  bpy::class_< BHTSNE > ("BHTSNE", bpy::init<double*, int, int, double, 
-         double, int, bool>())
+  bpy::class_< BHTSNE > ("BHTSNE", 
+    bpy::init<double*, int, int, double, double, int, bool>())
     .def("run", &BHTSNE::run);
 }
 
-BOOST_PYTHON_MODULE(BHTSNE)
+BOOST_PYTHON_MODULE(_bhtsne_wrap)
 {
   export_bhtsne();
 }

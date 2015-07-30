@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#
- __all_ = []
 
- from .NDR import *
+__all__ = []
+
+from .tSNE import *

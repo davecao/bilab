@@ -32,12 +32,12 @@ os.environ['OPT'] = ' '.join(
 #    sys.exit(0)
 
 #boost_stage_lib = boost_root + os.path.sep + "stage" + os.path.sep + "lib"
-Boost_LIB_PATH = None
+Boost_LIBRARY_PATH = None
 
-if 'BOOST_LIBRARYDIR' in os.environ:
-    Boost_LIB_PATH = os.environ['BOOST_LIBRARYDIR']
+if 'Boost_LIBRARY_DIR' in os.environ:
+    Boost_LIBRARY_PATH = os.environ['Boost_LIBRARY_DIR']
 else:
-    print("Could not find BOOST_LIBRARYDIR; terminated!!!")
+    print("Could not find Boost_LIBRARY_DIR; terminated!!!")
     sys.exit(0)
 
 
@@ -71,7 +71,7 @@ bhtsne_wrap = Extension('bilab.ml.NDR.tSNE._bhtsne_wrap',
                     define_macros = [('MAJOR_VERSION', '1'),
                                      ('MINOR_VERSION', '0')],
                     include_dirs = [np_include_dirs],
-                    library_dirs = [Boost_LIB_PATH],
+                    library_dirs = [Boost_LIBRARY_PATH],
                     libraries = ['boost_python'],
                     extra_compile_args = ['-ftemplate-backtrace-limit=64', 
                                           '-std=c++11'],
