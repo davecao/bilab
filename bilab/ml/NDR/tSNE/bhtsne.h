@@ -57,6 +57,9 @@ struct BHTSNE
       printf("Memory allocation failed!\n"); 
       exit(1); 
     }
+    for(int i = 0; i < N * no_dims; i++) {
+      Y[i] = randn() * .0001;
+    }
     X = samples;
     //run();
 
@@ -64,21 +67,32 @@ struct BHTSNE
 
   void symmetrizeMatrix(unsigned int** _row_P, unsigned int** _col_P, 
                                               double** _val_P, int N);
+// void computeGradient(double* P, unsigned int* inp_row_P, 
+//                                 unsigned int* inp_col_P, 
+//                                 double* inp_val_P, 
+//                                 double* Y, 
+//                                 int N, int D, double* dC, double theta);
+
+// void computeExactGradient(double* P, double* Y, int N, int D, double* dC);
   void computeGradient(double* P, unsigned int* inp_row_P, 
                                   unsigned int* inp_col_P, 
                                   double* inp_val_P, 
-                                  double* Y, 
-                                  int N, int D, double* dC, double theta);
+                                  //int N, int D, 
+                                  double* dC);//, double theta);
 
-  void computeExactGradient(double* P, double* Y, int N, int D, double* dC);
+  void computeExactGradient(double* P, 
+                            //int N, int D, 
+                            double* dC);
+//  double evaluateError(double* P, double* Y, int N, int D);
 
-  double evaluateError(double* P, double* Y, int N, int D);
+//  double evaluateError(unsigned int* row_P, unsigned int* col_P, 
+//                        double* val_P, double* Y, int N, int D, double theta);
+  double evaluateError(double* P);
 
   double evaluateError(unsigned int* row_P, unsigned int* col_P, 
-                        double* val_P, double* Y, int N, int D, double theta);
-  
-  void zeroMean(double* X, int N, int D);
-  
+                        double* val_P);
+  //void zeroMean(double* X, int N, int D);
+  void zeroMean();
   void computeGaussianPerplexity(double* X, int N, int D, 
                                  double* P, double perplexity);
   

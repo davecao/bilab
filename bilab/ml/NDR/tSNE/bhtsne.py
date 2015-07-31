@@ -2,7 +2,7 @@ from __future__ import division, print_function, absolute_import
 
 import warnings
 import numpy as np
-
+import ctypes
 from bilab.ml.NDR.tSNE import _bhtsne_wrap
 import collections
 import operator
@@ -118,6 +118,9 @@ def _convert_to_double(X):
         X = X.copy()
     return X
 
+def _convert_to_double_p(X):
+    X = _convert_to_double(X)
+    return X.ctypes.data_as(ctypes.POINTER(ctypes.c_double))
 
 def _validate_vector(u, dtype=None):
     # XXX Is order='c' really necessary?
@@ -131,6 +134,6 @@ def _validate_vector(u, dtype=None):
 def bhtsne(samples, no_dims=2, perplexity=30.0, theta=0.5, randseed=-1, verbose=False):
     N = samples.shape[0]
     Y = np.zeros((N, no_dims), dtype=np.double)
-    _bhtsne_wrap.BHTSNE(_convert_to_double(samples), 
-                        N, no_dims, perplexity, theta, randseed, verbose)
+    tsne = _bhtsne_wrap.bhtsne(samples, Y, N, no_dims, perplexity, 
+                               theta, randseed, verbose)
     return Y

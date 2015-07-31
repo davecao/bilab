@@ -133,8 +133,9 @@ void BHTSNE::symmetrizeMatrix(unsigned int** _row_P, unsigned int** _col_P,
 void BHTSNE::computeGradient(double* P, unsigned int* inp_row_P, 
                                   unsigned int* inp_col_P, 
                                   double* inp_val_P, 
-                                  double* Y, 
-                                  int N, int D, double* dC, double theta)
+                                  //double* Y, 
+                                  //int N, int D, 
+                                  double* dC) 
 {
   // Construct space-partitioning tree on current map
   SPTree* tree = new SPTree(D, Y, N);
@@ -160,8 +161,8 @@ void BHTSNE::computeGradient(double* P, unsigned int* inp_row_P,
   delete tree;
 }
 // Compute gradient of the t-SNE cost function (exact)
-void BHTSNE::computeExactGradient(double* P, double* Y, 
-                                  int N, int D, double* dC)
+void BHTSNE::computeExactGradient(double* P,
+                                  double* dC)
 {
   // Make sure the current gradient contains zeros
   for(int i = 0; i < N * D; i++) {
@@ -216,7 +217,8 @@ void BHTSNE::computeExactGradient(double* P, double* Y,
   free(Q);  Q  = NULL;
 }
 
-double BHTSNE::evaluateError(double* P, double* Y, int N, int D)
+//double BHTSNE::evaluateError(double* P, int N, int D)
+double BHTSNE::evaluateError(double* P)
 {
   // Compute the squared Euclidean distance matrix
   double* DD = (double*) malloc(N * N * sizeof(double));
@@ -256,8 +258,10 @@ double BHTSNE::evaluateError(double* P, double* Y, int N, int D)
   return C;
 }
 
+//double BHTSNE::evaluateError(unsigned int* row_P, unsigned int* col_P, 
+//                        double* val_P, int N, int D, double theta)
 double BHTSNE::evaluateError(unsigned int* row_P, unsigned int* col_P, 
-                        double* val_P, double* Y, int N, int D, double theta)
+                          double* val_P)
 {
   // Get estimate of normalization term
   SPTree* tree = new SPTree(D, Y, N);
@@ -287,7 +291,8 @@ double BHTSNE::evaluateError(unsigned int* row_P, unsigned int* col_P,
   return C;
 }
 
-void BHTSNE::zeroMean(double* X, int N, int D)
+//void BHTSNE::zeroMean(double* X, int N, int D)
+void BHTSNE::zeroMean()
 {
   // Compute data mean
   double* mean = (double*) calloc(D, sizeof(double));
@@ -295,6 +300,7 @@ void BHTSNE::zeroMean(double* X, int N, int D)
     printf("Memory allocation failed!\n"); 
     exit(1); 
   }
+  printf("get mean ... 1\n");
   int nD = 0;
   for(int n = 0; n < N; n++) {
     for(int d = 0; d < D; d++) {
@@ -305,7 +311,7 @@ void BHTSNE::zeroMean(double* X, int N, int D)
   for(int d = 0; d < D; d++) {
     mean[d] /= (double) N;
   }
-
+  printf("get mean ... 2\n");
   // Subtract data mean
   nD = 0;
   for(int n = 0; n < N; n++) {
@@ -506,7 +512,7 @@ void BHTSNE::computeGaussianPerplexity(double* X, int N, int D,
       val_P[row_P[n] + m] = cur_P[m];
     }
   }
-
+  printf("computeGaussianPerplexity using ball tree...finished.\n");
   // Clean up memory
   obj_X.clear();
   free(cur_P);
@@ -600,7 +606,8 @@ void BHTSNE::run()
   // Normalize input data (to prevent numerical problems)
   printf("Computing input similarities...\n");
   start = clock();
-  zeroMean(X, N, D);
+  //zeroMean(X, N, D);
+  zeroMean();
   double max_X = .0;
   for(int i = 0; i < N * D; i++) {
     if(X[i] > max_X) max_X = X[i];
@@ -670,11 +677,13 @@ void BHTSNE::run()
       val_P[i] *= 12.0;
     }
   }
-
+/*  printf("Initialize solution randomly ...");
   // Initialize solution (randomly)
   for(int i = 0; i < N * no_dims; i++) {
     Y[i] = randn() * .0001;
   }
+  printf("finished.\n");
+*/
   // Perform main training loop
   if(exact) {
     printf("Input similarities computed in %4.2f seconds!\nLearning embedding...\n", 
@@ -688,12 +697,17 @@ void BHTSNE::run()
   for(int iter = 0; iter < max_iter; iter++) {
 
     // Compute (approximate) gradient
+    printf("Compute (approximate) gradient ...");
     if(exact) {
-      computeExactGradient(P, Y, N, no_dims, dY);
+      //computeExactGradient(P, Y, N, no_dims, dY);
+      computeExactGradient(P, dY);
     } else {
-      computeGradient(P, row_P, col_P, val_P, Y, N, no_dims, dY, theta);
+      //computeGradient(P, row_P, col_P, val_P, Y, N, no_dims, dY, theta);
+      computeGradient(P, row_P, col_P, val_P, dY);
     }
+    printf("finished.\n");
     // Update gains
+    printf("Update gains ...");
     for(int i = 0; i < N * no_dims; i++) {
       gains[i] = (sign(dY[i]) != sign(uY[i])) ? (gains[i] + .2) : (gains[i] * .8);
     }
@@ -702,17 +716,27 @@ void BHTSNE::run()
         gains[i] = .01;
       }
     }
+    printf("finished.\n");
+
     // Perform gradient update (with momentum and gains)
+    printf("Perform gradient update (with momentum and gains) ...");
     for(int i = 0; i < N * no_dims; i++) {
       uY[i] = momentum * uY[i] - eta * gains[i] * dY[i];
     }
+    printf("finished.\n");
+    printf("N=%d, no_dims=%d", N, no_dims);
     for(int i = 0; i < N * no_dims; i++) {
+      //printf("N=%d, no_dims=%d", N, no_dims);
+      printf("Y[%d]=%f\n, uY[%d]=%f", i, Y[i], i, uY[i]);
       Y[i] = Y[i] + uY[i];
+      printf("Y[%d]=%f\n, uY[%d]=%f", i, Y[i], i, uY[i]);
     }
+    printf("before zeroMean() ... \n");
     // Make solution zero-mean
-    zeroMean(Y, N, no_dims);
-
+    //zeroMean(Y, N, no_dims);
+    zeroMean();
     // Stop lying about the P-values after a while, and switch momentum
+    printf("After zeroMean() ... \n");
     if(iter == stop_lying_iter) {
       if(exact) { 
         for(int i = 0; i < N * N; i++) {
@@ -724,6 +748,7 @@ void BHTSNE::run()
         }
       }
     }
+    printf("finished.\n");
     if(iter == mom_switch_iter) {
       momentum = final_momentum;
     }
@@ -731,11 +756,15 @@ void BHTSNE::run()
     if(iter > 0 && (iter % 50 == 0 || iter == max_iter - 1)) {
       end = clock();
       double C = .0;
+      
       if(exact) {
-        C = evaluateError(P, Y, N, no_dims);
+        //C = evaluateError(P, Y, N, no_dims);
+        C = evaluateError(P);
       } else {// doing approximate computation here!
-        C = evaluateError(row_P, col_P, val_P, Y, N, no_dims, theta);
+        //C = evaluateError(row_P, col_P, val_P, Y, N, no_dims, theta);
+        C = evaluateError(row_P, col_P, val_P);
       }
+
       if(iter == 0){
         printf("Iteration %d: error is %f\n", iter + 1, C);
       } else {
