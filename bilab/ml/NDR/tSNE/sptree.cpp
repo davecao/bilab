@@ -94,8 +94,11 @@ SPTree::SPTree(unsigned int D, double* inp_data, unsigned int N)
     // Compute mean, width, and height of current map (boundaries of SPTree)
     int nD = 0;
     double* mean_Y = (double*) calloc(D,  sizeof(double));
-    double*  min_Y = (double*) malloc(D * sizeof(double)); for(unsigned int d = 0; d < D; d++)  min_Y[d] =  DBL_MAX;
-    double*  max_Y = (double*) malloc(D * sizeof(double)); for(unsigned int d = 0; d < D; d++)  max_Y[d] = -DBL_MAX;
+    double*  min_Y = (double*) malloc(D * sizeof(double));
+    for(unsigned int d = 0; d < D; d++)  min_Y[d] =  DBL_MAX;
+    double*  max_Y = (double*) malloc(D * sizeof(double));
+    for(unsigned int d = 0; d < D; d++)  max_Y[d] = -DBL_MAX;
+  
     for(unsigned int n = 0; n < N; n++) {
         for(unsigned int d = 0; d < D; d++) {
             mean_Y[d] += inp_data[n * D + d];

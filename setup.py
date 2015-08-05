@@ -195,7 +195,7 @@ bhtsne_wrap = Extension('bilab.ml.NDR.tSNE._bhtsne_wrap',
                     library_dirs = [boost_lib_dir],
                     libraries = ['boost_python'],
                     extra_compile_args = ['-ftemplate-backtrace-limit=64', 
-                                          '-std=c++11'],
+                                          '-std=c++11', '-g'],
                     sources = ['bilab/ml/NDR/tSNE/bhtsne_export.cpp',
                                'bilab/ml/NDR/tSNE/bhtsne.cpp',
                                'bilab/ml/NDR/tSNE/sptree.cpp'])

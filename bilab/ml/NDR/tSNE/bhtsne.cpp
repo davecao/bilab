@@ -1,20 +1,3 @@
-/*
-#include <Python.h>
-#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
-#include <numpy/arrayobject.h>
-#include "tsne.h"
-
-// Must define Py_TYPE for Python 2.5 or older 
-#ifndef Py_TYPE
-#  define Py_TYPE(o) ((o)->ob_type)
-#endif
-
-// Must define PyVarObject_HEAD_INIT for Python 2.5 or older 
-#ifndef PyVarObject_HEAD_INIT
-#define PyVarObject_HEAD_INIT(type, size)       \
-        PyObject_HEAD_INIT(type) size,
-#endif
-*/
 
 #ifndef BHTSNE_IMPL_H
 #define BHTSNE_IMPL_H
@@ -23,26 +6,102 @@
 #include "sptree.h"
 #include "bhtsne.h"
 
+#include <iostream>     // std::cout, std::fixed
+#include <iomanip>      // std::setprecision
+
+
 using namespace std;
 
-static double sign(double x) { 
-  return (x == .0 ? .0 : (x < .0 ? -1.0 : 1.0)); 
+static double sign(double x) {
+  return (x == .0 ? .0 : (x < .0 ? -1.0 : 1.0));
+}
+/*
+void moment(double** data, int double &ave, double &adev, double &sdev, double &var, double &skew, double &curt)
+{
+  int j;
+  DP ep=0.0,s,p;
+  
+  int n=data.size();
+  if (n <= 1) nrerror("n must be at least 2 in moment");
+  s=0.0;
+  for (j=0;j<n;j++) s += data[j];
+  ave=s/n;
+  adev=var=skew=curt=0.0;
+  for (j=0;j<n;j++) {
+    adev += fabs(s=data[j]-ave);
+    ep += s;
+    var += (p=s*s);
+    skew += (p *= s);
+    curt += (p *= s);
+  }
+  adev /= n;
+  var=(var-ep*ep/n)/(n-1);
+  sdev=sqrt(var);
+  if (var != 0.0) {
+    skew /= (n*var*sdev);
+    curt=curt/(n*var*var)-3.0;
+  } else nrerror("No skew/kurtosis when variance = 0 (in moment)");
+}
+*/
+
+void mean_std_scaling(double* data, int nrows, int ncols){
+  std::vector<double> ave_col(ncols);
+  std::vector<double> std_col(ncols);
+  
+  for (int i=0; i<ncols; i++) {
+    double s    = 0.0;
+    double adev = 0.0;
+    double var  = 0.0;
+    double skew = 0.0;
+    double curt = 0.0;
+    double ep   = 0.0;
+    for (int j=0; j<nrows; j++) {
+      s += data[j*ncols + i];
+    }
+    double ave = s/nrows;
+    double p = 0.0;
+    for (int j=0; j<nrows; j++) {
+      adev += fabs(s=data[j*ncols + i]-ave);
+      ep += s;
+      var += (p=s*s);
+      skew += (p *= s);
+      curt += (p *= s);
+    }
+    
+//    ave_col.push_back(col_sum/nrows);
+  }
+}
+
+void BHTSNE::print_(){
+  
+  cout.setf(ios::fixed, ios::floatfield); // set fixed floating format
+  cout.precision(4); // for fixed format, two decimal places
+  for (unsigned int i = 0; i != N; ++i)
+  {
+    for (unsigned int j = 0; j != no_dims; ++j)
+    {
+      if (j != 0) std::cout << " ";
+      //std::cout << std::setw(5) << std::setfill(' ') << std::setprecision(5)
+      cout << setw(8) << Y[i*no_dims + j];
+    }
+    std::cout << "\n";
+  }
 }
 
 
-void BHTSNE::symmetrizeMatrix(unsigned int** _row_P, unsigned int** _col_P, 
-                                              double** _val_P, int N)
+void BHTSNE::symmetrizeMatrix(unsigned int** _row_P, unsigned int** _col_P,
+                              double** _val_P)
 {
   // Get sparse matrix
   unsigned int* row_P = *_row_P;
   unsigned int* col_P = *_col_P;
   double* val_P = *_val_P;
-
+  
   // Count number of elements and row counts of symmetric matrix
   int* row_counts = (int*) calloc(N, sizeof(int));
-  if(row_counts == NULL) { 
-    printf("Memory allocation failed!\n"); 
-    exit(1); 
+  if(row_counts == NULL) {
+    printf("Memory allocation failed!\n");
+    exit(1);
   }
   for(int n = 0; n < N; n++) {
     for(unsigned int i = row_P[n]; i < row_P[n + 1]; i++) {
@@ -69,9 +128,9 @@ void BHTSNE::symmetrizeMatrix(unsigned int** _row_P, unsigned int** _col_P,
   unsigned int* sym_row_P = (unsigned int*) malloc((N + 1) * sizeof(unsigned int));
   unsigned int* sym_col_P = (unsigned int*) malloc(no_elem * sizeof(unsigned int));
   double* sym_val_P = (double*) malloc(no_elem * sizeof(double));
-  if(sym_row_P == NULL || sym_col_P == NULL || sym_val_P == NULL) { 
-    printf("Memory allocation failed!\n"); 
-    exit(1); 
+  if(sym_row_P == NULL || sym_col_P == NULL || sym_val_P == NULL) {
+    printf("Memory allocation failed!\n");
+    exit(1);
   }
   // Construct new row indices for symmetric matrix
   sym_row_P[0] = 0;
@@ -80,8 +139,8 @@ void BHTSNE::symmetrizeMatrix(unsigned int** _row_P, unsigned int** _col_P,
   }
   // Fill the result matrix
   int* offset = (int*) calloc(N, sizeof(int));
-  if(offset == NULL) { 
-    printf("Memory allocation failed!\n"); 
+  if(offset == NULL) {
+    printf("Memory allocation failed!\n");
     exit(1);
   }
   for(int n = 0; n < N; n++) {
@@ -115,7 +174,7 @@ void BHTSNE::symmetrizeMatrix(unsigned int** _row_P, unsigned int** _col_P,
       }
     }
   }
-
+  
   // Divide the result by two
   for(int i = 0; i < no_elem; i++) {
     sym_val_P[i] /= 2.0;
@@ -130,30 +189,28 @@ void BHTSNE::symmetrizeMatrix(unsigned int** _row_P, unsigned int** _col_P,
 }
 
 // Compute gradient of the t-SNE cost function (using Barnes-Hut algorithm)
-void BHTSNE::computeGradient(double* P, unsigned int* inp_row_P, 
-                                  unsigned int* inp_col_P, 
-                                  double* inp_val_P, 
-                                  //double* Y, 
-                                  //int N, int D, 
-                                  double* dC) 
+void BHTSNE::computeGradient(double* P, unsigned int* inp_row_P,
+                             unsigned int* inp_col_P,
+                             double* inp_val_P,
+                             double* dC)
 {
   // Construct space-partitioning tree on current map
-  SPTree* tree = new SPTree(D, Y, N);
-
+  SPTree* tree = new SPTree(no_dims, Y, N);
+  
   // Compute all terms required for t-SNE gradient
   double sum_Q = .0;
-  double* pos_f = (double*) calloc(N * D, sizeof(double));
-  double* neg_f = (double*) calloc(N * D, sizeof(double));
-  if(pos_f == NULL || neg_f == NULL) { 
-    printf("Memory allocation failed!\n"); 
+  double* pos_f = (double*) calloc(N * no_dims, sizeof(double));
+  double* neg_f = (double*) calloc(N * no_dims, sizeof(double));
+  if(pos_f == NULL || neg_f == NULL) {
+    printf("Memory allocation failed!\n");
     exit(1);
   }
   tree->computeEdgeForces(inp_row_P, inp_col_P, inp_val_P, N, pos_f);
   for(int n = 0; n < N; n++) {
-    tree->computeNonEdgeForces(n, theta, neg_f + n * D, &sum_Q);
+    tree->computeNonEdgeForces(n, theta, neg_f + n * no_dims, &sum_Q);
   }
   // Compute final t-SNE gradient
-  for(int i = 0; i < N * D; i++) {
+  for(int i = 0; i < N * no_dims; i++) {
     dC[i] = pos_f[i] - (neg_f[i] / sum_Q);
   }
   free(pos_f);
@@ -165,22 +222,22 @@ void BHTSNE::computeExactGradient(double* P,
                                   double* dC)
 {
   // Make sure the current gradient contains zeros
-  for(int i = 0; i < N * D; i++) {
+  for(int i = 0; i < N * no_dims; i++) {
     dC[i] = 0.0;
   }
   // Compute the squared Euclidean distance matrix
   double* DD = (double*) malloc(N * N * sizeof(double));
-  if(DD == NULL) { 
-    printf("Memory allocation failed!\n"); 
-    exit(1); 
+  if(DD == NULL) {
+    printf("Memory allocation failed!\n");
+    exit(1);
   }
-  computeSquaredEuclideanDistance(Y, N, D, DD);
-
+  computeSquaredEuclideanDistance(DD);
+  
   // Compute Q-matrix and normalization sum
   double* Q = (double*) malloc(N * N * sizeof(double));
-  if(Q == NULL) { 
-    printf("Memory allocation failed!\n"); 
-    exit(1); 
+  if(Q == NULL) {
+    printf("Memory allocation failed!\n");
+    exit(1);
   }
   double sum_Q = .0;
   int nN = 0;
@@ -193,7 +250,7 @@ void BHTSNE::computeExactGradient(double* P,
     }
     nN += N;
   }
-
+  
   // Perform the computation of the gradient
   nN = 0;
   int nD = 0;
@@ -211,7 +268,7 @@ void BHTSNE::computeExactGradient(double* P,
     nN += N;
     nD += D;
   }
-
+  
   // Free memory
   free(DD); DD = NULL;
   free(Q);  Q  = NULL;
@@ -223,12 +280,12 @@ double BHTSNE::evaluateError(double* P)
   // Compute the squared Euclidean distance matrix
   double* DD = (double*) malloc(N * N * sizeof(double));
   double* Q = (double*) malloc(N * N * sizeof(double));
-  if(DD == NULL || Q == NULL) { 
-    printf("Memory allocation failed!\n"); 
-    exit(1); 
+  if(DD == NULL || Q == NULL) {
+    printf("Memory allocation failed!\n");
+    exit(1);
   }
-  computeSquaredEuclideanDistance(Y, N, D, DD);
-
+  computeSquaredEuclideanDistance(DD);
+  
   // Compute Q-matrix and normalization sum
   int nN = 0;
   double sum_Q = DBL_MIN;
@@ -251,21 +308,19 @@ double BHTSNE::evaluateError(double* P)
   for(int n = 0; n < N * N; n++) {
     C += P[n] * log((P[n] + FLT_MIN) / (Q[n] + FLT_MIN));
   }
-
+  
   // Clean up memory
   free(DD);
   free(Q);
   return C;
 }
 
-//double BHTSNE::evaluateError(unsigned int* row_P, unsigned int* col_P, 
-//                        double* val_P, int N, int D, double theta)
-double BHTSNE::evaluateError(unsigned int* row_P, unsigned int* col_P, 
-                          double* val_P)
+double BHTSNE::evaluateError(unsigned int* row_P, unsigned int* col_P,
+                             double* val_P)
 {
   // Get estimate of normalization term
-  SPTree* tree = new SPTree(D, Y, N);
-  double* buff = (double*) calloc(D, sizeof(double));
+  SPTree* tree = new SPTree(no_dims, Y, N);
+  double* buff = (double*) calloc(no_dims, sizeof(double));
   double sum_Q = .0;
   for(int n = 0; n < N; n++) {
     tree->computeNonEdgeForces(n, theta, buff, &sum_Q);
@@ -277,10 +332,10 @@ double BHTSNE::evaluateError(unsigned int* row_P, unsigned int* col_P,
     ind1 = n * D;
     for(unsigned int i = row_P[n]; i < row_P[n + 1]; i++) {
       Q = .0;
-      ind2 = col_P[i] * D;
-      for(int d = 0; d < D; d++) buff[d]  = Y[ind1 + d];
-      for(int d = 0; d < D; d++) buff[d] -= Y[ind2 + d];
-      for(int d = 0; d < D; d++) Q += buff[d] * buff[d];
+      ind2 = col_P[i] * no_dims;
+      for(int d = 0; d < no_dims; d++) buff[d]  = Y[ind1 + d];
+      for(int d = 0; d < no_dims; d++) buff[d] -= Y[ind2 + d];
+      for(int d = 0; d < no_dims; d++) Q += buff[d] * buff[d];
       Q = (1.0 / (1.0 + Q)) / sum_Q;
       C += val_P[i] * log((val_P[i] + FLT_MIN) / (Q + FLT_MIN));
     }
@@ -291,16 +346,14 @@ double BHTSNE::evaluateError(unsigned int* row_P, unsigned int* col_P,
   return C;
 }
 
-//void BHTSNE::zeroMean(double* X, int N, int D)
-void BHTSNE::zeroMean()
+void BHTSNE::zeroMean(double* X, int N, int D)
 {
   // Compute data mean
   double* mean = (double*) calloc(D, sizeof(double));
-  if(mean == NULL) { 
-    printf("Memory allocation failed!\n"); 
-    exit(1); 
+  if(mean == NULL) {
+    printf("Memory allocation failed!\n");
+    exit(1);
   }
-  printf("get mean ... 1\n");
   int nD = 0;
   for(int n = 0; n < N; n++) {
     for(int d = 0; d < D; d++) {
@@ -311,7 +364,6 @@ void BHTSNE::zeroMean()
   for(int d = 0; d < D; d++) {
     mean[d] /= (double) N;
   }
-  printf("get mean ... 2\n");
   // Subtract data mean
   nD = 0;
   for(int n = 0; n < N; n++) {
@@ -320,22 +372,21 @@ void BHTSNE::zeroMean()
     }
     nD += D;
   }
-  free(mean); 
+  free(mean);
   mean = NULL;
 }
 
 // Compute input similarities with a fixed perplexity
-void BHTSNE::computeGaussianPerplexity(double* X, int N, int D, 
-                                 double* P, double perplexity)
+void BHTSNE::computeGaussianPerplexity(double* P)
 {
   // Compute the squared Euclidean distance matrix
   double* DD = (double*) malloc(N * N * sizeof(double));
-  if(DD == NULL) { 
-    printf("Memory allocation failed!\n"); 
-    exit(1); 
+  if(DD == NULL) {
+    printf("Memory allocation failed!\n");
+    exit(1);
   }
-  computeSquaredEuclideanDistance(X, N, D, DD);
-
+  computeSquaredEuclideanDistance(DD);
+  
   // Compute the Gaussian kernel row by row
   int nN = 0;
   for(int n = 0; n < N; n++) {
@@ -345,7 +396,7 @@ void BHTSNE::computeGaussianPerplexity(double* X, int N, int D,
     double min_beta = -DBL_MAX;
     double max_beta =  DBL_MAX;
     double tol = 1e-5;
-    double sum_P;
+    double sum_P = 0.0;
     
     // Iterate until we found a good perplexity
     int iter = 0;
@@ -355,7 +406,7 @@ void BHTSNE::computeGaussianPerplexity(double* X, int N, int D,
         P[nN + m] = exp(-beta * DD[nN + m]);
       }
       P[nN + n] = DBL_MIN;
-
+      
       // Compute entropy of current row
       sum_P = DBL_MIN;
       for(int m = 0; m < N; m++) {
@@ -366,7 +417,7 @@ void BHTSNE::computeGaussianPerplexity(double* X, int N, int D,
         H += beta * (DD[nN + m] * P[nN + m]);
       }
       H = (H / sum_P) + log(sum_P);
-
+      
       // Evaluate whether the entropy is within the tolerance level
       double Hdiff = H - log(perplexity);
       if(Hdiff < tol && -Hdiff < tol) {
@@ -398,16 +449,16 @@ void BHTSNE::computeGaussianPerplexity(double* X, int N, int D,
     }
     nN += N;
   }
-
+  
   // Clean up memory
-  free(DD); 
+  free(DD);
   DD = NULL;
 }
 
 // Compute input similarities with a fixed perplexity using ball trees (this function allocates memory another function should free)
-void BHTSNE::computeGaussianPerplexity(double* X, int N, int D, 
-                                 unsigned int** _row_P, unsigned int** _col_P, 
-                                 double** _val_P, double perplexity, int K)
+void BHTSNE::computeGaussianPerplexity(
+                                       unsigned int** _row_P, unsigned int** _col_P,
+                                       double** _val_P, int K)
 {
   if(perplexity > K) {
     printf("Perplexity should be lower than K!\n");
@@ -416,53 +467,57 @@ void BHTSNE::computeGaussianPerplexity(double* X, int N, int D,
   *_row_P = (unsigned int*) malloc((N + 1) * sizeof(unsigned int));
   *_col_P = (unsigned int*) calloc(N * K, sizeof(unsigned int));
   *_val_P = (double*) calloc(N * K, sizeof(double));
-  if(*_row_P == NULL || *_col_P == NULL || *_val_P == NULL) { 
-    printf("Memory allocation failed!\n"); 
+  if(*_row_P == NULL || *_col_P == NULL || *_val_P == NULL) {
+    printf("Memory allocation failed!\n");
     exit(1);
   }
   unsigned int* row_P = *_row_P;
   unsigned int* col_P = *_col_P;
   double* val_P = *_val_P;
   double* cur_P = (double*) malloc((N - 1) * sizeof(double));
-  if(cur_P == NULL) { 
-    printf("Memory allocation failed!\n"); 
-    exit(1); 
+  if(cur_P == NULL) {
+    printf("Memory allocation failed!\n");
+    exit(1);
   }
   row_P[0] = 0;
   for(int n = 0; n < N; n++) {
     row_P[n + 1] = row_P[n] + (unsigned int) K;
   }
   // Build ball tree on data set
-  VpTree<DataPoint, euclidean_distance>* tree = 
-        new VpTree<DataPoint, euclidean_distance>();
+  VpTree<DataPoint, euclidean_distance>* tree =
+  new VpTree<DataPoint, euclidean_distance>();
   vector<DataPoint> obj_X(N, DataPoint(D, -1, X));
   for(int n = 0; n < N; n++) {
     obj_X[n] = DataPoint(D, n, X + n * D);
   }
   tree->create(obj_X);
-
+  
   // Loop over all points to find nearest neighbors
-  printf("Building tree...\n");
+  if (verbosity) {
+    printf("Building tree...\n");
+  }
+  
   vector<DataPoint> indices;
   vector<double> distances;
   for(int n = 0; n < N; n++) {
-    if(n % 10000 == 0) {
+    if(n % 10000 == 0 && verbosity) {
       printf(" - point %d of %d\n", n, N);
     }
     // Find nearest neighbors
     indices.clear();
     distances.clear();
     tree->search(obj_X[n], K + 1, &indices, &distances);
-
+    
     // Initialize some variables for binary search
     bool found = false;
     double beta = 1.0;
     double min_beta = -DBL_MAX;
     double max_beta =  DBL_MAX;
     double tol = 1e-5;
-
+    
     // Iterate until we found a good perplexity
-    int iter = 0; double sum_P;
+    int iter = 0;
+    double sum_P = 0.0;
     while(!found && iter < 200) {
       // Compute Gaussian kernel row
       for(int m = 0; m < K; m++) {
@@ -502,7 +557,7 @@ void BHTSNE::computeGaussianPerplexity(double* X, int N, int D,
       // Update iteration counter
       iter++;
     }
-
+    
     // Row-normalize current row of P and store in matrix
     for(int m = 0; m < K; m++) {
       cur_P[m] /= sum_P;
@@ -512,19 +567,21 @@ void BHTSNE::computeGaussianPerplexity(double* X, int N, int D,
       val_P[row_P[n] + m] = cur_P[m];
     }
   }
-  printf("computeGaussianPerplexity using ball tree...finished.\n");
+  if (verbosity) {
+    printf("computeGaussianPerplexity using ball tree...finished.\n");
+  }
+  
   // Clean up memory
   obj_X.clear();
   free(cur_P);
   delete tree;
 }
-void BHTSNE::computeSquaredEuclideanDistance(double* X, int N, int D, 
-                                              double* DD)
+void BHTSNE::computeSquaredEuclideanDistance(double* DD)
 {
   double* dataSums = (double*) calloc(N, sizeof(double));
-  if(dataSums == NULL) { 
-    printf("Memory allocation failed!\n"); 
-    exit(1); 
+  if(dataSums == NULL) {
+    printf("Memory allocation failed!\n");
+    exit(1);
   }
   int nD = 0;
   for(int n = 0; n < N; n++) {
@@ -540,7 +597,7 @@ void BHTSNE::computeSquaredEuclideanDistance(double* X, int N, int D,
     }
     nN += N;
   }
-  nN = 0; 
+  nN = 0;
   nD = 0;
   for(int n = 0; n < N; n++) {
     int mD = 0;
@@ -555,7 +612,7 @@ void BHTSNE::computeSquaredEuclideanDistance(double* X, int N, int D,
     }
     nN += N; nD += D;
   }
-  free(dataSums); 
+  free(dataSums);
   dataSums = NULL;
 }
 
@@ -575,11 +632,14 @@ double BHTSNE::randn()
 void BHTSNE::run()
 {
   // Determine whether we are using an exact algorithm
-  if(N - 1 < 3 * perplexity) { 
-    printf("Perplexity too large for the number of data points!\n"); 
-    exit(1); 
+  if(N - 1 < 3 * perplexity) {
+    printf("Perplexity too large for the number of data points!\n");
+    exit(1);
   }
-  printf("Using no_dims = %d, perplexity = %f, and theta = %f\n", no_dims, perplexity, theta);
+  if (verbosity) {
+    printf("Using no_dims = %d, perplexity = %f, and theta = %f\n", no_dims, perplexity, theta);
+  }
+  
   bool exact = (theta == .0) ? true : false;
   
   // Set learning parameters
@@ -588,14 +648,14 @@ void BHTSNE::run()
   int max_iter = 1000, stop_lying_iter = 250, mom_switch_iter = 250;
   double momentum = .5, final_momentum = .8;
   double eta = 200.0;
-
+  
   // Allocate some memory
   double* dY    = (double*) malloc(N * no_dims * sizeof(double));
   double* uY    = (double*) malloc(N * no_dims * sizeof(double));
   double* gains = (double*) malloc(N * no_dims * sizeof(double));
-  if(dY == NULL || uY == NULL || gains == NULL) { 
-    printf("Memory allocation failed!\n"); 
-    exit(1); 
+  if(dY == NULL || uY == NULL || gains == NULL) {
+    printf("Memory allocation failed!\n");
+    exit(1);
   }
   for(int i = 0; i < N * no_dims; i++){
     uY[i] =  .0;
@@ -604,10 +664,13 @@ void BHTSNE::run()
     gains[i] = 1.0;
   }
   // Normalize input data (to prevent numerical problems)
-  printf("Computing input similarities...\n");
+  if (verbosity) {
+    printf("Computing input similarities...\n");
+  }
+  
   start = clock();
-  //zeroMean(X, N, D);
-  zeroMean();
+  zeroMean(X, N, D);
+  //  zeroMean();
   double max_X = .0;
   for(int i = 0; i < N * D; i++) {
     if(X[i] > max_X) max_X = X[i];
@@ -616,22 +679,26 @@ void BHTSNE::run()
     X[i] /= max_X;
   }
   // Compute input similarities for exact t-SNE
-  double* P = nullptr; 
-  unsigned int* row_P; 
-  unsigned int* col_P; 
-  double* val_P;
+  double* P = nullptr;
+  unsigned int* row_P = nullptr;
+  unsigned int* col_P = nullptr;
+  double* val_P = nullptr;
   if(exact) {
     // Compute similarities
-    printf("Exact?");
+    if(verbosity){
+      printf("Exact?");
+    }
     P = (double*) malloc(N * N * sizeof(double));
-    if(P == NULL) { 
-      printf("Memory allocation failed!\n"); 
+    if(P == NULL) {
+      printf("Memory allocation failed!\n");
       exit(1);
     }
-    computeGaussianPerplexity(X, N, D, P, perplexity);
-
+    computeGaussianPerplexity(P);
+    
     // Symmetrize input similarities
-    printf("Symmetrizing...\n");
+    if (verbosity) {
+      printf("Symmetrizing...\n");
+    }
     int nN = 0;
     for(int n = 0; n < N; n++) {
       int mN = 0;
@@ -650,13 +717,13 @@ void BHTSNE::run()
       P[i] /= sum_P;
     }
   } else { // Compute input similarities for approximate t-SNE
-
+    
     // Compute asymmetric pairwise input similarities
-    computeGaussianPerplexity(X, N, D, &row_P, &col_P, &val_P, 
-                              perplexity, (int) (3 * perplexity));
-
+    computeGaussianPerplexity(&row_P, &col_P, &val_P, (int) (3 * perplexity));
+    
     // Symmetrize input similarities
-    symmetrizeMatrix(&row_P, &col_P, &val_P, N);
+    //symmetrizeMatrix(&row_P, &col_P, &val_P, N);
+    symmetrizeMatrix(&row_P, &col_P, &val_P);
     double sum_P = .0;
     for(unsigned int i = 0; i < row_P[N]; i++) {
       sum_P += val_P[i];
@@ -666,38 +733,36 @@ void BHTSNE::run()
     }
   }
   end = clock();
-
+  
   // Lie about the P-values
-  if(exact) { 
+  if(exact) {
     for(int i = 0; i < N * N; i++) {
       P[i] *= 12.0;
-    } 
-  } else { 
+    }
+  } else {
     for(unsigned int i = 0; i < row_P[N]; i++) {
       val_P[i] *= 12.0;
     }
   }
-/*  printf("Initialize solution randomly ...");
-  // Initialize solution (randomly)
-  for(int i = 0; i < N * no_dims; i++) {
-    Y[i] = randn() * .0001;
-  }
-  printf("finished.\n");
-*/
+  
   // Perform main training loop
   if(exact) {
-    printf("Input similarities computed in %4.2f seconds!\nLearning embedding...\n", 
-              (float) (end - start) / CLOCKS_PER_SEC);
+    if (verbosity) {
+      printf("Input similarities computed in %4.2f seconds!\nLearning embedding...\n",
+             (float) (end - start) / CLOCKS_PER_SEC);
+    }
   } else {
-    printf("Input similarities computed in %4.2f seconds (sparsity = %f)!\nLearning embedding...\n", 
-              (float) (end - start) / CLOCKS_PER_SEC, 
-              (double) row_P[N] / ((double) N * (double) N));
+    if (verbosity) {
+      printf("Input similarities computed in %4.2f seconds (sparsity = %f)!\nLearning embedding...\n",
+             (float) (end - start) / CLOCKS_PER_SEC,
+             (double) row_P[N] / ((double) N * (double) N));
+    }
   }
   start = clock();
+  
   for(int iter = 0; iter < max_iter; iter++) {
-
+    
     // Compute (approximate) gradient
-    printf("Compute (approximate) gradient ...");
     if(exact) {
       //computeExactGradient(P, Y, N, no_dims, dY);
       computeExactGradient(P, dY);
@@ -705,9 +770,8 @@ void BHTSNE::run()
       //computeGradient(P, row_P, col_P, val_P, Y, N, no_dims, dY, theta);
       computeGradient(P, row_P, col_P, val_P, dY);
     }
-    printf("finished.\n");
+    
     // Update gains
-    printf("Update gains ...");
     for(int i = 0; i < N * no_dims; i++) {
       gains[i] = (sign(dY[i]) != sign(uY[i])) ? (gains[i] + .2) : (gains[i] * .8);
     }
@@ -716,39 +780,31 @@ void BHTSNE::run()
         gains[i] = .01;
       }
     }
-    printf("finished.\n");
-
+    
     // Perform gradient update (with momentum and gains)
-    printf("Perform gradient update (with momentum and gains) ...");
     for(int i = 0; i < N * no_dims; i++) {
       uY[i] = momentum * uY[i] - eta * gains[i] * dY[i];
     }
-    printf("finished.\n");
-    printf("N=%d, no_dims=%d", N, no_dims);
+    
     for(int i = 0; i < N * no_dims; i++) {
-      //printf("N=%d, no_dims=%d", N, no_dims);
-      printf("Y[%d]=%f\n, uY[%d]=%f", i, Y[i], i, uY[i]);
       Y[i] = Y[i] + uY[i];
-      printf("Y[%d]=%f\n, uY[%d]=%f", i, Y[i], i, uY[i]);
     }
-    printf("before zeroMean() ... \n");
     // Make solution zero-mean
-    //zeroMean(Y, N, no_dims);
-    zeroMean();
+    zeroMean(Y, N, no_dims);
+    
     // Stop lying about the P-values after a while, and switch momentum
-    printf("After zeroMean() ... \n");
     if(iter == stop_lying_iter) {
-      if(exact) { 
+      if(exact) {
         for(int i = 0; i < N * N; i++) {
-          P[i] /= 12.0; 
+          P[i] /= 12.0;
         }
-      } else { 
+      } else {
         for(unsigned int i = 0; i < row_P[N]; i++) {
           val_P[i] /= 12.0;
         }
       }
     }
-    printf("finished.\n");
+    
     if(iter == mom_switch_iter) {
       momentum = final_momentum;
     }
@@ -764,19 +820,20 @@ void BHTSNE::run()
         //C = evaluateError(row_P, col_P, val_P, Y, N, no_dims, theta);
         C = evaluateError(row_P, col_P, val_P);
       }
-
-      if(iter == 0){
-        printf("Iteration %d: error is %f\n", iter + 1, C);
-      } else {
-        total_time += (float) (end - start) / CLOCKS_PER_SEC;
-        printf("Iteration %d: error is %f (50 iterations in %4.2f seconds)\n", 
-                iter, C, (float) (end - start) / CLOCKS_PER_SEC);
+      if (verbosity) {
+        if(iter == 0){
+          printf("Iteration %d: error is %f\n", iter + 1, C);
+        } else {
+          total_time += (float) (end - start) / CLOCKS_PER_SEC;
+          printf("Iteration %d: error is %f (50 iterations in %4.2f seconds)\n",
+                 iter, C, (float) (end - start) / CLOCKS_PER_SEC);
+        }
       }
       start = clock();
     }
   }
   end = clock(); total_time += (float) (end - start) / CLOCKS_PER_SEC;
-
+  
   // Clean up memory
   free(dY);
   free(uY);
@@ -788,7 +845,10 @@ void BHTSNE::run()
     free(col_P); col_P = NULL;
     free(val_P); val_P = NULL;
   }
-  printf("Fitting performed in %4.2f seconds.\n", total_time);
+  if (verbosity) {
+    printf("Fitting performed in %4.2f seconds.\n", total_time);
+  }
+  
 }
 
 

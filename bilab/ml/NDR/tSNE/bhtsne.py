@@ -131,9 +131,115 @@ def _validate_vector(u, dtype=None):
         raise ValueError("Input vector should be 1-D.")
     return u
 
-def bhtsne(samples, no_dims=2, perplexity=30.0, theta=0.5, randseed=-1, verbose=False):
+def _mean_and_std(X, axis=0, with_mean=True, with_std=True):
+    """Compute mean and std deviation for centering, scaling.
+    Zero valued std components are reset to 1.0 to avoid NaNs when scaling.
+    """
+    X = np.asarray(X, dtype=float)
+    Xr = np.rollaxis(X, axis)
+
+    if with_mean:
+        mean_ = Xr.mean(axis=0)
+    else:
+        mean_ = None
+
+    if with_std:
+        std_ = Xr.std(axis=0)
+        std_ = _handle_zeros_in_scale(std_)
+    else:
+        std_ = None
+
+    return mean_, std_
+
+def _handle_zeros_in_scale(scale):
+    ''' Makes sure that whenever scale is zero, we handle it correctly.
+    This happens in most scalers when we have constant features.'''
+
+    # if we are fitting on 1D arrays, scale might be a scalar
+    if np.isscalar(scale):
+        if scale == 0:
+            scale = 1.
+    elif isinstance(scale, np.ndarray):
+        scale[scale == 0.0] = 1.0
+        scale[~np.isfinite(scale)] = 1.0
+    return scale
+
+def _scale(X, axis=0, with_mean=True, with_std=True, copy=True):
+    X = np.asarray(X)
+    mean_, std_ = _mean_and_std(X, axis, with_mean=with_mean, with_std=with_std)
+    if copy:
+        X = X.copy()
+    # Xr is a view on the original array that enables easy use of
+    # broadcasting on the axis in which we are interested in
+    Xr = np.rollaxis(X, axis)
+    if with_mean:
+        Xr -= mean_
+        mean_1 = Xr.mean(axis=0)
+        # Verify that mean_1 is 'close to zero'. If X contains very
+        # large values, mean_1 can also be very large, due to a lack of
+        # precision of mean_. In this case, a pre-scaling of the
+        # concerned feature is efficient, for instance by its mean or
+        # maximum.
+        if not np.allclose(mean_1, 0):
+            warnings.warn("Numerical issues were encountered "
+                          "when centering the data "
+                          "and might not be solved. Dataset may "
+                          "contain too large values. You may need "
+                          "to prescale your features.")
+            Xr -= mean_1
+    if with_std:
+        Xr /= std_
+        if with_mean:
+            mean_2 = Xr.mean(axis=0)
+            # If mean_2 is not 'close to zero', it comes from the fact that
+            # std_ is very small so that mean_2 = mean_1/std_ > 0, even if
+            # mean_1 was close to zero. The problem is thus essentially due
+            # to the lack of precision of mean_. A solution is then to
+            # substract the mean again:
+            if not np.allclose(mean_2, 0):
+                warnings.warn("Numerical issues were encountered "
+                              "when scaling the data "
+                              "and might not be solved. The standard "
+                              "deviation of the data is probably "
+                              "very close to 0. ")
+                Xr -= mean_2
+    return X
+
+def _bhtsne_call_wrap(samples, no_dims=2, perplexity=30.0, theta=0.5, randseed=-1, sampling=100, verbose=False):
     N = samples.shape[0]
+    D = samples.shape[1]
+
     Y = np.zeros((N, no_dims), dtype=np.double)
-    tsne = _bhtsne_wrap.bhtsne(samples, Y, N, no_dims, perplexity, 
+    tsne = _bhtsne_wrap.bhtsne(samples, Y, N, D, no_dims, perplexity, 
                                theta, randseed, verbose)
+    Y_scale = _scale(Y)
+    Y = np.cosh(Y_scale)
     return Y
+
+def bhtsne(samples, no_dims=2, perplexity=30.0, theta=0.5, randseed=-1, sampling=100, verbose=False):
+    Y = _bhtsne_call_wrap(samples, no_dims=no_dims, perplexity=perplexity, 
+                          theta=theta, randseed=randseed, 
+                          sampling=sampling, verbose=False)
+
+    for i in xrange(sampling):
+        if verbose:
+            sys.stdout.write("Sampling at iter {}/{}\r".format(i+1, sampling))
+            sys.stdout.flush()
+        
+        res = _bhtsne_call_wrap(samples, no_dims=no_dims, perplexity=perplexity, 
+                          theta=theta, randseed=randseed, 
+                          sampling=sampling, verbose=False)
+        Y = np.column_stack((Y,res))
+    # find the maximum and minimum in rows
+    col_min = np.amin(Y, axis=1)
+    col_max = np.amax(Y, axis=1)
+    # get their summation
+    sum_col_del = col_max + col_min
+    # Remove the max and min
+    sum_cols = np.sum(Y,axis=1) - sum_col_del
+
+    # Compute the average on row
+    NumofSampplingDimensions = Y.shape[1] - 2
+    final_mapping = sum_cols/NumofSampplingDimensions
+
+    return final_mapping
