@@ -40,12 +40,11 @@ namespace num_util {
 
 }
 
-void BHTSNE_wrapper(bpy::numeric::array& data, bpy::numeric::array& Y, int numOfsamples, int dims, int mapped_D, double perplex, double th, int rseed, bool verbose) {
+void BHTSNE_wrapper(bpy::numeric::array& data, bpy::numeric::array& Y, int numOfsamples, int dims, int mapped_D, double perplex, double th, int rseed, bool scale, bool verbose) {
   // convert data of numpy array to double pointer
   double* samples = (double*)num_util::data(data);
 
-  //create an object
-  BHTSNE bhtsne(samples, numOfsamples, dims, mapped_D, perplex, th, rseed, verbose);
+  BHTSNE bhtsne(samples, numOfsamples, dims, mapped_D, perplex, th, rseed, scale,verbose);
   bhtsne.run();
   // convert double** to numeric array
   for (int i = 0; i < numOfsamples; ++i){

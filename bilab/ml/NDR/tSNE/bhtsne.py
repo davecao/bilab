@@ -205,18 +205,18 @@ def _scale(X, axis=0, with_mean=True, with_std=True, copy=True):
                 Xr -= mean_2
     return X
 
-def _bhtsne_call_wrap(samples, no_dims=2, perplexity=30.0, theta=0.5, randseed=-1, sampling=100, verbose=False):
+def _bhtsne_call_wrap(samples, no_dims=2, perplexity=30.0, theta=0.5, randseed=-1, sampling=100, scale=False, verbose=False):
     N = samples.shape[0]
     D = samples.shape[1]
 
     Y = np.zeros((N, no_dims), dtype=np.double)
     tsne = _bhtsne_wrap.bhtsne(samples, Y, N, D, no_dims, perplexity, 
-                               theta, randseed, verbose)
+                               theta, randseed, scale, verbose)
     Y_scale = _scale(Y)
     Y = np.cosh(Y_scale)
     return Y
 
-def bhtsne(samples, no_dims=2, perplexity=30.0, theta=0.5, randseed=-1, sampling=100, verbose=False):
+def bhtsne(samples, no_dims=2, perplexity=30.0, theta=0.5, randseed=-1, sampling=100, scale=False, verbose=False):
     Y = _bhtsne_call_wrap(samples, no_dims=no_dims, perplexity=perplexity, 
                           theta=theta, randseed=randseed, 
                           sampling=sampling, verbose=False)

@@ -89,8 +89,9 @@ void BHTSNE::print_(){
 }
 
 
-void BHTSNE::symmetrizeMatrix(unsigned int** _row_P, unsigned int** _col_P,
-                              double** _val_P)
+void BHTSNE::symmetrizeMatrix(unsigned int** _row_P,
+                              unsigned int** _col_P,
+                              double** _val_P, int N)
 {
   // Get sparse matrix
   unsigned int* row_P = *_row_P;
@@ -189,25 +190,30 @@ void BHTSNE::symmetrizeMatrix(unsigned int** _row_P, unsigned int** _col_P,
 }
 
 // Compute gradient of the t-SNE cost function (using Barnes-Hut algorithm)
-void BHTSNE::computeGradient(double* P, unsigned int* inp_row_P,
+void BHTSNE::computeGradient(double* P,
+                             unsigned int* inp_row_P,
                              unsigned int* inp_col_P,
                              double* inp_val_P,
-                             double* dC)
+                             double* Y,
+                             int N,
+                             int D,
+                             double* dC,
+                             double theta)
 {
   // Construct space-partitioning tree on current map
-  SPTree* tree = new SPTree(no_dims, Y, N);
+  SPTree* tree = new SPTree(D, Y, N);
   
   // Compute all terms required for t-SNE gradient
   double sum_Q = .0;
-  double* pos_f = (double*) calloc(N * no_dims, sizeof(double));
-  double* neg_f = (double*) calloc(N * no_dims, sizeof(double));
+  double* pos_f = (double*) calloc(N * D, sizeof(double));
+  double* neg_f = (double*) calloc(N * D, sizeof(double));
   if(pos_f == NULL || neg_f == NULL) {
     printf("Memory allocation failed!\n");
     exit(1);
   }
   tree->computeEdgeForces(inp_row_P, inp_col_P, inp_val_P, N, pos_f);
   for(int n = 0; n < N; n++) {
-    tree->computeNonEdgeForces(n, theta, neg_f + n * no_dims, &sum_Q);
+    tree->computeNonEdgeForces(n, theta, neg_f + n * D, &sum_Q);
   }
   // Compute final t-SNE gradient
   for(int i = 0; i < N * no_dims; i++) {
@@ -218,11 +224,10 @@ void BHTSNE::computeGradient(double* P, unsigned int* inp_row_P,
   delete tree;
 }
 // Compute gradient of the t-SNE cost function (exact)
-void BHTSNE::computeExactGradient(double* P,
-                                  double* dC)
+void BHTSNE::computeExactGradient(double* P, double* Y,int N, int D, double* dC)
 {
   // Make sure the current gradient contains zeros
-  for(int i = 0; i < N * no_dims; i++) {
+  for(int i = 0; i < N * D; i++) {
     dC[i] = 0.0;
   }
   // Compute the squared Euclidean distance matrix
@@ -231,7 +236,7 @@ void BHTSNE::computeExactGradient(double* P,
     printf("Memory allocation failed!\n");
     exit(1);
   }
-  computeSquaredEuclideanDistance(DD);
+  computeSquaredEuclideanDistance(Y, N, D, DD);
   
   // Compute Q-matrix and normalization sum
   double* Q = (double*) malloc(N * N * sizeof(double));
@@ -275,7 +280,7 @@ void BHTSNE::computeExactGradient(double* P,
 }
 
 //double BHTSNE::evaluateError(double* P, int N, int D)
-double BHTSNE::evaluateError(double* P)
+double BHTSNE::evaluateError(double* P, double* Y, int N, int D)
 {
   // Compute the squared Euclidean distance matrix
   double* DD = (double*) malloc(N * N * sizeof(double));
@@ -284,7 +289,7 @@ double BHTSNE::evaluateError(double* P)
     printf("Memory allocation failed!\n");
     exit(1);
   }
-  computeSquaredEuclideanDistance(DD);
+  computeSquaredEuclideanDistance(Y, N, D, DD);
   
   // Compute Q-matrix and normalization sum
   int nN = 0;
@@ -315,12 +320,14 @@ double BHTSNE::evaluateError(double* P)
   return C;
 }
 
-double BHTSNE::evaluateError(unsigned int* row_P, unsigned int* col_P,
-                             double* val_P)
+double BHTSNE::evaluateError(unsigned int* row_P,
+                             unsigned int* col_P,
+                             double* val_P, double* Y,
+                             int N, int D, double theta)
 {
   // Get estimate of normalization term
-  SPTree* tree = new SPTree(no_dims, Y, N);
-  double* buff = (double*) calloc(no_dims, sizeof(double));
+  SPTree* tree = new SPTree(D, Y, N);
+  double* buff = (double*) calloc(D, sizeof(double));
   double sum_Q = .0;
   for(int n = 0; n < N; n++) {
     tree->computeNonEdgeForces(n, theta, buff, &sum_Q);
@@ -332,10 +339,10 @@ double BHTSNE::evaluateError(unsigned int* row_P, unsigned int* col_P,
     ind1 = n * D;
     for(unsigned int i = row_P[n]; i < row_P[n + 1]; i++) {
       Q = .0;
-      ind2 = col_P[i] * no_dims;
-      for(int d = 0; d < no_dims; d++) buff[d]  = Y[ind1 + d];
-      for(int d = 0; d < no_dims; d++) buff[d] -= Y[ind2 + d];
-      for(int d = 0; d < no_dims; d++) Q += buff[d] * buff[d];
+      ind2 = col_P[i] * D;
+      for(int d = 0; d < D; d++) buff[d]  = Y[ind1 + d];
+      for(int d = 0; d < D; d++) buff[d] -= Y[ind2 + d];
+      for(int d = 0; d < D; d++) Q += buff[d] * buff[d];
       Q = (1.0 / (1.0 + Q)) / sum_Q;
       C += val_P[i] * log((val_P[i] + FLT_MIN) / (Q + FLT_MIN));
     }
@@ -377,7 +384,8 @@ void BHTSNE::zeroMean(double* X, int N, int D)
 }
 
 // Compute input similarities with a fixed perplexity
-void BHTSNE::computeGaussianPerplexity(double* P)
+void BHTSNE::computeGaussianPerplexity(double* X, int N, int D,
+                                       double* P, double perplexity)
 {
   // Compute the squared Euclidean distance matrix
   double* DD = (double*) malloc(N * N * sizeof(double));
@@ -385,7 +393,7 @@ void BHTSNE::computeGaussianPerplexity(double* P)
     printf("Memory allocation failed!\n");
     exit(1);
   }
-  computeSquaredEuclideanDistance(DD);
+  computeSquaredEuclideanDistance(X, N, D, DD);
   
   // Compute the Gaussian kernel row by row
   int nN = 0;
@@ -456,9 +464,12 @@ void BHTSNE::computeGaussianPerplexity(double* P)
 }
 
 // Compute input similarities with a fixed perplexity using ball trees (this function allocates memory another function should free)
-void BHTSNE::computeGaussianPerplexity(
-                                       unsigned int** _row_P, unsigned int** _col_P,
-                                       double** _val_P, int K)
+void BHTSNE::computeGaussianPerplexity(double* X, int N, int D,
+                                       unsigned int** _row_P,
+                                       unsigned int** _col_P,
+                                       double** _val_P,
+                                       double perplexity,
+                                       int K)
 {
   if(perplexity > K) {
     printf("Perplexity should be lower than K!\n");
@@ -576,7 +587,7 @@ void BHTSNE::computeGaussianPerplexity(
   free(cur_P);
   delete tree;
 }
-void BHTSNE::computeSquaredEuclideanDistance(double* DD)
+void BHTSNE::computeSquaredEuclideanDistance(double *X, int N, int D, double* DD)
 {
   double* dataSums = (double*) calloc(N, sizeof(double));
   if(dataSums == NULL) {
@@ -693,7 +704,7 @@ void BHTSNE::run()
       printf("Memory allocation failed!\n");
       exit(1);
     }
-    computeGaussianPerplexity(P);
+    computeGaussianPerplexity(X, N, D, P, perplexity);
     
     // Symmetrize input similarities
     if (verbosity) {
@@ -719,11 +730,11 @@ void BHTSNE::run()
   } else { // Compute input similarities for approximate t-SNE
     
     // Compute asymmetric pairwise input similarities
-    computeGaussianPerplexity(&row_P, &col_P, &val_P, (int) (3 * perplexity));
+    computeGaussianPerplexity(X, N, D, &row_P, &col_P, &val_P, perplexity, (int) (3 * perplexity));
     
     // Symmetrize input similarities
     //symmetrizeMatrix(&row_P, &col_P, &val_P, N);
-    symmetrizeMatrix(&row_P, &col_P, &val_P);
+    symmetrizeMatrix(&row_P, &col_P, &val_P, N);
     double sum_P = .0;
     for(unsigned int i = 0; i < row_P[N]; i++) {
       sum_P += val_P[i];
@@ -764,11 +775,10 @@ void BHTSNE::run()
     
     // Compute (approximate) gradient
     if(exact) {
-      //computeExactGradient(P, Y, N, no_dims, dY);
-      computeExactGradient(P, dY);
+      computeExactGradient(P, Y, N, no_dims, dY);
     } else {
-      //computeGradient(P, row_P, col_P, val_P, Y, N, no_dims, dY, theta);
-      computeGradient(P, row_P, col_P, val_P, dY);
+      computeGradient(P, row_P, col_P, val_P, Y, N, no_dims, dY, theta);
+      //computeGradient(P, row_P, col_P, val_P, dY);
     }
     
     // Update gains
@@ -814,11 +824,11 @@ void BHTSNE::run()
       double C = .0;
       
       if(exact) {
-        //C = evaluateError(P, Y, N, no_dims);
-        C = evaluateError(P);
+        C = evaluateError(P, Y, N, no_dims);
+        //C = evaluateError(P);
       } else {// doing approximate computation here!
-        //C = evaluateError(row_P, col_P, val_P, Y, N, no_dims, theta);
-        C = evaluateError(row_P, col_P, val_P);
+        C = evaluateError(row_P, col_P, val_P, Y, N, no_dims, theta);
+        //C = evaluateError(row_P, col_P, val_P);
       }
       if (verbosity) {
         if(iter == 0){
