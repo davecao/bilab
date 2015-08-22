@@ -15,6 +15,8 @@ def medianOf3(vector, a, b, c, comp):
     # comp (A, B) ?
     #   comp (B, C) ? b : comp (A, C) ? c : a :
     #       comp (A, C) ? a : comp (B, C) ? c : b;
+    print vector
+    print("a={}, b={}, c={}".format(a,b,c))
     A = vector[a]
     B = vector[b]
     C = vector[c]
@@ -67,13 +69,16 @@ def _select(vector, left, nth, right, comp):
         # meadian (left+rigth)>>1
         pivotIndex = medianOf3(vector, left, right, (left + right)>>1, comp)
         pivotNewIndex = partition(vector, left, right, pivotIndex, comp)
-        pivotDist = pivotNewIndex - left
+        #pivotDist = pivotNewIndex - left
+        pivotDist = pivotNewIndex - left + 1
         if pivotDist == nth:
             return vector[pivotNewIndex]
         elif nth < pivotDist:
             right = pivotNewIndex - 1
         else:
-            nth -= pivotDist + 1
+            #nth -= pivotDist + 1
+            #left = pivotNewIndex + 1
+            nth -= pivotDist
             left = pivotNewIndex + 1
 
 def nth_element(vector, left, nth, right, comp):
