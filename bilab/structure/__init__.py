@@ -19,3 +19,5 @@ from .contacts import *
 from .surface import *
 
 from .density import *
+
+from .vptree import *

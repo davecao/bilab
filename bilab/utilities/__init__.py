@@ -23,6 +23,8 @@ from .checkers import *
 from . import misctools
 from .misctools import *
 
+from . import nth_element
+from .nth_element import *
 # add to bilab, i.e., bilab.three2one
 #__all__.extend(utilities.__all__)
 

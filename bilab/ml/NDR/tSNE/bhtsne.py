@@ -216,7 +216,7 @@ def _bhtsne_call_wrap(samples, no_dims=2, perplexity=30.0, theta=0.5, randseed=-
     Y = np.cosh(Y_scale)
     return Y
 
-def bhtsne(samples, no_dims=2, perplexity=30.0, theta=0.5, randseed=-1, sampling=100, scale=False, verbose=False):
+def bhtsne(samples, no_dims=1, perplexity=30.0, theta=0.5, randseed=-1, sampling=100, scale=False, verbose=False):
     Y = _bhtsne_call_wrap(samples, no_dims=no_dims, perplexity=perplexity, 
                           theta=theta, randseed=randseed, 
                           sampling=sampling, verbose=False)

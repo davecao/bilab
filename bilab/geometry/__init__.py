@@ -16,3 +16,5 @@ from .tess import *
 
 # 
 from .distance import *
+
+from .dtw import *
