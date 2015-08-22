@@ -68,12 +68,12 @@ def _select(vector, left, nth, right, comp):
         pivotIndex = medianOf3(vector, left, right, (left + right)>>1, comp)
         pivotNewIndex = partition(vector, left, right, pivotIndex, comp)
         pivotDist = pivotNewIndex - left
-        if pivotDist == k:
+        if pivotDist == nth:
             return vector[pivotNewIndex]
-        elif k < pivotDist:
+        elif nth < pivotDist:
             right = pivotNewIndex - 1
         else:
-            k -= pivotDist + 1
+            nth -= pivotDist + 1
             left = pivotNewIndex + 1
 
 def nth_element(vector, left, nth, right, comp):
