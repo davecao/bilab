@@ -15,8 +15,6 @@ def medianOf3(vector, a, b, c, comp):
     # comp (A, B) ?
     #   comp (B, C) ? b : comp (A, C) ? c : a :
     #       comp (A, C) ? a : comp (B, C) ? c : b;
-    print vector
-    print("a={}, b={}, c={}".format(a,b,c))
     A = vector[a]
     B = vector[b]
     C = vector[c]
