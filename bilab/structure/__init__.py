@@ -21,3 +21,5 @@ from .surface import *
 from .density import *
 
 from .vptree import *
+
+from .Heap import *
