@@ -49,9 +49,6 @@ from .utilities import *
 #__all__.extend(utilities.__all__)
 #__all__.append('utilities')
 
-#from .utilities import PackageLogger
-#LOGGER = PackageLogger('.bilab')
-
 #from . import sequence
 from .sequence import *
 #__all__.extend(sequence.__all__)
@@ -87,7 +84,6 @@ from .geometry import *
 #__all__.extend(geometry.__all__)
 #__all__.append('geometry')
 
-#LOGGER = PackageLogger('.bilab')
 #from . import structure
 from .structure import *
 #__all__.extend(structure.__all__)
@@ -98,28 +94,6 @@ from .concurrent import *
 #__all__.extend(concurrent.__all__)
 #__all__.append('concurrent')
 
-#from .apps import *
-# Try to load bilab
-    #scriptDir = os.path.dirname(os.path.realpath(__file__))
-    #covalent = import_module("covalent_radius",
-    #                         path=scriptDir + os.sep + 'bilab',
-    #                         verbose=True)
-    #utilities = import_module("utilities",
-    #                         path=scriptDir + os.sep + 'bilab',
-    #                         verbose=True)
-    #bilab = import_module("bilab",
-    #                      path = scriptDir + os.sep + 'bilab',
-    #                      verbose = opt.verbose)
-    # Try to load prody
-    #prody = import_module("prody",
-    #                      path=opt.prody_path,
-    #                      verbose = opt.verbose)
-    #print(dir(bilab))
-    #bilab.utilities.get_loaded_modules()
-# add the following two lines
-# so that import_module could add it to global space
-
-#import bilab
-#__all__.append('bilab')
+from .apps import *
 
 
