@@ -16,18 +16,26 @@ def medianOf3(vector, a, b, c, comp):
     # comp (A, B) ?
     #   comp (B, C) ? b : comp (A, C) ? c : a :
     #       comp (A, C) ? a : comp (B, C) ? c : b;
-#    size = len(vector)-1
+    size = len(vector)-1
     # check the range to prevent the indexerror,  
 #    a = a if a<size else size
 #    b = b if b<size else size
 #    c = c if c<size else size
-
-    A = vector[a]
-    B = vector[b]
-    C = vector[c]
-#    except IndexError:
-#        print("medianOf3 - length of vector:{}, ({} or {} or {})".format(len(vector),a,b,c))
-#        sys.exit(1)
+    try:
+        if a > size:
+            a = size
+        if b > size:
+            b = size
+        if c > size:
+            c = size
+        #b = b if b<size else size
+        #c = c if c<size else size
+        A = vector[a]
+        B = vector[b]
+        C = vector[c]
+    except IndexError:
+        print("medianOf3 - length of vector:{}, ({} or {} or {})".format(len(vector),a,b,c))
+        sys.exit(1)
 
     if comp(A, B):
         # A < B
@@ -59,8 +67,12 @@ def medianOf3(vector, a, b, c, comp):
 def partition(vector, left, right, pivotIndex, comp):
     pivotValue = vector[pivotIndex]
     # Move pivot to end
-    vector[pivotIndex], vector[right] = vector[right], vector[pivotIndex]  
-    storeIndex = left
+    vector[pivotIndex], vector[right] = vector[right], vector[pivotIndex]
+    if left > len(vector) - 1:
+        # check the boundary
+        storeIndex = len(vector) - 1
+    else:
+        storeIndex = left
     for i in range(left, right):
         #if vector[i] < pivotValue:
         if comp(vector[i], pivotValue):
@@ -72,10 +84,9 @@ def partition(vector, left, right, pivotIndex, comp):
  
 def _select(vector, left, nth, right, comp):
     "Returns the n-th smallest, (nth >= 0), element of vector within vector[left:right+1] inclusive."
-    if nth<=0 or nth >(right - left + 1):
-        print("Error: nth shoud be within [left:right + 1]")
-        print("       nth:{}, left:{}, right:{}".format(nth,left,right))
-        sys.exit(1)
+    if (right - left)==1:
+        """ only two element, nth element without left element """
+        return
 
     while True:
         # select pivotIndex between left and right
@@ -83,18 +94,22 @@ def _select(vector, left, nth, right, comp):
         # meadian (left+rigth)>>1
         pivotIndex = medianOf3(vector, left, right, (left + right)>>1, comp)
         pivotNewIndex = partition(vector, left, right, pivotIndex, comp)
-        #pivotDist = pivotNewIndex - left 
+        pivotDist = pivotNewIndex - left 
         # zero-based vector
-        pivotDist = pivotNewIndex - left + 1
+        #pivotDist = pivotNewIndex - left + 1
         if pivotDist == nth:
             return vector[pivotNewIndex]
         elif nth < pivotDist:
             right = pivotNewIndex - 1
         else:
-            #nth -= pivotDist + 1
+            nth -= pivotDist + 1
+            if left > len(vector) - 1:
+                # check the right boundary
+                left = pivotNewIndex
+            else:
+                left = pivotNewIndex + 1
+            #nth -= pivotDist
             #left = pivotNewIndex + 1
-            nth -= pivotDist
-            left = pivotNewIndex + 1
 
 def nth_element(vector, left, nth, right, comp=lambda x,y: x<y):
     """ Return the k-th smallest, (k >= 0), element of vector within vector[left:right+1].
@@ -108,4 +123,5 @@ def nth_element(vector, left, nth, right, comp=lambda x,y: x<y):
     assert vector and nth >= 0, "Either null vector or k < 0 "
     assert 0 <= left <= lv1, "left is out of range"
     assert left <= right <= lv1, "right is out of range"
+    assert left <= nth <= right, "nth should be with [left:right]"
     return _select(vector, left, nth, right, comp)

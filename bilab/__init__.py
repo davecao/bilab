@@ -22,7 +22,7 @@ else:
         raise ImportError('Numpy v1.8 or later is required.')
 
 from .utilities import PackageLogger, PackageSettings
-from .utilities import getPackagePath, joinRepr, tabulate
+#from .utilities import getPackagePath, joinRepr, tabulate
 
 _PY3K = PY3K = sys.version_info[0] > 2
 PY2K = not PY3K
@@ -98,7 +98,7 @@ from .concurrent import *
 #__all__.extend(concurrent.__all__)
 #__all__.append('concurrent')
 
-
+#from .apps import *
 # Try to load bilab
     #scriptDir = os.path.dirname(os.path.realpath(__file__))
     #covalent = import_module("covalent_radius",
@@ -119,23 +119,7 @@ from .concurrent import *
 # add the following two lines
 # so that import_module could add it to global space
 
-import bilab
-__all__.append('bilab')
-
-#LOGGER = bilab.utilities.PackageLogger('.bilab')
-
-# prody path
-#def import_prody():
-#    prody_path = os.path.dirname(os.path.realpath(__file__))
-#    print("prody_path: {}".format(prody_path))
-#    bilab.utilities.import_module("prody", path=prody_path, verbose = True)
-#    try:
-#        import prody
-#    except ImportError:
-#        raise ImportError('Prody is a required package for bilab')
-#
-#import_prody()
-#from . import prody
-#from .prody import *
+#import bilab
+#__all__.append('bilab')
 
 
