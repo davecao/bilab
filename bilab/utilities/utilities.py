@@ -24,7 +24,22 @@ __all__ = [ 'AsynchronousFileReader',
             'get_loaded_modules',
             'search_loaded_module',
             'find_loaded_module']
-
+"""
+      `ASX`_ (B)  asparagine or aspartic acid
+      `GLX`_ (Z)  glutamine or glutamic acid
+      `CSO`_ (C)  S-hydroxycysteine
+      `HIP`_ (H)  ND1-phosphohistidine
+       HSD   (H)  prototropic tautomer of histidine, H on ND1 (CHARMM)
+       HSE   (H)  prototropic tautomer of histidine, H on NE2 (CHARMM)
+       HSP   (H)  protonated histidine
+      `MSE`_      selenomethionine
+      `SEC`_ (U)  selenocysteine
+      `SEP`_ (S)  phosphoserine
+      `TPO`_ (T)  phosphothreonine
+      `PTR`_ (Y)  O-phosphotyrosine
+       XLE   (J)  leucine or isoleucine
+       XAA   (X)  unspecified or unknown
+"""
 code = {
     "GLY" : "G",
     "ALA" : "A",
@@ -46,9 +61,23 @@ code = {
     "PHE" : "F",
     "HIS" : "H",
     "VAL" : "V",
+    
     "M3L" : "K",
-    "MSE" : "M",
-    "CAS" : "C"
+    "MSE" : "X",
+    "CAS" : "X",
+    "ASX" : "B",
+    "GLX" : "Z",
+    "XJE" : "J",
+    "HIP" : "X",
+    "HSD" : "X",
+    "HSE" : "X",
+    "HSP" : "X",
+    "CSO" : "X",
+    "SEC" : "X",
+    "SEP" : "X",
+    "TPO" : "X",
+    "PTR" : "X",
+    "XAA" : "X"
 }
 
 
