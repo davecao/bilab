@@ -20,6 +20,41 @@ from itertools import permutations
 
 __all__ = ['VPTree']
 
+def __checkTypes(args, **types):
+    """Return **True** if types of all *args* match those given in *types*.
+
+    :raises: :exc:`TypeError` when type of an argument is not one of allowed
+        types
+
+    ::
+
+        def incr(n, i):
+            '''Return sum of *n* and *i*.'''
+
+            checkTypes(locals(), n=(float, int), i=(float, int))
+            return n + i
+    """
+    for arg, allowed in types.items():
+        if arg in args and not isinstance(args[arg], types[arg]):
+
+            val = args[arg]
+            if isinstance(allowed, (list, tuple)):
+                if len(allowed) > 1:
+                    tstr = ', '.join([repr(tp.__name__) for tp in allowed[:-1]]
+                                     ) + ', or ' + repr(allowed[-1].__name__)
+
+                else:
+                    tstr = repr(allowed[0].__name__)
+
+            else:
+                tstr = repr(allowed.__name__)
+
+            raise TypeError('{0} must be an instance of {1}, not {2}'
+                            .format(repr(arg), tstr, repr(type(val).__name__)))
+
+    return True
+
+
 class PriorityQueue(object):
 
     """ Implementation of Priority Queue """
@@ -82,7 +117,8 @@ class PriorityQueue(object):
         return largest_
 
 class Node(object):
-    def __init__(self, identifier=None, index=0, value=0.0, name=None, threshold=0.0):
+    def __init__(self, identifier=None, index=0, level=None, 
+                       value=0.0, name=None, threshold=0.0):
         super(Node, self).__init__()
         self.__identifier = (str(uuid.uuid1()) if identifier is None else self.__sanitize_id(str(identifier)))
         # index of self._items but pay attention to that self._items
@@ -92,6 +128,7 @@ class Node(object):
         self.value = value
         self.name = name
         self.threshold = threshold
+        self.level = level
         self.left  = None
         self.right = None
 
@@ -201,7 +238,7 @@ class VPTree(object):
         self._items = items
         self._items.sort() 
         # Start to build a vptree. zero-based 
-        self._root = self.__build_tree(0, len(items)-1) 
+        self._root = self.__build_tree(0, len(items)-1, level = 0) 
 
     def __eq__(self, other):
         if other is self:
@@ -221,11 +258,15 @@ class VPTree(object):
             return not self.__eq__(other)
         return NotImplemented
 
-    def __build_tree(self, lower, upper):
+    def __build_tree(self, lower, upper, level=None):
         if upper == lower:
             return None
         # lower index is center of current node
-        node = Node(index=lower,name=self._items[lower].name, value=self._items[lower].value)
+        node = Node(index=lower,level=level, name=self._items[lower].name, 
+                    value=self._items[lower].value)
+        if level is not None:
+            next_level = level + 1
+
         if upper - lower > 1:
             #if we did not arrive at leaf yet
             #Choose an arbitrary point(vantage point) and move it to the start
@@ -247,8 +288,8 @@ class VPTree(object):
             # Threshold of the new node will be the distance to the median
             node.threshold = self._distance(self._items[lower], self._items[median])
             # Recursively build tree
-            node.left = self.__build_tree(lower + 1, median)
-            node.right = self.__build_tree(median, upper)
+            node.left = self.__build_tree(lower + 1, median, level = next_level)
+            node.right = self.__build_tree(median, upper, level = next_level)
         return node
     
     def __search(self, node, target, k, heapQueue):
@@ -393,7 +434,11 @@ class VPTree(object):
         current = self._root
         while True:
             while current is not None:
-                callback(current)
+                #callback(current)
+                try:
+                    callback(current)
+                except TypeError:
+                    yield current
                 stack.append(current)
                 current = current.left
             if not stack:
@@ -416,10 +461,16 @@ class VPTree(object):
             if not stack:
                 return
             current = stack.pop()
-            callback(current)
+            try:
+                callback(current)
+            except TypeError:
+                yield current
             while current.right is None and stack:
                 current = stack.pop()
-                callback(current)
+                try:
+                    callback(current)
+                except TypeError:
+                    yield current
             current = current.right 
 
     def __postOrder(self, callback=lambda n:print(n)):
@@ -437,14 +488,57 @@ class VPTree(object):
             else:
                 return 
             while((current.right is None) or (visited is True)) and stack:
-                callback(current)
+                try:
+                    callback(current)
+                except TypeError:
+                    yield current
                 current, visited = stack.pop()
             else:
                 if not stack and visited:
-                    callback(current)
+                    try:
+                        callback(current)
+                    except TypeError:
+                        yield current
                     return
                 stack.append((current,True))
                 current = current.right
+
+    def get_descendants_ldpair(self, order='preorder', ld_pair_generator=None):
+        """
+        Return a list of ld-pair
+        """
+        def _pair_generator(node):
+            if (node.left is not None) and (node.right is not None): 
+                return ((node.name, node.hashKey, node.level, node.threshold),
+                    (node.left.name, node.left.hashKey,node.left.level, node.left.threshold),
+                    (node.right.name, node.right.hashKey, node.right.level, node.right.threshold))
+            elif (node.left is not None) and (node.right is None):
+                return ((node.name, node.hashKey,node.level, node.threshold),
+                    (node.left.name, node.left.hashKey, node.left.level, node.left.threshold),
+                    0)
+            elif (node.left is None) and (node.right is not None):
+                 return ((node.name, node.hashKey,node.level, node.threshold),
+                    0,
+                    (node.right.name, node.right.hashKey, node.right.level, node.right.threshold))
+            return None
+        ld_pairs = []
+
+        if ld_pair_generator is None:
+            ld_pair_generator = _pair_generator
+
+        if order == 'preorder':
+            for n in self.__preOrder(callback=None):
+                ld_pairs.append(ld_pair_generator(n))
+        elif order == 'inorder':
+            for n in self.__inOrder(callback=None):
+                ld_pairs.append(ld_pair_generator(n))
+        elif oder == 'postorder':
+            for n in self.__postOrder(callback=None):
+                ld_pairs.append(ld_pair_generator(n))
+        else:
+            print("Input argument strategy Unknown: {}".format(strategy))
+            sys.exit(1)
+        return ld_pairs
 
     def dfs_traverse(self, strategy='inorder', callback=lambda n:print(n)):
         """ 
@@ -453,10 +547,10 @@ class VPTree(object):
                 2. In-order
                 3. Post-order
         Kwargs:
-            strategy (str) : 'preoder','inorder' or 'postorder', default is 'inorder'.
+            strategy (str) : 'preorder','inorder' or 'postorder', default is 'inorder'.
             callback (function) : hold one parameter, current visiting node.
         """
-        if strategy == 'preoder':
+        if strategy == 'preorder':
             self.__preOrder(callback=callback)
         elif strategy == 'inorder':
             self.__inOrder(callback=callback)
@@ -466,15 +560,80 @@ class VPTree(object):
             print("Input argument strategy Unknown: {}".format(strategy))
             sys.exit(1)
 
+    def __CommonSubTree(self, T1, T2, offset=0.):
+        """
+            Find the commonality of two sub-trees which trees are represented 
+            by ld-pair, i.e., [(resName, level, values)]
+
+        Args:
+            T1: tree1
+            T2: tree2
+
+        Return:
+            A list of the common nodes 
+        """
+        if not __checkTypes(T1, (list)):
+            print("The first input argument should be a list.")
+            sys.exit(1)
+        if not __checkTypes(T2, (list)):
+            print("The second input argument should be a list.")
+            sys.exit(1)
+        #T1 = set(T1)
+        #T2 = set(T2)
+        #common = T1 & T2
+        common_t1 = []
+        common_t2 = []
+        for t1_elem in T1:
+            for t2_elem in T2:
+                if (t1_elem[1] == t2_elem[1]) and \
+                    (t1_elem[2] == t2_elem[2]) and \
+                    (abs(t1_elem[3] == t2_elem[3])<=0.114226):
+                    common_t1.append(t1_elem)
+                    common_t2.append(t2_elem)
+        return (common_t1, common_t2)
+
+    def __treeEditDistOperationsCosts(self,T1, T2):
+        """
+            Compute the costs of tree insertion and deletion operations
+            based on their common part of nodes
+        Args:
+            T1: tree1
+            T2: tree2
+
+        Return:
+            cost (float) : the costs of  nsertion and deletion operations
+        """
+        cost = 0.0
+        return cost
+
+    def __EditDistance(self, T1, T2):
+        """
+            Distance and Similarity between two sub-trees.
+        Args:
+            T1: tree1
+            T2: tree2
+
+        Return:
+            distance (float) : the distance of between T1 and T2
+            similarity(float): 1/(1+distance), range from 0 to 1.
+                            0 means the best dissimilarity
+                            1 means the best similarity
+        """
+        distance = 0.0
+        similarity = 1.0
+        pass
+
     def compare(self, other):
         """
             Tree comparison
         """
         # check equality of class/object of inputs
-        if not self == other:
+        if self != other:
             return NotImplemented
-
-
+        ld_pairs_self = self.get_descendants_ldpair()
+        ld_pairs_other = other.get_descendants_ldpair()
+        for p in ld_pairs_self:
+            print(p)
 
     def save(self, format=1):
         """ 

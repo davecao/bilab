@@ -23,3 +23,7 @@ from .density import *
 from .vptree import *
 
 from .Heap import *
+
+from .forcefields import *
+
+from .minimization import *

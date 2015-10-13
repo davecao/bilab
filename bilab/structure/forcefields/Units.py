@@ -67,8 +67,10 @@ The constants defined in this module are:
    - akma_time (the time unit in the DCD trajectory format)
    - electrostatic_energy (the prefactor in Coulomb's law)
 """
-
-from Scientific import N as Numeric
+try:
+   import numpy as Numeric
+except:
+   from Scientific import N as Numeric
 
 # Prefixes
 

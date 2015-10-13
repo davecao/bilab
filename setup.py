@@ -154,7 +154,7 @@ fboost = Find_BOOST_PACKAGE()
 fboost.dumpSettings()
 boost_inc_dir = fboost.found_incs
 boost_lib_dir = fboost.found_lib_paths
-
+netcdf_inc_dir = '/opt/local/include'
 #if 'Boost_LIBRARY_DIR' in os.environ:
 #    Boost_LIBRARY_PATH = os.environ['Boost_LIBRARY_DIR']
 #else:
@@ -199,6 +199,134 @@ bhtsne_wrap = Extension('bilab.ml.NDR.tSNE._bhtsne_wrap',
                     sources = ['bilab/ml/NDR/tSNE/bhtsne_export.cpp',
                                'bilab/ml/NDR/tSNE/bhtsne.cpp',
                                'bilab/ml/NDR/tSNE/sptree.cpp'])
+
+netcdf_wrap = Extension('bilab.structure.minimization._NetCDF',
+                    define_macros = [('MAJOR_VERSION', '1'),
+                                     ('MINOR_VERSION', '0'),
+                                     ('NUMPY', 1)],
+                    include_dirs = [np_include_dir, boost_inc_dir, 
+                                    netcdf_inc_dir, 
+                                    'bilab/structure/minimization' ],
+                    library_dirs = [boost_lib_dir],
+                    libraries = ['boost_python'],
+                    extra_compile_args = ['-ftemplate-backtrace-limit=64', 
+                                         '-g'],
+                    sources = ['bilab/structure/minimization/_netcdf.c',
+                               ])
+MMTK_universe = Extension('bilab.structure.minimization._MMTK_universe',
+                    define_macros = [('MAJOR_VERSION', '1'),
+                                     ('MINOR_VERSION', '0'),
+                                     ('NUMPY', 1)],
+                    include_dirs = [np_include_dir, boost_inc_dir, 
+                                    netcdf_inc_dir, 
+                                    'bilab/structure/minimization' ],
+                    library_dirs = [boost_lib_dir],
+                    libraries = ['boost_python'],
+                    extra_compile_args = ['-ftemplate-backtrace-limit=64', 
+                                         '-g'],
+                    sources = ['bilab/structure/minimization/MMTK_universe.c',
+                               ])
+MMTK_surface = Extension('bilab.structure.minimization._MMTK_surface',
+                    define_macros = [('MAJOR_VERSION', '1'),
+                                     ('MINOR_VERSION', '0'),
+                                     ('NUMPY', 1)],
+                    include_dirs = [np_include_dir, boost_inc_dir, 
+                                    netcdf_inc_dir, 
+                                    'bilab/structure/minimization' ],
+                    library_dirs = [boost_lib_dir],
+                    libraries = ['boost_python'],
+                    extra_compile_args = ['-ftemplate-backtrace-limit=64', 
+                                         '-g'],
+                    sources = ['bilab/structure/minimization/MMTK_surface.c',
+                               ])
+
+MMTK_trajectory = Extension('bilab.structure.minimization._MMTK_trajectory',
+                    define_macros = [('MAJOR_VERSION', '1'),
+                                     ('MINOR_VERSION', '0'),
+                                     ('NUMPY', 1)],
+                    include_dirs = [np_include_dir, boost_inc_dir, 
+                                    netcdf_inc_dir, 
+                                    'bilab/structure/minimization' ],
+                    library_dirs = [boost_lib_dir],
+                    libraries = ['boost_python'],
+                    extra_compile_args = ['-ftemplate-backtrace-limit=64', 
+                                         '-g'],
+                    sources = ['bilab/structure/minimization/MMTK_trajectory.c',
+                               ])
+
+MMTK_minimization = Extension('bilab.structure.minimization._MMTK_minimization',
+                    define_macros = [('MAJOR_VERSION', '1'),
+                                     ('MINOR_VERSION', '0')],
+                    include_dirs = [np_include_dir, boost_inc_dir, 
+                                    netcdf_inc_dir, 
+                                    'bilab/structure/minimization' ],
+                    library_dirs = [boost_lib_dir],
+                    libraries = ['boost_python'],
+                    extra_compile_args = ['-ftemplate-backtrace-limit=64', 
+                                        '-DNUMPY=1', '-g'],
+                    sources = ['bilab/structure/minimization/MMTK_minimization.c',
+                               ])
+
+MMTK_energy_term = Extension('bilab.structure.minimization._MMTK_energy_term',
+                    define_macros = [('MAJOR_VERSION', '1'),
+                                     ('MINOR_VERSION', '0'),
+                                     ('NUMPY', 1)],
+                    include_dirs = [np_include_dir, boost_inc_dir, 
+                                    netcdf_inc_dir, 
+                                    'bilab/structure/minimization' ],
+                    library_dirs = [boost_lib_dir],
+                    libraries = ['boost_python'],
+                    extra_compile_args = ['-ftemplate-backtrace-limit=64', 
+                                        '-g'],
+                    sources = ['bilab/structure/minimization/_MMTK_energy_term.c',
+                               ])
+
+MMTK_force_field = Extension('bilab.structure.minimization._MMTK_forcefield',
+                    define_macros = [('MAJOR_VERSION', '1'),
+                                    ('MINOR_VERSION', '0'),
+                                    ('SERIAL', None),
+                                    ('VIRIAL', None),
+                                    ('MACROSCOPIC', None),
+                                    ('NUMPY', 1),
+                                    ('WITH_DPMTA', 1)],
+                    include_dirs = [np_include_dir, boost_inc_dir, 
+                                    netcdf_inc_dir, 
+                                    'bilab/structure/minimization',
+                                    'bilab/structure/minimization/dpmta',
+                                    'bilab/structure/minimization/dpmta/src',
+                                    'bilab/structure/minimization/dpmta/mpole',],
+                    library_dirs = [boost_lib_dir],
+                    libraries = ['boost_python'],
+                    extra_compile_args = ['-ftemplate-backtrace-limit=64', 
+                                        '-O3', '-ffast-math', 
+                                        '-fomit-frame-pointer',
+                                        '-g'],
+                    sources = [
+                    'bilab/structure/minimization/MMTK_forcefield.c',
+                    'bilab/structure/minimization/bonded.c',
+                    'bilab/structure/minimization/nonbonded.c',
+                    'bilab/structure/minimization/ewald.c',
+                    'bilab/structure/minimization/sparsefc.c',
+                    'bilab/structure/minimization/dpmta/mpole/mpe_fft.c',
+                    'bilab/structure/minimization/dpmta/mpole/mpe_misc.c',
+                    'bilab/structure/minimization/dpmta/mpole/mpe_mpoleC.c',
+                    'bilab/structure/minimization/dpmta/mpole/mpe_allocC.c',
+                    'bilab/structure/minimization/dpmta/mpole/mpe_mpoleLJ.c',
+                    'bilab/structure/minimization/dpmta/mpole/mpe_allocLJ.c',
+                    'bilab/structure/minimization/dpmta/src/dpmta_serial.c',
+                    'bilab/structure/minimization/dpmta/src/dpmta_slvmkcell.c',
+                    'bilab/structure/minimization/dpmta/src/dpmta_slvmcalc.c',
+                    'bilab/structure/minimization/dpmta/src/dpmta_slvpcalc.c',
+                    'bilab/structure/minimization/dpmta/src/dpmta_slvmkil.c',
+                    'bilab/structure/minimization/dpmta/src/dpmta_slvmkhl.c',
+                    'bilab/structure/minimization/dpmta/src/dpmta_slvcompute.c',
+                    'bilab/structure/minimization/dpmta/src/dpmta_slvmacro.c',
+                    'bilab/structure/minimization/dpmta/src/dpmta_slvscale.c',
+                    'bilab/structure/minimization/dpmta/src/dpmta_timer.c',
+                    'bilab/structure/minimization/dpmta/src/dpmta_slvglobals.c',
+                    'bilab/structure/minimization/dpmta/src/dpmta_distmisc.c'
+                    ])
+
 
 def split_multiline(value):
     """Split a multiline string into a list, excluding blank lines."""
@@ -325,7 +453,11 @@ general_settings = cfg_to_args()
 # Key: resources has to be removed
 general_settings.pop('resources')
 #extensions
-general_settings['ext_modules'] = [distance_wrap, kdtree_lib, bhtsne_wrap ]
+general_settings['ext_modules'] = [distance_wrap, 
+    kdtree_lib, bhtsne_wrap, netcdf_wrap,MMTK_surface,
+    MMTK_minimization, MMTK_trajectory, 
+    MMTK_universe, MMTK_energy_term, MMTK_force_field
+    ]
 #                                   CWMatrix]
 setup(**general_settings)
 #setup(**cfg_to_args())

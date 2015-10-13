@@ -548,4 +548,3 @@ GTCGTCGTTG GTGGTGGTGG TGTTG
             else:
                 raise ValueError("extra sequence in list")
         return sequence
-

@@ -160,14 +160,15 @@ def parse_cmd(argv):
     #print "Left options %s" % arguments
     return options
 
-def sanitize_id(id):
-    return id.strip().replace(" ", "")
-
 class Point(object):
 
     def __init__(self, identifier=None, name=None, value=0.0):
         super(Point, self).__init__()
-        self.__identifier = (str(uuid.uuid1()) if identifier is None else sanitize_id(str(identifier)))
+        if identifier is None:
+            self.__identifier = str(uuid.uuid1())
+        else:
+            self.__identifier = self.__identifier(str(identifier))
+        #self.__identifier = (str(uuid.uuid1()) if identifier is None else sanitize_id(str(identifier)))
         self.name = name
         self.value = value
 
@@ -180,6 +181,8 @@ class Point(object):
     def __sub__(self, other):
         return self.value - other.value
 
+    def __sanitize_id(self, id):
+        return id.strip().replace(" ", "")
 
 def NDRmapping(X, pdbid, chain, save_mapping_file, no_dims=1, iters=100, 
                   perplexity=30.0, verbose=False):

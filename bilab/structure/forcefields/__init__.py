@@ -2,7 +2,7 @@
 
 __all__ = []
 
-#import .Units
+from .Units import *
 
 #from .AmberForceField import Amber99ForceField, Amber94ForceField, \
 #                             Amber91ForceField, OPLSForceField
