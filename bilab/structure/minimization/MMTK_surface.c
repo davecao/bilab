@@ -607,7 +607,7 @@ FindNeighborsOfAtom(PyObject *dummy, PyObject *args)
           if(i2 != i) {
             PyObject *apos = PyList_GetItem(atom_data, (Py_ssize_t)i2);
             double vaax = PyFloat_AsDouble(PyTuple_GetItem(apos, 
-                                            Py_ssize_t)0)) - posx;
+                                            (Py_ssize_t)0)) - posx;
             double vaay = PyFloat_AsDouble(PyTuple_GetItem(apos,
                                             (Py_ssize_t)1)) - posy;
             double vaaz = PyFloat_AsDouble(PyTuple_GetItem(apos,
