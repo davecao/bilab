@@ -67,8 +67,9 @@ class ParamDataParser(object):
     """
     __metaclass__ = Register
 
-    def __init__(self, parser_name):
+    def __init__(self, *args, **kwargs):
         super(ParamDataParser, self).__init__()
+        parser_name = kwargs.get("parser_name", "AmberParamParser")
         self.parser = self.__get_parser(parser_name)
         #print("{}".format(type(self.parser)))
 
@@ -97,7 +98,7 @@ class AmberParamParser(FFParserInterface, ParamDataParser):
     """
         Parser for Amber Force Field parameter file
     """
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         super(AmberParamParser, self).__init__()
 
     def __str__(self):
