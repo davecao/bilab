@@ -90,8 +90,8 @@ class ParamDataParser(FFParserInterface):
         except ValueError:
             raise ValueError("{} is not registered yet or wrong name".format(name))
     
-    def parse(self, filename):
-        return self.__getattr__(self.parser, "parse")(filename)
+#    def parse(self, filename):
+#        return self.__getattr__(self.parser, "parse")(filename)
 
 class AmberParamParser(ParamDataParser):
     """
