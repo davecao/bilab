@@ -28,7 +28,11 @@ try:
     import ete3
     from ete3 import Tree, TreeStyle
 except ImportError:
-    raise ImportError('ete3 is a required package')
+    try:
+        import ete2
+        from ete2 import Tree, TreeStyle
+    except ImportError:
+        raise ImportError('ete2/3 is a required package')
 
 import bilab
 from bilab.utilities.logger import Console
