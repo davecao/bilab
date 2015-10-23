@@ -61,7 +61,7 @@ class FFParserInterface(object):
     def parse(self, file):
         pass
 
-class ParamDataParser(FFParserInterface):
+class ParamDataParser(object):
     """
         A parser's register class for parsing force field parameter file
     """
@@ -93,7 +93,7 @@ class ParamDataParser(FFParserInterface):
 #    def parse(self, filename):
 #        return self.__getattr__(self.parser, "parse")(filename)
 
-class AmberParamParser(ParamDataParser):
+class AmberParamParser(FFParserInterface, ParamDataParser):
     """
         Parser for Amber Force Field parameter file
     """
@@ -107,7 +107,8 @@ class AmberParamParser(ParamDataParser):
         return self.__str__()
 
     def parse(self, filename):
-        pass
+        print("parse file {}".format(filename))
+        
 
 class ForceField(object):
     """ 
