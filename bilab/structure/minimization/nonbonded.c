@@ -31,7 +31,7 @@
  * can interact only with particles in a small shell of neighbouring boxes */
 int
 nblist_update(PyNonbondedListObject *nblist, int natoms,
-	      double *coordinates, double *geometry_data)
+        double *coordinates, double *geometry_data)
 {
   vector3 *x = (vector3 *)coordinates;
   long *subset = (long *)((PyArrayObject *)nblist->atom_subset)->data;
@@ -52,7 +52,7 @@ nblist_update(PyNonbondedListObject *nblist, int natoms,
   
   nblist->universe_spec->correction_function(x, natoms, geometry_data);
   nblist->universe_spec->bounding_box_function(&box1, &box2, x, natoms,
-					       geometry_data);
+                 geometry_data);
   nblist->lastx = x;
 #if 0
   printf("box1: %lf, %lf, %lf\n", box1[0], box1[1], box1[2]);
@@ -60,25 +60,25 @@ nblist_update(PyNonbondedListObject *nblist, int natoms,
   printf("cutoff: %lf\n", nblist->cutoff);
 #endif
   if (nblist->cutoff > 0. && (!nblist->universe_spec->is_periodic
-			      || nblist->universe_spec->is_orthogonal)) {
+            || nblist->universe_spec->is_orthogonal)) {
     int done = 0;
     double factor = 1.;
     while (!done) {
       int nboxes;
       nblist->box_count[0] = (int)(NBLIST_NEIGHBORS*(box2[0]-box1[0])
-				   /(factor*nblist->cutoff));
+           /(factor*nblist->cutoff));
       nblist->box_count[1] = (int)(NBLIST_NEIGHBORS*(box2[1]-box1[1])
-				   /(factor*nblist->cutoff));
+           /(factor*nblist->cutoff));
       nblist->box_count[2] = (int)(NBLIST_NEIGHBORS*(box2[2]-box1[2])
-				   /(factor*nblist->cutoff));
+           /(factor*nblist->cutoff));
       if (nblist->box_count[0] == 0) nblist->box_count[0] = 1;
       if (nblist->box_count[1] == 0) nblist->box_count[1] = 1;
       if (nblist->box_count[2] == 0) nblist->box_count[2] = 1;
       nboxes = nblist->box_count[0]*nblist->box_count[1]*nblist->box_count[2];
       if (nboxes > 2*natoms)
-	factor *= 1.1;
+  factor *= 1.1;
       else
-	done = 1;
+  done = 1;
     }
   }
   else
@@ -91,7 +91,7 @@ nblist_update(PyNonbondedListObject *nblist, int natoms,
   if (box_size[2] == 0.) box_size[2] = 1.;
 #if 0
   printf("division: %d/%d/%d\n", nblist->box_count[0],
-	 nblist->box_count[1], nblist->box_count[2]);
+   nblist->box_count[1], nblist->box_count[2]);
   printf("cell size: %lf, %lf, %lf\n", box_size[0], box_size[1], box_size[2]);
 #endif
 
@@ -130,29 +130,29 @@ nblist_update(PyNonbondedListObject *nblist, int natoms,
   for (ix = minx; ix < maxx; ix++)
     for (iy = miny; iy < maxy; iy++)
       for (iz = minz; iz < maxz; iz++)
-	if (!(ix == 0 && iy == 0 && iz == 0)) {
-	  double dx = (abs(ix)-1.)*box_size[0];
-	  double dy = (abs(iy)-1.)*box_size[1];
-	  double dz = (abs(iz)-1.)*box_size[2];
-	  if (dx < 0.) dx = 0.;
-	  if (dy < 0.) dy = 0.;
-	  if (dz < 0.) dz = 0.;
-	  if (dx*dx+dy*dy+dz*dz <= sqr(nblist->cutoff)) {
-	    nblist->neighbors[i][0] = ix;
-	    nblist->neighbors[i][1] = iy;
-	    nblist->neighbors[i][2] = iz;
+  if (!(ix == 0 && iy == 0 && iz == 0)) {
+    double dx = (abs(ix)-1.)*box_size[0];
+    double dy = (abs(iy)-1.)*box_size[1];
+    double dz = (abs(iz)-1.)*box_size[2];
+    if (dx < 0.) dx = 0.;
+    if (dy < 0.) dy = 0.;
+    if (dz < 0.) dz = 0.;
+    if (dx*dx+dy*dy+dz*dz <= sqr(nblist->cutoff)) {
+      nblist->neighbors[i][0] = ix;
+      nblist->neighbors[i][1] = iy;
+      nblist->neighbors[i][2] = iz;
 #if 0
-	    printf(" %d: %d/%d/%d\n", i, ix, iy, iz);
+      printf(" %d: %d/%d/%d\n", i, ix, iy, iz);
 #endif
-	    i++;
-	  }
+      i++;
+    }
 #if 0
-	  else {
-	    printf(" %d/%d/%d -> %f/%f/%f -> %f\n",
-		   ix, iy, iz, dx, dy, dz, sqrt(dx*dx+dy*dy+dz*dz));
-	  }
+    else {
+      printf(" %d/%d/%d -> %f/%f/%f -> %f\n",
+       ix, iy, iz, dx, dy, dz, sqrt(dx*dx+dy*dy+dz*dz));
+    }
 #endif
-	}
+  }
   nblist->nneighbors = i;
 #if 0
   printf("Box neighbors: %d\n", i);
@@ -174,12 +174,12 @@ nblist_update(PyNonbondedListObject *nblist, int natoms,
   for (iz = 0; iz < nblist->box_count[2]; iz++)
     for (iy = 0; iy < nblist->box_count[1]; iy++)
       for (ix = 0; ix < nblist->box_count[0]; ix++) {
-	nblist->boxes[i].ix = ix;
-	nblist->boxes[i].iy = iy;
-	nblist->boxes[i].iz = iz;
-	nblist->boxes[i].n = 0;
-	nblist->boxes[i].i = 0;
-	i++;
+  nblist->boxes[i].ix = ix;
+  nblist->boxes[i].iy = iy;
+  nblist->boxes[i].iz = iz;
+  nblist->boxes[i].n = 0;
+  nblist->boxes[i].i = 0;
+  i++;
       }
 
   n = (n_sub == 0) ? natoms : n_sub;
@@ -198,7 +198,7 @@ nblist_update(PyNonbondedListObject *nblist, int natoms,
     nblist->box_number[ai] = box;
 #if 0
     printf("Atom %d in box %d (%d/%d/%d)\n", ai, box,
-	   nblist->boxes[box].ix, nblist->boxes[box].iy, nblist->boxes[box].iz);
+     nblist->boxes[box].ix, nblist->boxes[box].iy, nblist->boxes[box].iz);
 #endif 
     nblist->boxes[box].n++;
   }
@@ -224,8 +224,8 @@ nblist_update(PyNonbondedListObject *nblist, int natoms,
       int atom = nblist->boxes[i].atoms[j];
       ix++;
       if (nblist->box_number[atom] != i)
-	printf("Box number error: %d: %d - %d\n",
-	       atom, i, nblist->box_number[atom]);
+  printf("Box number error: %d: %d - %d\n",
+         atom, i, nblist->box_number[atom]);
     }
   }
   if (ix != ((n_sub == 0) ? natoms : n_sub))
@@ -264,64 +264,64 @@ nblist_iterate(PyNonbondedListObject *nblist, struct nblist_iterator *iterator)
       int lasti = iterator->box1->n - ((iterator->box1==iterator->box2)?1:0);
       iterator->i++;
       if (iterator->i >= lasti) {
-	do {
-	  iterator->ineighbor++;
-	  if (iterator->ineighbor == nblist->nneighbors) {
-	    do {
-	      iterator->ibox++;
-	      if (iterator->ibox == nblist->nboxes) {
-		iterator->state = nblist_finished;
-		return 0;
-	      }
-	      iterator->box1 = nblist->boxes+iterator->ibox;
-	      iterator->ineighbor = 0;
-	    } while (iterator->box1->n == 0);
-	  }
-	  ix = nblist->neighbors[iterator->ineighbor][0]
-	       + iterator->box1->ix;
-	  iy = nblist->neighbors[iterator->ineighbor][1]
+  do {
+    iterator->ineighbor++;
+    if (iterator->ineighbor == nblist->nneighbors) {
+      do {
+        iterator->ibox++;
+        if (iterator->ibox == nblist->nboxes) {
+    iterator->state = nblist_finished;
+    return 0;
+        }
+        iterator->box1 = nblist->boxes+iterator->ibox;
+        iterator->ineighbor = 0;
+      } while (iterator->box1->n == 0);
+    }
+    ix = nblist->neighbors[iterator->ineighbor][0]
+         + iterator->box1->ix;
+    iy = nblist->neighbors[iterator->ineighbor][1]
                + iterator->box1->iy;
-	  iz = nblist->neighbors[iterator->ineighbor][2]
+    iz = nblist->neighbors[iterator->ineighbor][2]
                + iterator->box1->iz;
-	  use_box = 1;
-	  if (nblist->universe_spec->is_periodic) {
-	    if (ix < 0) ix += nblist->box_count[0];
-	    if (iy < 0) iy += nblist->box_count[1];
-	    if (iz < 0) iz += nblist->box_count[2];
-	    if (ix >= nblist->box_count[0])
-	      ix -= nblist->box_count[0];
-	    if (iy >= nblist->box_count[1])
-	      iy -= nblist->box_count[1];
-	    if (iz >= nblist->box_count[2])
-	      iz -= nblist->box_count[2];
-	  }
-	  else if (ix < 0 || iy < 0 || iz < 0
-		   || ix >= nblist->box_count[0]
-		   || iy >= nblist->box_count[1]
-		   || iz >= nblist->box_count[2]) {
-	    use_box = 0;
-	  }
-	  iterator->jbox = ix + nblist->box_count[0]
-	                   *(iy + nblist->box_count[1]*iz);
-	  if (iterator->jbox < iterator->ibox)
-	    use_box = 0;
-	  if (use_box) {
-	    if (nblist->boxes[iterator->jbox].n == 0) {
-	      use_box = 0;
-	    }
-	    if (iterator->ibox == iterator->jbox &&
-		nblist->boxes[iterator->jbox].n == 1) {
-	      use_box = 0;
-	    }
-	  }
-	} while (!use_box);
-	iterator->box2 = nblist->boxes+iterator->jbox;
-	iterator->i = 0;
+    use_box = 1;
+    if (nblist->universe_spec->is_periodic) {
+      if (ix < 0) ix += nblist->box_count[0];
+      if (iy < 0) iy += nblist->box_count[1];
+      if (iz < 0) iz += nblist->box_count[2];
+      if (ix >= nblist->box_count[0])
+        ix -= nblist->box_count[0];
+      if (iy >= nblist->box_count[1])
+        iy -= nblist->box_count[1];
+      if (iz >= nblist->box_count[2])
+        iz -= nblist->box_count[2];
+    }
+    else if (ix < 0 || iy < 0 || iz < 0
+       || ix >= nblist->box_count[0]
+       || iy >= nblist->box_count[1]
+       || iz >= nblist->box_count[2]) {
+      use_box = 0;
+    }
+    iterator->jbox = ix + nblist->box_count[0]
+                     *(iy + nblist->box_count[1]*iz);
+    if (iterator->jbox < iterator->ibox)
+      use_box = 0;
+    if (use_box) {
+      if (nblist->boxes[iterator->jbox].n == 0) {
+        use_box = 0;
+      }
+      if (iterator->ibox == iterator->jbox &&
+    nblist->boxes[iterator->jbox].n == 1) {
+        use_box = 0;
+      }
+    }
+  } while (!use_box);
+  iterator->box2 = nblist->boxes+iterator->jbox;
+  iterator->i = 0;
       }
       if (iterator->ibox == iterator->jbox)
-	iterator->j = iterator->i + 1;
+  iterator->j = iterator->i + 1;
       else
-	iterator->j = 0;
+  iterator->j = 0;
     }
     iterator->a1 = iterator->box1->atoms[iterator->i];
     iterator->a2 = iterator->box2->atoms[iterator->j];
@@ -421,15 +421,15 @@ nblist_iterate(PyNonbondedListObject *nblist, struct nblist_iterator *iterator)
     ewald_energy += qiqj*(f1/r-erfc_cutoff*ewald_inv_cutoff); \
     if (energy->gradients != NULL) \
       deriv += -qiqj*(f1/r_sq-erfc_cutoff*ewald_inv_cutoff \
-		   +ef*beta*(exp(-beta*beta*r_sq)/r \
-		     -ewald_inv_cutoff*exp(-beta*beta*ewald_cutoff_sq)))/r; \
+       +ef*beta*(exp(-beta*beta*r_sq)/r \
+         -ewald_inv_cutoff*exp(-beta*beta*ewald_cutoff_sq)))/r; \
     if (energy->force_constants != NULL) { \
       deriv2 += 2.*qiqj*(f1/(r*r_sq) - erfc_cutoff*cube(ewald_inv_cutoff) \
-			 + ef*beta*exp(-beta*beta*r_sq) \
-			 * (beta*beta+1./r_sq)); \
+       + ef*beta*exp(-beta*beta*r_sq) \
+       * (beta*beta+1./r_sq)); \
       if (ewald_inv_cutoff > 0.) \
-	deriv2 -= 2.*qiqj*ef*beta*exp(-beta*beta*ewald_cutoff_sq) \
-	  * (beta*beta+sqr(ewald_inv_cutoff)); \
+  deriv2 -= 2.*qiqj*ef*beta*exp(-beta*beta*ewald_cutoff_sq) \
+    * (beta*beta+sqr(ewald_inv_cutoff)); \
     } \
   } \
   \
@@ -508,15 +508,15 @@ nblist_iterate(PyNonbondedListObject *nblist, struct nblist_iterator *iterator)
     ewald_energy += qiqj*(f1/r-erfc_cutoff*ewald_inv_cutoff); \
     if (energy->gradients != NULL) \
       deriv += -qiqj*(f1/r_sq-erfc_cutoff*ewald_inv_cutoff \
-		   +ef*beta*(exp(-beta*beta*r_sq)/r \
-		     -ewald_inv_cutoff*exp(-beta*beta*ewald_cutoff_sq)))/r; \
+       +ef*beta*(exp(-beta*beta*r_sq)/r \
+         -ewald_inv_cutoff*exp(-beta*beta*ewald_cutoff_sq)))/r; \
     if (energy->force_constants != NULL) { \
       deriv2 += 2.*qiqj*(f1/(r*r_sq) - erfc_cutoff*cube(ewald_inv_cutoff) \
-			 + ef*beta*exp(-beta*beta*r_sq) \
-			 * (beta*beta+1./r_sq)); \
+       + ef*beta*exp(-beta*beta*r_sq) \
+       * (beta*beta+1./r_sq)); \
       if (ewald_inv_cutoff > 0.) \
-	deriv2 -= 2.*qiqj*ef*beta*exp(-beta*beta*ewald_cutoff_sq) \
-	  * (beta*beta+sqr(ewald_inv_cutoff)); \
+  deriv2 -= 2.*qiqj*ef*beta*exp(-beta*beta*ewald_cutoff_sq) \
+    * (beta*beta+sqr(ewald_inv_cutoff)); \
     } \
   } \
   \
@@ -543,9 +543,9 @@ nblist_iterate(PyNonbondedListObject *nblist, struct nblist_iterator *iterator)
 
 void
 nonbonded_evaluator(PyFFEnergyTermObject *self,
-		    PyFFEvaluatorObject *eval,
-		    energy_spec *input,
-		    energy_data *energy)
+        PyFFEvaluatorObject *eval,
+        energy_spec *input,
+        energy_data *energy)
 {
   PyNonbondedListObject *nblist = (PyNonbondedListObject *)self->data[0];
   long *excluded = (long *)((PyArrayObject *)nblist->excluded_pairs)->data;
@@ -630,51 +630,51 @@ nonbonded_evaluator(PyFFEnergyTermObject *self,
       nbbox *box2;
       int i, j;
       if (nblist->universe_spec->is_periodic) {
-	if (ix < 0) ix += nblist->box_count[0];
-	if (iy < 0) iy += nblist->box_count[1];
-	if (iz < 0) iz += nblist->box_count[2];
-	if (ix >= nblist->box_count[0]) ix -= nblist->box_count[0];
-	if (iy >= nblist->box_count[1]) iy -= nblist->box_count[1];
-	if (iz >= nblist->box_count[2]) iz -= nblist->box_count[2];
+  if (ix < 0) ix += nblist->box_count[0];
+  if (iy < 0) iy += nblist->box_count[1];
+  if (iz < 0) iz += nblist->box_count[2];
+  if (ix >= nblist->box_count[0]) ix -= nblist->box_count[0];
+  if (iy >= nblist->box_count[1]) iy -= nblist->box_count[1];
+  if (iz >= nblist->box_count[2]) iz -= nblist->box_count[2];
       }
       else if (ix < 0 || iy < 0 || iz < 0
-	       || ix >= nblist->box_count[0]
-	       || iy >= nblist->box_count[1]
-	       || iz >= nblist->box_count[2])
-	continue;
+         || ix >= nblist->box_count[0]
+         || iy >= nblist->box_count[1]
+         || iz >= nblist->box_count[2])
+  continue;
       jbox = ix + nblist->box_count[0]*(iy + nblist->box_count[1]*iz);
       if (jbox < ibox)
-	continue;
+  continue;
       box2 = &nblist->boxes[jbox];
       if (ibox == jbox) {
-	for (i = 0; i < box1->n; i++) {
-	  int a1 = box1->atoms[i];
-	  for (j = i+1; j < box2->n; j++) {
-	    int a2 = box2->atoms[j];
-	    if (--slicecounter == 0) {
-	      slicecounter = input->nslices;
-	      pair_term(1., 1., 1.);
+  for (i = 0; i < box1->n; i++) {
+    int a1 = box1->atoms[i];
+    for (j = i+1; j < box2->n; j++) {
+      int a2 = box2->atoms[j];
+      if (--slicecounter == 0) {
+        slicecounter = input->nslices;
+        pair_term(1., 1., 1.);
 #if THREAD_DEBUG
-	      paircount++;
+        paircount++;
 #endif
-	    }
-	  }
-	}
+      }
+    }
+  }
       }
       else {
-	for (i = 0; i < box1->n; i++) {
-	  int a1 = box1->atoms[i];
-	  for (j = 0; j < box2->n; j++) {
-	    int a2 = box2->atoms[j];
-	    if (--slicecounter == 0) {
-	      slicecounter = input->nslices;
-	      pair_term(1., 1., 1.);
+  for (i = 0; i < box1->n; i++) {
+    int a1 = box1->atoms[i];
+    for (j = 0; j < box2->n; j++) {
+      int a2 = box2->atoms[j];
+      if (--slicecounter == 0) {
+        slicecounter = input->nslices;
+        pair_term(1., 1., 1.);
 #if THREAD_DEBUG
-	      paircount++;
+        paircount++;
 #endif
-	    }
-	  }
-	}
+      }
+    }
+  }
       }
     }
   }
@@ -713,17 +713,17 @@ nonbonded_evaluator(PyFFEnergyTermObject *self,
 
 void
 lennard_jones_evaluator(PyFFEnergyTermObject *self,
-			PyFFEvaluatorObject *eval,
-			energy_spec *input,
-			energy_data *energy)
+      PyFFEvaluatorObject *eval,
+      energy_spec *input,
+      energy_data *energy)
 {
 }
 
 void
 electrostatic_evaluator(PyFFEnergyTermObject *self,
-			PyFFEvaluatorObject *eval,
-			energy_spec *input,
-			energy_data *energy)
+      PyFFEvaluatorObject *eval,
+      energy_spec *input,
+      energy_data *energy)
 {
   PyNonbondedListObject *nblist = (PyNonbondedListObject *)self->data[0];
   long *subset = (long *)((PyArrayObject *)nblist->atom_subset)->data;
@@ -831,9 +831,9 @@ electrostatic_evaluator(PyFFEnergyTermObject *self,
 
 void
 es_mp_evaluator(PyFFEnergyTermObject *self,
-		PyFFEvaluatorObject *eval,
-		energy_spec *input,
-		energy_data *energy)
+    PyFFEvaluatorObject *eval,
+    energy_spec *input,
+    energy_data *energy)
 {
   vector3 *x = (vector3 *)input->coordinates->data;
   distance_fn *d_fn = self->universe_spec->distance_function;
@@ -915,7 +915,7 @@ es_mp_evaluator(PyFFEnergyTermObject *self,
     }
     if (change)
       PMTAresize(&initdata->v1, &initdata->v2, &initdata->v3,
-		 &initdata->cellctr);
+     &initdata->cellctr);
   }
   PMTAforce(n, particle, force, NULL);
   PMTAvirial(&potential, &virial, NULL, NULL);
@@ -928,14 +928,14 @@ es_mp_evaluator(PyFFEnergyTermObject *self,
     if (energy->gradients != NULL) {
 #ifdef GRADIENTFN
       if (energy->gradient_fn != NULL)
-	(*energy->gradient_fn)(energy, i, grad);
+  (*energy->gradient_fn)(energy, i, grad);
       else
 #endif
       {
-	vector3 *f = (vector3 *)((PyArrayObject *)energy->gradients)->data;
-	f[i][0] += grad[0];
-	f[i][1] += grad[1];
-	f[i][2] += grad[2];
+  vector3 *f = (vector3 *)((PyArrayObject *)energy->gradients)->data;
+  f[i][0] += grad[0];
+  f[i][1] += grad[1];
+  f[i][2] += grad[2];
       }
     }
   }
@@ -943,7 +943,7 @@ es_mp_evaluator(PyFFEnergyTermObject *self,
   v = -electrostatic_energy_factor*(virial.x+virial.y+virial.z);
   if (energy->force_constants != NULL) {
     PyErr_SetString(PyExc_ValueError,
-		    "no second derivatives in multipole evaluator");
+        "no second derivatives in multipole evaluator");
     energy->error = 1;
   }
   if (d_fn == distance_vector_pointer) {

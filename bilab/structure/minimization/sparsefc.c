@@ -27,7 +27,7 @@ PySparseFC_Zero(PySparseFCObject *fc)
   for (i = 0; i < fc->nalloc; i++) {
     for (j = 0; j < 3; j++)
       for (k = 0; k < 3; k++)
-	fc->data[i].fc[j][k] = 0.;
+        fc->data[i].fc[j][k] = 0.;
   }
 }
 
@@ -99,7 +99,7 @@ sparsefc_find(PySparseFCObject *fc, int i, int j)
   for (k = 0; k < pairs->nused; k++) {
     if (entry->diffij == diff) {
       if (fc->data[entry->index].i != i || fc->data[entry->index].j != j) {
-	printf("Index error\n");
+        printf("Index error\n");
       }
       return entry;
     }
@@ -143,41 +143,41 @@ PySparseFC_AddTerm(PySparseFCObject *fc, int i, int j, double *term)
       int incr = (fc->nalloc/(2*fc->natoms));
       void *new;
       if (incr < 1)
-	incr = 1;
+        incr = 1;
 #if 0
       printf("Extending list %d from %d to %d\n", i+j,
 	     list->nalloc, list->nalloc+incr);
 #endif
       new = realloc(list->list, (list->nalloc+incr)*sizeof(struct pair_descr));
       if (new == NULL)
-	return 0;
+        return 0;
       list->list = (struct pair_descr *)new;
       list->nalloc += incr;
       for (l = list->nused; l < list->nalloc; l++)
-	list->list[l].diffij = -1;
+        list->list[l].diffij = -1;
       pair = list->list + list->nused;
     }
     if (pair->diffij < 0) {
       if (fc->nused == fc->nalloc) {
-	int incr = fc->nalloc/10;
-	void *new;
-	if (incr < 1)
-	  incr = 1;
+        int incr = fc->nalloc/10;
+        void *new;
+        if (incr < 1)
+          incr = 1;
 #if 0
-	printf("Extending data space from %d to %d\n",
-	       fc->nalloc, fc->nalloc+incr);
+  printf("Extending data space from %d to %d\n",
+         fc->nalloc, fc->nalloc+incr);
 #endif
-	new = realloc(fc->data, (fc->nalloc+incr)*sizeof(struct pair_fc));
-	if (new == NULL)
-	  return 0;
-	fc->data = (struct pair_fc *)new;
-	fc->nalloc += incr;
-	for (l = fc->nused; l < fc->nalloc; l++) {
-	  double *data = (double *)fc->data[l].fc;
-	  int k;
-	  for (k = 0; k < 9; k++)
-	    *data++ = 0.;
-	}
+        new = realloc(fc->data, (fc->nalloc+incr)*sizeof(struct pair_fc));
+        if (new == NULL)
+          return 0;
+        fc->data = (struct pair_fc *)new;
+        fc->nalloc += incr;
+        for (l = fc->nused; l < fc->nalloc; l++) {
+          double *data = (double *)fc->data[l].fc;
+          int k;
+          for (k = 0; k < 9; k++)
+            *data++ = 0.;
+        }
       }
       pair->index = fc->nused;
       fc->nused++;
@@ -189,7 +189,7 @@ PySparseFC_AddTerm(PySparseFCObject *fc, int i, int j, double *term)
 #if 0
     if (fc->data[pair->index].i != i || fc->data[pair->index].j != j)
       printf("Incorrect pair entry: %d/%d, %d/%d\n",
-	     fc->data[pair->index].i, i, fc->data[pair->index].j, j);
+       fc->data[pair->index].i, i, fc->data[pair->index].j, j);
 #endif
     entry = (double *)fc->data[pair->index].fc;
   }
@@ -202,7 +202,7 @@ PySparseFC_AddTerm(PySparseFCObject *fc, int i, int j, double *term)
 
 void
 PySparseFC_CopyToArray(PySparseFCObject *fc, double *data, int lastdim,
-		       int from1, int to1, int from2, int to2)
+           int from1, int to1, int from2, int to2)
 {
   int i, j;
   double *temp;
@@ -218,25 +218,25 @@ PySparseFC_CopyToArray(PySparseFCObject *fc, double *data, int lastdim,
   pairs = (to1-from1)*(to2-from2);
   for (i = 0; i < fc->nused; i++) {
     if (fc->data[i].i >= from1 && fc->data[i].i < to1 &&
-	fc->data[i].j >= from2 && fc->data[i].j < to2) {
+        fc->data[i].j >= from2 && fc->data[i].j < to2) {
       int offset = 3*lastdim*(fc->data[i].i-from1)+3*(fc->data[i].j-from2);
       int l, m;
       for (l = 0; l < 3; l++) {
-	for (m = 0; m < 3; m++)
-	  data[offset+m] = fc->data[i].fc[l][m];
-	offset += lastdim;
+        for (m = 0; m < 3; m++)
+          data[offset+m] = fc->data[i].fc[l][m];
+        offset += lastdim;
       }
       pairs--;
     }
     if (fc->data[i].i != fc->data[i].j &&
-	fc->data[i].j >= from1 && fc->data[i].j < to1 &&
-	fc->data[i].i >= from2 && fc->data[i].i < to2) {
+        fc->data[i].j >= from1 && fc->data[i].j < to1 &&
+        fc->data[i].i >= from2 && fc->data[i].i < to2) {
       int offset = 3*lastdim*(fc->data[i].j-from1)+3*(fc->data[i].i-from2);
       int l, m;
       for (l = 0; l < 3; l++) {
-	for (m = 0; m < 3; m++)
-	  data[offset+m] = fc->data[i].fc[m][l];
-	offset += lastdim;
+        for (m = 0; m < 3; m++)
+          data[offset+m] = fc->data[i].fc[m][l];
+        offset += lastdim;
       }
       pairs--;
     }
@@ -267,7 +267,7 @@ PySparseFC_AsArray(PySparseFCObject *fc, int from1, int to1, int from2, int to2)
   if (array == NULL)
     return NULL;
   PySparseFC_CopyToArray(fc, (double *)array->data, 3*dims[2],
-			 from1, to1, from2, to2);
+             from1, to1, from2, to2);
   return (PyObject *)array;
 }
 
@@ -275,7 +275,7 @@ PySparseFC_AsArray(PySparseFCObject *fc, int from1, int to1, int from2, int to2)
 
 void
 PySparseFC_VectorMultiply(PySparseFCObject *fc, double *result, double *vector,
-			 int from_i, int to_i, int from_j, int to_j)
+       int from_i, int to_i, int from_j, int to_j)
 {
   struct pair_fc *entry = fc->data;
   int i;
@@ -284,20 +284,20 @@ PySparseFC_VectorMultiply(PySparseFCObject *fc, double *result, double *vector,
     result[i] = 0.;
   for (i = 0; i < fc->nused; i++) {
     int l, m;
-    if (entry->i >= from_i && entry->i < to_i
-	&& entry->j >= from_j && entry->j < to_j) {
+    if (entry->i >= from_i && entry->i < to_i && 
+        entry->j >= from_j && entry->j < to_j) {
       for (l = 0; l < 3; l++)
-	for (m = 0; m < 3; m++)
-	  result[3*(entry->i-from_i)+l] +=
-	    entry->fc[l][m]*vector[3*(entry->j-from_j)+m];
+        for (m = 0; m < 3; m++)
+          result[3*(entry->i-from_i)+l] +=
+            entry->fc[l][m]*vector[3*(entry->j-from_j)+m];
     }
     if (entry->i != entry->j &&
-	entry->j >= from_i && entry->j < to_i
-	&& entry->i >= from_j && entry->i < to_j) {
+        entry->j >= from_i && entry->j < to_i && 
+        entry->i >= from_j && entry->i < to_j) {
       for (l = 0; l < 3; l++)
-	for (m = 0; m < 3; m++)
-	  result[3*(entry->j-from_i)+m] +=
-	    entry->fc[l][m]*vector[3*(entry->i-from_j)+l];
+        for (m = 0; m < 3; m++)
+          result[3*(entry->j-from_i)+m] +=
+            entry->fc[l][m]*vector[3*(entry->i-from_j)+l];
     }
     entry++;
   }  
@@ -334,7 +334,7 @@ solve_3x3(double *fc, double *vector, double *result)
 
 int
 PySparseFC_VectorSolve(PySparseFCObject *fc, double *result, double *vector,
-		       double tolerance, int max_iter)
+           double tolerance, int max_iter)
 {
   int natoms = fc->natoms;
   int nc = 3*natoms;
@@ -370,12 +370,12 @@ PySparseFC_VectorSolve(PySparseFCObject *fc, double *result, double *vector,
       rho += r[i]*z[i];
     if (iter == 0) {
       for (i = 0; i < nc; i++)
-	p[i] = z[i];
+        p[i] = z[i];
     }
     else {
       beta = rho/rho_prev;
       for (i = 0; i < nc; i++)
-	p[i] = z[i] + beta*p[i];
+        p[i] = z[i] + beta*p[i];
     }
     PySparseFC_VectorMultiply(fc, q, p, 0, natoms, 0, natoms);
     alpha = 0.;
@@ -422,7 +422,7 @@ PySparseFC_Scale(PySparseFCObject *fc, PyArrayObject *factors)
     int l, m;
     for (l = 0; l < 3; l++)
       for (m = 0; m < 3; m++)
-	entry->fc[l][m] *= f[entry->i]*f[entry->j];
+        entry->fc[l][m] *= f[entry->i]*f[entry->j];
     entry++;
   }
 }
@@ -465,7 +465,7 @@ multiplyVector(PyObject *self, PyObject *args)
   int dims[2];
 #endif
   if (!PyArg_ParseTuple(args, "O!|Oiiii", &PyArray_Type, &vector, &result,
-			&from_i, &to_i, &from_j, &to_j))
+        &from_i, &to_i, &from_j, &to_j))
     return NULL;
   if (result == Py_None)
     result = NULL;
@@ -475,8 +475,9 @@ multiplyVector(PyObject *self, PyObject *args)
       return NULL;
     }
     result_array = (PyArrayObject *)result;
-    if (result_array->nd != 2 || result_array->dimensions[0] != to_i-from_i
-	|| result_array->dimensions[1] != 3) {
+    if (result_array->nd != 2 || 
+        result_array->dimensions[0] != to_i-from_i || 
+        result_array->dimensions[1] != 3) {
       PyErr_SetString(PyExc_ValueError, "illegal array shape");
       return NULL;
     }
@@ -506,8 +507,8 @@ multiplyVector(PyObject *self, PyObject *args)
     Py_INCREF(result);
   result_array = (PyArrayObject *)result;
   PySparseFC_VectorMultiply(fc, (double *)result_array->data,
-			    (double *)vector->data,
-			    from_i, to_i, from_j, to_j);
+          (double *)vector->data,
+          from_i, to_i, from_j, to_j);
   return (PyObject *)result;
 }
 
@@ -527,7 +528,7 @@ solveForVector(PyObject *self, PyObject *args)
   int max_iter = 0;
   int ret;
   if (!PyArg_ParseTuple(args, "O!|Odi", &PyArray_Type, &vector, &result,
-			                &tolerance, &max_iter))
+                    &tolerance, &max_iter))
     return NULL;
   if (result == Py_None)
     result = NULL;
@@ -537,8 +538,9 @@ solveForVector(PyObject *self, PyObject *args)
       return NULL;
     }
     result_array = (PyArrayObject *)result;
-    if (result_array->nd != 2 || result_array->dimensions[0] != fc->natoms
-	|| result_array->dimensions[1] != 3) {
+    if (result_array->nd != 2 || 
+        result_array->dimensions[0] != fc->natoms || 
+        result_array->dimensions[1] != 3) {
       PyErr_SetString(PyExc_ValueError, "illegal array shape");
       return NULL;
     }
@@ -565,8 +567,8 @@ solveForVector(PyObject *self, PyObject *args)
   if (max_iter == 0)
     max_iter = 4*fc->natoms;
   ret = PySparseFC_VectorSolve(fc, (double *)result_array->data,
-			       (double *)vector->data,
-			       tolerance, max_iter);
+           (double *)vector->data,
+           tolerance, max_iter);
   if (ret == -1) {
     PyErr_NoMemory();
     Py_DECREF(result);
@@ -656,8 +658,7 @@ sparsefc_item(PySparseFCObject *self, Py_ssize_t i)
     if (array == NULL)
       return NULL;
     memcpy(array->data, self->data[i].fc, 9*sizeof(double));
-    ret = Py_BuildValue("iiO", self->data[i].i, self->data[i].j,
-			(PyObject *)array);
+    ret = Py_BuildValue("iiO", self->data[i].i, self->data[i].j, (PyObject *)array);
     Py_DECREF(array);
     return ret;
   }
@@ -688,7 +689,7 @@ sparsefc_subscript(PySparseFCObject *self, PyObject *index)
     }
     else if (PySlice_Check(subscript)) {
       PySlice_GetIndices((PySliceObject *)subscript, self->natoms,
-			 &from[i], &to[i], &stride);
+       &from[i], &to[i], &stride);
       rank[i] = 1;
     }
     else {
@@ -705,7 +706,7 @@ sparsefc_subscript(PySparseFCObject *self, PyObject *index)
     return NULL;
   }
   array = (PyArrayObject *)PySparseFC_AsArray(self, from[0], to[0],
-					      from[1], to[1]);
+          from[1], to[1]);
   if (array == NULL)
     return NULL;
   if (rank[0] == 0) {
@@ -740,23 +741,23 @@ static PyMappingMethods sparsefc_as_mapping = {
 
 PyTypeObject PySparseFC_Type = {
   PyObject_HEAD_INIT(NULL)
-  0,			          /*ob_size*/
-  "SparseForceConstants",	  /*tp_name*/
-  sizeof(PySparseFCObject),       /*tp_basicsize*/
-  0,			          /*tp_itemsize*/
+  0,                            /*ob_size*/
+  "SparseForceConstants",	      /*tp_name*/
+  sizeof(PySparseFCObject),     /*tp_basicsize*/
+  0,                            /*tp_itemsize*/
   /* methods */
-  (destructor)sparsefc_dealloc,   /*tp_dealloc*/
-  0,			          /*tp_print*/
-  (getattrfunc)sparsefc_getattr,  /*tp_getattr*/
-  0, 			          /*tp_setattr*/
-  0,			          /*tp_compare*/
-  0,                              /*tp_repr*/
-  0,                              /*tp_as_number*/
-  &sparsefc_as_sequence,	  /*tp_as_sequence*/
-  &sparsefc_as_mapping,	          /*tp_as_mapping*/
-  0,			          /*tp_hash*/
-  0,	                          /*tp_call*/
-  0,                              /*tp_str*/
+  (destructor)sparsefc_dealloc, /*tp_dealloc*/
+  0,                            /*tp_print*/
+  (getattrfunc)sparsefc_getattr,/*tp_getattr*/
+  0,                            /*tp_setattr*/
+  0,                            /*tp_compare*/
+  0,                            /*tp_repr*/
+  0,                            /*tp_as_number*/
+  &sparsefc_as_sequence,        /*tp_as_sequence*/
+  &sparsefc_as_mapping,         /*tp_as_mapping*/
+  0,                            /*tp_hash*/
+  0,                            /*tp_call*/
+  0,                            /*tp_str*/
   0,                              /*tp_getattro*/
   0,                              /*tp_setattro*/
   /* Space for future expansion */
@@ -769,7 +770,7 @@ PyTypeObject PySparseFC_Type = {
 
 int
 sparse_fc_function(energy_data *energy,
-		   int i, int j, tensor3 term, double r_sq)
+       int i, int j, tensor3 term, double r_sq)
 {
   PySparseFCObject *fc = (PySparseFCObject *)energy->force_constants;
   if (i < 0) {

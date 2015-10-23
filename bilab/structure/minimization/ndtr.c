@@ -1,6 +1,6 @@
-/*							ndtr.c
+/*              ndtr.c
  *
- *	Normal distribution function
+ *  Normal distribution function
  *
  *
  *
@@ -46,9 +46,9 @@
  * erfc underflow    x > 37.519379347       0.0
  *
  */
-/*							erf.c
+/*              erf.c
  *
- *	Error function
+ *  Error function
  *
  *
  *
@@ -88,9 +88,9 @@
  *    IEEE      0,1         30000       3.7e-16     1.0e-16
  *
  */
-/*							erfc.c
+/*              erfc.c
  *
- *	Complementary error function
+ *  Complementary error function
  *
  *
  *
@@ -136,7 +136,7 @@
  *
  *
  */
-
+
 
 /*
 Cephes Math Library Release 2.2:  June, 1992
@@ -392,15 +392,15 @@ x = a * SQRTH;
 z = fabs(x);
 
 if( z < SQRTH )
-	y = 0.5 + 0.5 * erf(x);
+  y = 0.5 + 0.5 * erf(x);
 
 else
-	{
-	y = 0.5 * erfc(z);
+  {
+  y = 0.5 * erfc(z);
 
-	if( x > 0 )
-		y = 1.0 - y;
-	}
+  if( x > 0 )
+   y = 1.0 - y;
+  }
 
 return(y);
 }
@@ -413,44 +413,44 @@ double p,q,x,y,z;
 
 
 if( a < 0.0 )
-	x = -a;
+  x = -a;
 else
-	x = a;
+  x = a;
 
 if( x < 1.0 )
-	return( 1.0 - erf(a) );
+  return( 1.0 - erf(a) );
 
 z = -a * a;
 
 if( z < -MAXLOG )
-	{
+  {
 under:
-	mtherr( "erfc", UNDERFLOW );
-	if( a < 0 )
-		return( 2.0 );
-	else
-		return( 0.0 );
-	}
+  mtherr( "erfc", UNDERFLOW );
+  if( a < 0 )
+    return( 2.0 );
+  else
+    return( 0.0 );
+  }
 
 z = exp(z);
 
 if( x < 8.0 )
-	{
-	p = polevl( x, P, 8 );
-	q = p1evl( x, Q, 8 );
-	}
+  {
+  p = polevl( x, P, 8 );
+  q = p1evl( x, Q, 8 );
+  }
 else
-	{
-	p = polevl( x, R, 5 );
-	q = p1evl( x, S, 6 );
-	}
+  {
+  p = polevl( x, R, 5 );
+  q = p1evl( x, S, 6 );
+  }
 y = (z * p)/q;
 
 if( a < 0 )
-	y = 2.0 - y;
+  y = 2.0 - y;
 
 if( y == 0.0 )
-	goto under;
+  goto under;
 
 return(y);
 }
@@ -463,7 +463,7 @@ double x;
 double y, z;
 
 if( fabs(x) > 1.0 )
-	return( 1.0 - erfc(x) );
+  return( 1.0 - erfc(x) );
 z = x * x;
 y = x * polevl( z, T, 4 ) / p1evl( z, U, 5 );
 return( y );

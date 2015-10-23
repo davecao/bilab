@@ -36,7 +36,14 @@ SETTINGS.load()
 data = "{}{}{}{}{}".format(
         sysconfig.get_config_var('datarootdir'), 
         os.sep, 'bilab', os.sep, 'data')
+ff_location = data + os.sep + 'ff' + os.sep
 
+forcefieldsList = {
+    'amber91': ff_location + 'amber_parm91',
+    'amber94': ff_location + 'amber_parm94',
+    'amber99': ff_location + 'amber_parm99',
+    'opls':    ff_location + 'opls_parm',
+}
 __all__ = []
 
 #from . import chemicals

@@ -441,9 +441,13 @@ def cfg_to_args(path='setup.cfg'):
                 datafiles = []
                 for line in in_cfg_value:
                     file_str = line.split('=')[0].strip()
-                    datafiles.extend(glob(file_str))
+                    #datafiles.extend(glob(file_str))
+                    datafiles.append(('share'+os.sep+'bilab'+os.sep+file_str[:-1],glob(file_str)))
+                print datafiles
                 #kwargs['data_files'] = [('share/bilab',[line.split('=')[0].strip() for line in in_cfg_value])]
-                kwargs['data_files'] = [('share/bilab/data',datafiles)]
+                # install into python share lib
+                #kwargs['data_files'] = [('share/bilab/data',datafiles)]
+                kwargs['data_files'] = datafiles
 
         kwargs[arg] = in_cfg_value
 

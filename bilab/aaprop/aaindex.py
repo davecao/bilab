@@ -91,7 +91,7 @@ class AAindex1Parser(object):
     """
     def __init__(self):
         """ initialize """
-        self._data_location = bilab.data + os.sep + 'aaindex1'
+        self._data_location = bilab.data + os.sep + 'aaindex' + os.sep + 'aaindex1'
         self._parsername = 'AAindex1Parser'
         self._data = self.__dictRecord(self._data_location)
         self._scale_name_ind = [x['H'] for x in self._data]
@@ -186,7 +186,7 @@ class AAindex2Parser(object):
     """
     def __init__(self):
         """ initialize """
-        self._data_location = bilab.data + os.sep + 'aaindex2'
+        self._data_location = bilab.data + os.sep + 'aaindex' + os.sep + 'aaindex2'
         self._parsername = 'AAindex2Parser'
         self.parse_record()
 

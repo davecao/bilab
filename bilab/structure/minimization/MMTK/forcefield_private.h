@@ -20,7 +20,7 @@ extern distance_fn *parallelepipedic_distance_vector_pointer;
 
 void
 add_pair_fc(energy_data *energy, int i, int j, vector3 dr,
-	    double r_sq, double f1, double f2);
+      double r_sq, double f1, double f2);
 
 #ifdef WITH_THREAD
 
@@ -44,10 +44,10 @@ ff_eterm_function cosine_dihedral_evaluator;
 
 int
 nblist_update(PyNonbondedListObject *nblist, int natoms,
-	      double *coordinates, double *geometry_data);
+        double *coordinates, double *geometry_data);
 int
 nblist_iterate(PyNonbondedListObject *nblist,
-	       struct nblist_iterator *iterator);
+         struct nblist_iterator *iterator);
 
 ff_eterm_function nonbonded_evaluator;
 ff_eterm_function lennard_jones_evaluator;
@@ -61,7 +61,7 @@ ff_eterm_function es_ewald_evaluator;
 
 int
 init_kvectors(box_fn *box_transformation_fn, double *universe_data, int natoms,
-	      long *kmax, double cutoff_sq, void *scratch, int nvect);
+        long *kmax, double cutoff_sq, void *scratch, int nvect);
 
 /* Functions in sparsefc.c */
 
