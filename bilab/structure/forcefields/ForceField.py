@@ -69,8 +69,8 @@ class ParamDataParser(object):
 
     def __init__(self, *args, **kwargs):
         super(ParamDataParser, self).__init__()
-        parser_name = kwargs.get("parser_name", "AmberParamParser")
-        self.parser = self.__get_parser(parser_name)
+#        parser_name = kwargs.get("parser_name", "AmberParamParser")
+#        self.parser = self.__get_parser(parser_name)
         #print("{}".format(type(self.parser)))
 
     def __str__(self):
@@ -83,13 +83,13 @@ class ParamDataParser(object):
         #delegated to the object
         return getattr(self.parser, attr)
 
-    def __get_parser(self, name):
-        try:
-            for c in self._registry:
-                if c.__name__ == name:
-                    return c()
-        except ValueError:
-            raise ValueError("{} is not registered yet or wrong name".format(name))
+#    def __get_parser(self, name):
+#        try:
+#            for c in self._registry:
+#                if c.__name__ == name:
+#                    return c()
+#        except ValueError:
+#            raise ValueError("{} is not registered yet or wrong name".format(name))
     
 #    def parse(self, filename):
 #        return self.__getattr__(self.parser, "parse")(filename)
@@ -179,8 +179,9 @@ class AmberForceField(ForceField):
     def __init__(self, *args, **kwargs):
         try:
             self.ff_name = kwargs.get("ff_name", "amber94")
-            self.data_parser = kwargs.get("parser", 
-                                ParamDataParser("AmberParamParser"))
+            self.data_parser = kwargs.get("parser", AmberParamParser())
+
+                                #ParamDataParser("AmberParamParser"))
             self.ff_dat_loc = forcefieldsList[self.ff_name]
         except KeyError:
             raise KeyError("Wrong name of the force field: {}".format(self.ff_name))
