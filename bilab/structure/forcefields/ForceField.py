@@ -86,7 +86,7 @@ class ParamDataParser(object):
         try:
             for c in self._registry:
                 if c.__name__ == name:
-                    return c
+                    return c()
         except ValueError:
             raise ValueError("{} is not registered yet or wrong name".format(name))
     
@@ -108,7 +108,7 @@ class AmberParamParser(FFParserInterface, ParamDataParser):
 
     def parse(self, filename):
         print("parse file {}".format(filename))
-        
+
 
 class ForceField(object):
     """ 
@@ -166,7 +166,7 @@ class ForceField(object):
         try:
             for c in cls._registry:
                 if c.__name__ == name:
-                    return c
+                    return c()
                 #cls.__metaclass__.registry[name]
         except ValueError:
             raise ValueError("{} is not registered yet or wrong name".format(name))
