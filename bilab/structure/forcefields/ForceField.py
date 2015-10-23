@@ -6,6 +6,7 @@ from functools import wraps
 from bilab.io.FortranFormat import FortranFormat, FortranLine
 from bilab import PY3K
 from bilab import forcefieldsList
+from bilab.structure.forcefields import AmberParamParser
 
 __all__ = ['ForceField', 'AmberForceField']
 
