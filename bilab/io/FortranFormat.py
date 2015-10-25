@@ -61,6 +61,8 @@ import string
 # The class FortranLine represents a single line of input/output,
 # which can be accessed as text or as a list of items.
 #
+
+
 class FortranLine:
 
     """Fortran-style record in formatted files
@@ -82,8 +84,8 @@ class FortranLine:
          take more space, instead of being replaced by stars according
          to Fortran conventions.
     """
-    
-    def __init__(self, line, format, length = 80):
+
+    def __init__(self, line, format, length=80):
         """
         @param line: either a sequence of Python objects, or a string
                      formatted according to Fortran rules
@@ -156,7 +158,8 @@ class FortranLine:
 
     def _input(self):
         text = self.text
-        if len(text) < self.length: text = text + (self.length-len(text))*' '
+        if len(text) < self.length:
+            text = text + (self.length-len(text))*' '
         self.data = []
         for field in self.format:
             l = field[1]
@@ -172,7 +175,7 @@ class FortranLine:
                     value = 0
                 else:
                     # by AP
-                    # sometimes a line does not match to expected format, 
+                    # sometimes a line does not match to expected format,
                     # e.g.: pdb2myd.ent.Z chain: - model: 0 : CONECT*****
                     # catch this and set value to None
                     try:
@@ -203,33 +206,37 @@ class FortranLine:
                 self.text = self.text + field[1]
             elif type == 'X':
                 self.text = self.text + field[1]*' '
-            else: # fields that use input data
+            else:
+                # fields that use input data
                 length = field[1]
-                if len(field) > 2: fraction = field[2]
+                if len(field) > 2:
+                    fraction = field[2]
                 value = data[0]
                 data = data[1:]
                 if type == 'A':
                     self.text = self.text + (value+length*' ')[:length]
-                else: # numeric fields
+                else:
+                    # numeric fields
                     if value is None:
                         s = ''
                     elif type == 'I':
                         s = `value`
                     elif type == 'D':
-                        s = ('%'+`length`+'.'+`fraction`+'e') % value
+                        s = ('%' + `length` + '.' + `fraction` + 'e') % value
                         n = string.find(s, 'e')
                         s = s[:n] + 'D' + s[n+1:]
                     elif type == 'E':
-                        s = ('%'+`length`+'.'+`fraction`+'e') % value
+                        s = ('%' + `length` + '.' + `fraction` + 'e') % value
                     elif type == 'F':
-                        s = ('%'+`length`+'.'+`fraction`+'f') % value
+                        s = ('%' + `length` + '.' + `fraction` + 'f') % value
                     elif type == 'G':
-                        s = ('%'+`length`+'.'+`fraction`+'g') % value
+                        s = ('%' + `length` +'.' + `fraction` + 'g') % value
                     else:
                         raise ValueError('Not yet implemented')
                     s = string.upper(s)
                     self.text = self.text + ((length*' ')+s)[-length:]
         self.text = string.rstrip(self.text)
+
 
 #
 # The class FortranFormat represents a format specification.
@@ -247,7 +254,7 @@ class FortranFormat:
     object has the advantage that the format string is parsed only once.
     """
 
-    def __init__(self, format, nested = False):
+    def __init__(self, format, nested=False):
         """
         @param format: a Fortran format specification
         @type format: C{str}
@@ -260,7 +267,8 @@ class FortranFormat:
             while format[0] in string.digits:
                 n = 10*n + string.atoi(format[0])
                 format = format[1:]
-            if n == 0: n = 1
+            if n == 0:
+                n = 1
             type = string.upper(format[0])
             if type == "'":
                 eof = string.find(format, "'", 1)

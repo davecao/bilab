@@ -131,7 +131,6 @@ def calcTransformation(mobile, target, weights=None):
 
 def getTransformation(mob, tar, weights=None):
 
-
     if weights is None:
         mob_com = mob.mean(0)
         tar_com = tar.mean(0)

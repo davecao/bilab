@@ -18,6 +18,7 @@ from threading import Thread
 
 __all__ = ['QP_svm_smo_solver']
 
+
 class QP_svm_smo_solver(AbstractSolver):
     """ A QP solver implements the SMO algorithm
         It is an iterative algorithm. Although it is guaranteed to converge,
@@ -32,15 +33,10 @@ class QP_svm_smo_solver(AbstractSolver):
         support vector machines".
         ACM Transactions on Intelligent Systems and Technology 2 (3).
     """
-    def __init__(self,
-                kernel,
-                qm = None,
-                weights = None,
-                epsilon = 0.001,
-                tolerance=0.001,
-                cost = 1.0,
-                probability_estimates = False,
-                parallel=False):
+
+    def __init__(self, kernel, qm=None, weights=None, epsilon=0.001,
+                 tolerance=0.001, cost=1.0, probability_estimates=False,
+                 parallel=False):
         """Initialization.
 
         Args:
@@ -64,18 +60,23 @@ class QP_svm_smo_solver(AbstractSolver):
         self.cost = float(cost)
         self.probability_estimates = bool(probability_estimates)
         self.parallel = bool(parallel)
-        #self.sample_size = Qmatrix.shape[0]
-        self.sv_index = [] #  indexes of support vectors
-        self.convergence = False # check the convergence
-        self.b = 0.0 #  threshold
+        # self.sample_size = Qmatrix.shape[0]
+        # indexes of support vectors
+        self.sv_index = []
+        # check the convergence
+        self.convergence = False
+        #  threshold
+        self.b = 0.0
         self.labels = None
         self.samples = None
-        self.sv = [] # array of support vectors
-                    # each of SVs constains three elements
-                    # (alpha, label, features)
-                    # where features is a np 1d array
-        self.sv_status = {} # the number of support vectors in two categories
-                            # e.g., {'1':70, '-1':80}
+        # array of support vectors
+        # each of SVs constains three elements
+        # (alpha, label, features)
+        # where features is a np 1d array
+        self.sv = []
+        # the number of support vectors in two categories
+        # e.g., {'1':70, '-1':80}
+        self.sv_status = {}
         # check kernel
         if isinstance(kernel, Kernel):
             self.kernel = kernel
@@ -97,7 +98,7 @@ class QP_svm_smo_solver(AbstractSolver):
         txt += "\n"
         txt += "SV.b:{}\n".format(self.b)
         txt += "SV.sv:\n"
-        for alpha,label, features in self.sv:
+        for alpha, label, features in self.sv:
             # loop over sv
             feature = ''
             for inx, x in np.ndenumerate(features):
@@ -109,10 +110,10 @@ class QP_svm_smo_solver(AbstractSolver):
         """ Save to model """
         total_sv = len(self.sv_index)
         svm_model = QP_svm_smo_model(kernel=self.kernel,
-                                threshold = self.b,
-                                categories=self.sv_status,
-                                total = total_sv)
-        for alpha,label, features in self.sv:
+                                     threshold=self.b,
+                                     categories=self.sv_status,
+                                     total=total_sv)
+        for alpha, label, features in self.sv:
             svm_model.sv_coef.append(alpha * label)
             svm_model.sv.append(features)
         return Model(svm_model)
@@ -151,11 +152,10 @@ class QP_svm_smo_solver(AbstractSolver):
         if self.parallel:
             self.__qp_smo_parallel_solver()
         else:
-#            p.start()
+            # p.start()
             self.__qp_smo_platt()
 #            p.join()
         # create a model
-
 
     def __check_input(self, labels, samples):
 
@@ -165,23 +165,26 @@ class QP_svm_smo_solver(AbstractSolver):
         if isinstance(labels, (np.ndarray, np.generic)) and labels.ndim == 1:
             self.labels = labels
         else:
-            raise TypeError("labels: Inappropriate argument type for {}"
-                    .format(self.__class__.__name__))
+            raise TypeError(
+                "labels: Inappropriate argument type for {}".format(
+                    self.__class__.__name__))
 
         if isinstance(self.Qmatrix, (np.ndarray, np.generic)):
             self.Qmatrix = np.asmatrix(self.Qmatrix)
         else:
-            raise TypeError("Qmatrix: Inappropriate argument type for {}"
-                    .format(self.__class__.__name__))
+            raise TypeError(
+                "Qmatrix: Inappropriate argument type for {}".format(
+                    self.__class__.__name__))
 
         if isinstance(samples, (np.ndarray, np.generic)):
             self.samples = np.asmatrix(samples)
             self.sample_size = self.samples.shape[0]
         else:
-            raise TypeError("samples: Inappropriate argument type for {}"
-                    .format(self.__class__.__name__))
+            raise TypeError(
+                "samples: Inappropriate argument type for {}".format(
+                    self.__class__.__name__))
 
-        #labels size
+        # labels size
         if labels.size != self.sample_size:
             raise ValueError("The size of labels and samples are not same.")
 
@@ -195,12 +198,13 @@ class QP_svm_smo_solver(AbstractSolver):
             if weights.shape[0] == self.Qmatrix.shape[0]:
                 self.weights = weights
             else:
-                raise ValueError("The size of weights "
-                    "is not same as the Qmatrix")
+                raise ValueError(
+                    "The size of weights is not same as the Qmatrix")
         # initialize alphas
         self.alpha = np.zeros(self.sample_size)
         # initialize error cache
-        self.error_cache = np.zeros(self.sample_size) # error
+        # error
+        self.error_cache = np.zeros(self.sample_size)
         uniq_labels = np.unique(self.labels)
         for l in uniq_labels:
             self.sv_status[l] = []
@@ -212,10 +216,11 @@ class QP_svm_smo_solver(AbstractSolver):
             The two inner functions: takeStep and examineAll
 
         """
-        target = self.labels # 1 or -1 of samples' label
+        # 1 or -1 of samples' label
+        target = self.labels
         # inner function as closure, so take b and error_cache as class members
-        #b = self.b # threshold
-        #error_cache = np.zeros(self.sample_size)
+        # b = self.b # threshold
+        # error_cache = np.zeros(self.sample_size)
 
         def check_lagrange_multiplier(alpha):
             """ Check condition for alpha
@@ -291,8 +296,9 @@ class QP_svm_smo_solver(AbstractSolver):
                     a2 = L
                 elif a2 > H:
                     a2 = H
-                #print("takeStep: {}, {} eta={:.3} E1={:.3} E2={:.3} L={:.3} H={:.3} a2={:.3}"
-                #    .format(i1, i2, eta, E1, E2, L, H, a2))
+                # print("takeStep: {}, {} eta={:.3} E1={:.3} E2={:.3}
+                #           L={:.3} H={:.3} a2={:.3}".format(
+                #                   i1, i2, eta, E1, E2, L, H, a2))
             else:
                 # under unusual circumstances, eta will not be positive.
                 # A negative eta will occur if the kernel K does not obey
@@ -314,30 +320,32 @@ class QP_svm_smo_solver(AbstractSolver):
                 #         - y1*a1^{old}*k_{1i}
                 #         - y2*a2^{old}*k_{2i}
                 # a2 = L
-                #a1 = L
-                #a2 = alpha2 + y1*y2*(alpha1 - a1)
+                # a1 = L
+                # a2 = alpha2 + y1*y2*(alpha1 - a1)
                 a2 = L
                 a1 = alpha1 + s * (alpha2 - a2)
 
-                #f1 = y1*(E1 + b) - a1*k11 - s*a2*k12
-                #f2 = y2*(E2 + b) - s*a1*k12 - a2*k22
+                # f1 = y1*(E1 + b) - a1*k11 - s*a2*k12
+                # f2 = y2*(E2 + b) - s*a1*k12 - a2*k22
 
-                #L1 = a1 + s*(a2 - L)
-                #Lobj = L1*f1 + L*f2 + 0.5*L1*L1*k11 + 0.5*L*L*k22 + s*L*L1*k12
+                # L1 = a1 + s*(a2 - L)
+                # Lobj = L1*f1 + L*f2 + 0.5*L1*L1*k11 +
+                #           0.5*L*L*k22 + s*L*L1*k12
                 v1 = svm_output(i1) + b - y1*alpha1*k11 - y2*alpha2*k12
                 v2 = svm_output(i2) + b - y1*alpha1*k12 - y2*alpha2*k22
-                Lobj = a1 + a2 - 0.5*k11*a1*a1 - 0.5*k22*a2*a2 \
-                       - s*k12*a1*a2 - y1*a1*v1 - y2*a2*v2
-                #a1 = H
-                #a2 = alpha2 + y1*y2*(alpha1 - a1)
+                Lobj = a1 + a2 - 0.5*k11*a1*a1 - 0.5*k22*a2*a2 -\
+                        s*k12*a1*a2 - y1*a1*v1 - y2*a2*v2
+                # a1 = H
+                # a2 = alpha2 + y1*y2*(alpha1 - a1)
                 a2 = H
                 a1 = alpha1 + s * (alpha2 - a2)
-                #H1 = a1 + s*(a2 - H)
-                #Hobj = H1*f1 + H*f2 + 0.5*H1*H1*k11 + 0.5*H*H*k22 + s*H*H1*k12
+                # H1 = a1 + s*(a2 - H)
+                # Hobj = H1*f1 + H*f2 + 0.5*H1*H1*k11 + 0.5*H*H*k22 + 
+                #        s*H*H1*k12
                 v1 = svm_output(i1) + b - y1*alpha1*k11 - y2*alpha2*k12
                 v2 = svm_output(i2) + b - y1*alpha1*k12 - y2*alpha2*k22
-                Hobj = a1 + a2 - 0.5*k11*a1*a1 - 0.5*k22*a2*a2 \
-                       - s*k12*a1*a2 - y1*a1*v1 - y2*a2*v2
+                Hobj = a1 + a2 - 0.5*k11*a1*a1 - 0.5*k22*a2*a2 -\
+                        s*k12*a1*a2 - y1*a1*v1 - y2*a2*v2
 
                 if Lobj > Hobj + self.epsilon:
                     a2 = L
@@ -345,12 +353,12 @@ class QP_svm_smo_solver(AbstractSolver):
                     a2 = H
                 else:
                     a2 = alpha2
-                #print("takeStep: {}, {} eta={:.3} E1={:.3} E2={:.3} L={:.3} H={:.3} a2={:.3}"
+                # print("takeStep: {}, {} eta={:.3} E1={:.3} E2={:.3} L={:.3} H={:.3} a2={:.3}"
                 #    .format(i1, i2, eta, E1, E2, L, H, a2))
-            #if a2 < self.tolerance:
-            #    a2 = 0
-            #elif a2 > (self.cost - self.tolerance):
-            #    a2 = self.cost
+            # if a2 < self.tolerance:
+            #     a2 = 0
+            # elif a2 > (self.cost - self.tolerance):
+            #     a2 = self.cost
             if abs(a2-alpha2) < self.epsilon * (a2 + alpha2 + self.epsilon):
                 return 0
             a1 = alpha1 + s * (alpha2 - a2)
@@ -361,26 +369,28 @@ class QP_svm_smo_solver(AbstractSolver):
                 # a1 is not at the bound
                 b += E1 + y1*(a1 - alpha1)*k11 + y2*(a2-alpha2)*k12
                 self.error_cache[i1] = E1
-            #elif a2 > self.epsilon and a2 < (self.cost - self.epsilon):
+            # elif a2 > self.epsilon and a2 < (self.cost - self.epsilon):
             elif check_lagrange_multiplier(a2):
                 b += E2 + y1*(a1 - alpha1)*k12 + y2*(a2-alpha2)*k22
                 self.error_cache[i2] = E2
             else:
-                b += 0.5*\
-                    (E1 + y1*(a1 - alpha1)*k11 + y2*(a2-alpha2)*k12 + \
-                     E2 + y1*(a1 - alpha1)*k12 + y2*(a2-alpha2)*k22)
+                b += 0.5*(
+                    E1 + y1*(a1 - alpha1)*k11 + y2*(a2-alpha2)*k12 +
+                    E2 + y1*(a1 - alpha1)*k12 + y2*(a2-alpha2)*k22)
 
-            # update weight vectors to reflect change in a1 and a2, if SVM is linear
+            # update weight vectors to reflect change in a1 and a2,
+            #  if SVM is linear
             # update error cache using new Largrange multipliers
             for m in range(self.sample_size):
                 if m == i1 or m == i2:
                     continue
-                #if self.alpha[m] > self.epsilon and \
+                # if self.alpha[m] > self.epsilon and \
                 #   self.alpha[m] < (self.cost - self.epsilon):
                 if check_lagrange_multiplier(self.alpha[m]):
-                   self.error_cache[m] += y2*(a2-alpha2)*self.Qmatrix[i2, m] + \
-                                     y1*(a1-alpha1)*self.Qmatrix[i1, m] + \
-                                     old_b - b
+                    self.error_cache[m] +=\
+                        y2*(a2-alpha2)*self.Qmatrix[i2, m] + \
+                        y1*(a1-alpha1)*self.Qmatrix[i1, m] + \
+                        old_b - b
             # store a1 in the alpha array
             self.alpha[i1] = a1
             # store a2 in the alpha array
@@ -413,17 +423,17 @@ class QP_svm_smo_solver(AbstractSolver):
             max_j = -1
 
             # Check KKT condition
-            #if ((r2 < -1 * self.tolerance) and alpha2 < self.cost ) or \
+            # if ((r2 < -1 * self.tolerance) and alpha2 < self.cost ) or \
             #    (r2 > self.tolerance and alpha2 > 0):
-            if ((r2 < -1 * self.tolerance) and alpha2 < self.cost -self.epsilon)\
-                 or \
-                (r2 > self.tolerance and alpha2 > self.epsilon):
+            if ((r2 < -1 * self.tolerance) and
+                    alpha2 < (self.cost - self.epsilon)) or\
+                    (r2 > self.tolerance and alpha2 > self.epsilon):
                 # i2 violates the KKT conditions, need to be optimized.
-                #1. number of non-zero & non-C alpha > 1
-                num = np.count_nonzero((self.alpha > 0) & \
-                                       (self.alpha != self.cost))
+                # 1. number of non-zero & non-C alpha > 1
+                num = np.count_nonzero(
+                        (self.alpha > 0) & (self.alpha != self.cost))
                 if num > 1:
-                    #print("second choice heuristic")
+                    # print("second choice heuristic")
                     offset = np.random.random_integers(0, self.sample_size - 1)
                     for j in range(self.sample_size):
                         pos = (j + offset) % self.sample_size
@@ -436,10 +446,12 @@ class QP_svm_smo_solver(AbstractSolver):
                     if max_j >= 0:
                         if takeStep(max_j, i2) == 1:
                             return 1
-                #2. loop over all non-zero and non-C alpha,
+                # 2. loop over all non-zero and non-C alpha,
                 # starting at a random point
-                #alpha_selection = (self.alpha > 0) & (self.alpha != self.cost)
-                #working_set = [ idx for idx, val in enumerate(alpha_selection) \
+                # alpha_selection = (self.alpha > 0) &
+                #                   (self.alpha != self.cost)
+                # working_set = [
+                #       idx for idx, val in enumerate(alpha_selection) \
                 #                if val]
                 offset = np.random.random_integers(0, self.sample_size - 1)
                 for j in range(self.sample_size):
@@ -447,7 +459,7 @@ class QP_svm_smo_solver(AbstractSolver):
                     if check_lagrange_multiplier(self.alpha[pos]):
                         if takeStep(pos, i2) == 1:
                             return 1
-                #3.loop over all possible i1, starting at a random point
+                # 3.loop over all possible i1, starting at a random point
                 offset = np.random.random_integers(0, self.sample_size - 1)
                 for j in range(self.sample_size):
                         pos = (j + offset) % self.sample_size
@@ -474,28 +486,31 @@ class QP_svm_smo_solver(AbstractSolver):
             else:
                 # loop over examples where alpha is not 0 and not C
                 alpha_selection = (self.alpha > 0) & (self.alpha != self.cost)
-                working_set = [ idx for idx, val in enumerate(alpha_selection) \
-                                if val]
-                print("There are {} alphas not 0 and not C".format(len(working_set)))
+                working_set = [
+                    idx for idx, val in enumerate(alpha_selection) if val]
+                print(
+                    "There are {} alphas not 0 and not C".format(
+                        len(working_set)))
                 for j in working_set:
                     numChanged += examineExample(j)
             if examineAll == 1:
                 examineAll = 0
             elif numChanged == 0:
                 examineAll = 1
-            print("Iter {}: numChanged:{} examineAll:{}"
-                .format(loop, numChanged, examineAll))
-        #end of while
+            print(
+                "Iter {}: numChanged:{} examineAll:{}".format(loop,
+                    numChanged, examineAll))
+        # end of while
         if loop <= self.maxiter:
             self.convergence = True
         # store sv
         for i in range(self.sample_size):
             if self.alpha[i] != 0.0:
                 self.sv_index.append(i)
-                self.sv.append((self.alpha[i], self.labels[i], self.samples[i]))
+                self.sv.append(
+                    (self.alpha[i], self.labels[i], self.samples[i]))
                 self.sv_status[self.labels[i]].append(i)
         # recalculate weights
-
 
     def __qp_smo_parallel_solver(self):
         """ A parallel QP solver implements the SMO algorithm
@@ -517,9 +532,9 @@ class QP_svm_smo_solver(AbstractSolver):
         """
         try:
             np.linalg.cholesky(x)
-        except  np.linalg.LinAlgError:
-            raise np.linalg.LinAlgError("Matrix does not appear to be"
-                " positive definited")
+        except np.linalg.LinAlgError:
+            raise np.linalg.LinAlgError(
+                "Matrix does not appear to be positive definited")
 
     def show(self):
         if self.convergence:
@@ -529,22 +544,22 @@ class QP_svm_smo_solver(AbstractSolver):
     def show_globals(self):
         tmp = globals().copy()
         print("Globals varaibles:")
-        for k,v in tmp.items():
-            if not k.startswith('__') and k!='tmp' and k!='In' and k!='Out' \
-                and not hasattr(v, '__call__'):
+        for k, v in tmp.items():
+            if (not k.startswith('__')) and k != 'tmp' and (k != 'In') and\
+               k != 'Out' and (not hasattr(v, '__call__')):
                 print("{} : {}".format(k, v))
 
         # in a single line
-        #[print(k,'  :  ',v,'\n') for k,v in tmp.items() \
+        # [print(k,'  :  ',v,'\n') for k,v in tmp.items() \
         #    if not k.startswith('_') and k!='tmp' and k!='In' and k!='Out' \
         #    and not hasattr(v, '__call__')]
 
     def show_locals(self):
         tmp = locals().copy()
         print("locals varaibles:")
-        for k,v in tmp.items():
-            if not k.startswith('__') and k!='tmp' and k!='In' and k!='Out' \
-                and not hasattr(v, '__call__'):
+        for k, v in tmp.items():
+            if (not k.startswith('__')) and k != 'tmp' and k != 'In'\
+               and k != 'Out' and (not hasattr(v, '__call__')):
                 print("{} : {}".format(k, v))
 
         # in a single line

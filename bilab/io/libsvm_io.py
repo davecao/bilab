@@ -10,6 +10,7 @@ from types import *
 __all__ = ['AbstractDataParser',
            'LIBSVM_datafile_parser']
 
+
 class AbstractDataParser(object):
     """ base class for parsing file
     """
@@ -19,7 +20,6 @@ class AbstractDataParser(object):
 
         """
         super(AbstractDataParser, self).__init__()
-
 
     def fromFile(self, filename, *args, **kwargs):
         """class method: fromFile
@@ -32,8 +32,8 @@ class AbstractDataParser(object):
         Kwargs:
 
         Returns:
-            a numpy matrix: samples in row, features in column; the first column
-            is labels (+1 or -1).
+            a numpy matrix: samples in row, features in column;
+            the first column is labels (+1 or -1).
             i.e.,
 
              [
@@ -67,8 +67,8 @@ class AbstractDataParser(object):
 
         Returns:
 
-            a numpy matrix: samples in row, features in column; the first column
-            is labels (+1 or -1).
+            a numpy matrix: samples in row, features in column;
+            the first column is labels (+1 or -1).
 
             i.e.,
              [
@@ -87,6 +87,7 @@ class AbstractDataParser(object):
         """
         # Do not force subclass to implement
         pass
+
 
 class LIBSVM_datafile_parser(AbstractDataParser):
     """ File parser for libsvm formatted data file
@@ -149,26 +150,28 @@ class LIBSVM_datafile_parser(AbstractDataParser):
                     line = line.split(None, 1)
 
                     if len(line) == 1:
-                        print("Ignore line:{} in {} for no features found"
+                        print(
+                            "Ignore line:{} in {} for no features found"
                             .format(length, filename))
                         continue
 
                     label, data = line
-                    feature_inx = [ x.split(":") for x in data.split()]
-                    indexes = [ int(inx[0]) for inx in feature_inx]
+                    feature_inx = [x.split(":") for x in data.split()]
+                    indexes = [int(inx[0]) for inx in feature_inx]
                     if max_index_of_feature == 0:
                         max_index_of_feature = max(indexes)
                     elif max_index_of_feature != max(indexes):
-                        #The lengths of feature vectors are different
-                        raise ValueError("Different length of the " +
+                        # The lengths of feature vectors are different
+                        raise ValueError(
+                            "Different length of the " +
                             "feature vector found in line {}".format(length))
 
                     # in one line
-                    #repeated = True if not \
+                    # repeated = True if not \
                     #        [ x for x in indexes if indexes.count(x) > 1] \
                     #        else False
 
-                    if not [ x for x in indexes if indexes.count(x) > 1]:
+                    if not [x for x in indexes if indexes.count(x) > 1]:
                         # No repeated indexes in the feature line
                         f_val = {}
                         for index, value in feature_inx:
@@ -182,8 +185,9 @@ class LIBSVM_datafile_parser(AbstractDataParser):
                             .format(filename, length))
 
         else:
-            raise ValueError('{} is not a filename or does not look'
-            'like a valid string'.format(filename))
+            raise ValueError(
+                '{} is not a filename or does not look'
+                'like a valid string'.format(filename))
         nrows = len(labels)
         ncols = max_index_of_feature
         return (nrows, ncols, labels, features)
@@ -202,15 +206,15 @@ class LIBSVM_datafile_parser(AbstractDataParser):
 
             labels:  a numpy array of (+1 or -1).
 
-            features: a numpy dense matrix of samples in row, features in column;
-            
+            features: a numpy dense matrix of samples in row,
+                        features in column;
+
             format::
 
                 [
                     [feature1, ... , featureN],
 
                     [feature1, ... , featureN],
-                    
                     ...
                 ]
 
@@ -229,15 +233,15 @@ class LIBSVM_datafile_parser(AbstractDataParser):
         data = np.zeros((nsamples, nfeatures))
 
         if verbose:
-            positives = len(labels[labels>0])
-            negatives = len(labels[labels<0])
+            positives = len(labels[labels > 0])
+            negatives = len(labels[labels < 0])
             print("{} positive samples and "
-                  " {} negative samples with {} features in each"
-                .format(positives, negatives, nfeatures))
+                  " {} negative samples with {} features in each".format(
+                        positives, negatives, nfeatures))
 
         for row, feature in enumerate(features):
             for col in feature:
-                #The numpy array is zero-based array
+                # The numpy array is zero-based array
                 data[row, col-1] = feature[col]
 
         return (labels, data)

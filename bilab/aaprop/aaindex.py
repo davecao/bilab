@@ -9,7 +9,7 @@ from types import *
 from bisect import bisect_left
 import bilab
 
-__all__ = [ 'AAindex', 'AAindex1Parser', 'AAindex2Parser' ]
+__all__ = ['AAindex', 'AAindex1Parser', 'AAindex2Parser']
 
 
 def find_name_in_aaindex(lst, i):
@@ -21,27 +21,30 @@ def find_name_in_aaindex(lst, i):
         return False
     return index
 
-def str2float(str):
-    #for string NA, N/A
+
+def str2float(s):
+    # for string NA, N/A
     NaN_str = "NA:N/A:None"
     found = re.search(str, NaN_str)
     if found:
         val = float('NaN')
     else:
         try:
-            val = float(str)
+            val = float(s)
         except ValueError:
             raise ValueError("Failed to convert to float")
     return val
 
-def string2dict(str_list, state = 0):
+
+def string2dict(str_list, state=0):
     """ string to dictionary """
     if type(str_list) is not StringType:
         raise TypeError("Input should be a string")
     x = str_list.split()
     return dict(zip(x[0::2], x[1::2]))
 
-def index2dict(str_list, state = 0):
+
+def index2dict(str_list, state=0):
     """ Convert aaindex values into dictionary """
     order = 'ARNDCQEGHILKMFPSTWYV'
     dict_ = {}
@@ -61,11 +64,12 @@ def index2dict(str_list, state = 0):
 
     return dict_
 
+
 def literature2dict(str_list, separator=":", state=0):
     dict_ = {}
     if type(str_list) is not StringType:
         raise TypeError("Input should be a string")
-    str_list = re.sub(r'\s*:\s*',':', str_list)
+    str_list = re.sub(r'\s*:\s*', ':', str_list)
     if not str_list:
         return dict_
     for liter in str_list.split():
@@ -73,16 +77,18 @@ def literature2dict(str_list, separator=":", state=0):
         dict_[k] = v
     return dict_
 
+
 def extract_field(line, field, separator=" "):
     return line.split(separator)[field]
 
 # 'C': lambda x : dict(zip(x.split()[0::2], x.split()[1::2]))
 
-AAINDEX_TAGS={
+AAINDEX_TAGS = {
     'C': string2dict,
     'R': literature2dict,
     'I': index2dict
 }
+
 
 class AAindex1Parser(object):
     """
@@ -91,7 +97,8 @@ class AAindex1Parser(object):
     """
     def __init__(self):
         """ initialize """
-        self._data_location = bilab.data + os.sep + 'aaindex' + os.sep + 'aaindex1'
+        self._data_location = bilab.data + os.sep + 'aaindex' +\
+                                os.sep + 'aaindex1'
         self._parsername = 'AAindex1Parser'
         self._data = self.__dictRecord(self._data_location)
         self._scale_name_ind = [x['H'] for x in self._data]
@@ -102,7 +109,7 @@ class AAindex1Parser(object):
             e.g., aa = AAindex1Parser(), aa()
         """
         print("aaindex1 infile:{} from __call__".format(self._data_location))
-        #self.__parse_record()
+        # self.__parse_record()
 
     def __dictRecord(self, infile, delimitor="//"):
         """ Read into dict """
@@ -111,11 +118,11 @@ class AAindex1Parser(object):
         old_tag = ''
         tag = ''
         state_continue = 0
-        with open(self._data_location,'r') as fhandle:
+        with open(self._data_location, 'r') as fhandle:
             for line in fhandle:
-                #print("line:{}".format(line))
+                # print("line:{}".format(line))
                 if line.startswith('//'):
-                    #dict_['C'].update(dict(dict_['C'].split()))
+                    # dict_['C'].update(dict(dict_['C'].split()))
                     data.append(dict_.copy())
                     state_continue = 0
                     # copy data
@@ -125,8 +132,8 @@ class AAindex1Parser(object):
                     # continue line
                     state_continue += 1
                     if tag in AAINDEX_TAGS:
-                        list_dict = AAINDEX_TAGS[tag](line[1:].strip(),
-                                     state = state_continue)
+                        list_dict = AAINDEX_TAGS[tag](
+                            line[1:].strip(), state=state_continue)
                         dict_[tag].update(list_dict)
                     else:
                         dict_[tag] = "{} {}".format(dict_[tag], line.strip())
@@ -140,12 +147,14 @@ class AAindex1Parser(object):
 
                     if tag in AAINDEX_TAGS:
                         if tag in dict_:
-                            list_dict = AAINDEX_TAGS[tag](line[1:].strip(),
-                                state = state_continue)
+                            list_dict = AAINDEX_TAGS[tag](
+                                line[1:].strip(),
+                                state=state_continue)
                             dict_[tag].update(list_dict)
                         else:
-                            dict_[tag] = AAINDEX_TAGS[tag](line[1:].strip(),
-                                state = state_continue)
+                            dict_[tag] = AAINDEX_TAGS[tag](
+                                line[1:].strip(),
+                                state=state_continue)
                     else:
                         # process as string
                         dict_[tag] = line[1:].strip()
@@ -162,7 +171,7 @@ class AAindex1Parser(object):
         if verbose:
             print("aaindex1 infile:{}".format(self._data_location))
         self._data = self.__dictRecord(infile)
-        self._scale_name_ind = [ x['H'] for x in self._data ]
+        self._scale_name_ind = [x['H'] for x in self._data]
 
     def get_parser_name(self):
         return self._parsername
@@ -170,14 +179,15 @@ class AAindex1Parser(object):
     def get_scale(self, scale_name):
         """ Return scale values in dict """
         inx = find_name_in_aaindex(self._scale_name_ind, scale_name.upper())
-        #pprint.pprint(inx)
-        #pprint.pprint(self._data)
-        #pprint.pprint(self._data[inx])
+        # pprint.pprint(inx)
+        # pprint.pprint(self._data)
+        # pprint.pprint(self._data[inx])
         if inx:
             return self._data[inx]['I']
-        print("Could not found the scale named {}\nCheck the scale_name please"
-            .format(scale_name))
+        print("Could not found the scale named {}\n \
+              Check the scale_name please".format(scale_name))
         return None
+
 
 class AAindex2Parser(object):
     """ Parse aaindex2 format
@@ -186,7 +196,8 @@ class AAindex2Parser(object):
     """
     def __init__(self):
         """ initialize """
-        self._data_location = bilab.data + os.sep + 'aaindex' + os.sep + 'aaindex2'
+        self._data_location = bilab.data + os.sep + 'aaindex' +\
+                               os.sep + 'aaindex2'
         self._parsername = 'AAindex2Parser'
         self.parse_record()
 
@@ -217,26 +228,25 @@ class AAindex(object):
         import bilab
         aa1prop = bilab.aaprop.AAindex(parser=bilab.aaprop.AAindex1Parser)
 
-    data: stored in aa1prop._data  
+    data: stored in aa1prop._data
 
-    **Keys** are   
+    **Keys** are
 
         'H': string,
 
-        'D': string,    
+        'D': string,
 
-        'R': dict(),    
+        'R': dict(),
 
-        'A': string,    
+        'A': string,
 
-        'T': string,    
+        'T': string,
 
-        'J': string,    
+        'J': string,
 
-        'C': dict()  correlated aaindex,  
+        'C': dict()  correlated aaindex,
 
-        'I': dict()  index values associated with keys of 20 amino acids  
-     
+        'I': dict()  index values associated with keys of 20 amino acids
 
     2. get scale values
 

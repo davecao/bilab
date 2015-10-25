@@ -1,21 +1,23 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 
-from functools import  wraps
-from types import StringTypes, FileType, ClassType, InstanceType
-import os, sys
+import os
+import sys
 import re
 import pprint
 import numpy as np
 
+from functools import wraps
+from types import StringTypes, FileType, ClassType, InstanceType
+
 from bilab.sequence import Sequence, Alphabet
 from bilab import PY3K
 
-#PY2 = sys.version_info[0] == 2
-#PY3 = sys.version_info[0] == 3
+# PY2 = sys.version_info[0] == 2
+# PY3 = sys.version_info[0] == 3
 
 if PY3K:
-    #On Python 3, this will be a unicode StringIO
+    # On Python 3, this will be a unicode StringIO
     from io import StringIO
 else:
     # On Python 2 this will be a (bytes) string based handle.
@@ -26,19 +28,23 @@ else:
     except ImportError:
         from StringIO import StringIO
 
-#__all__=["AlignIO", "MultiFastaIO", "ClustalWIO"]
-__all__=["AlignIO"]
+# __all__=["AlignIO", "MultiFastaIO", "ClustalWIO"]
+__all__ = ["AlignIO"]
 
-# decorator borrowed from Mozilla mxr
+
 def abstractmethod(method):
+    # decorator borrowed from Mozilla mxr
     line = method.func_code.co_firstlineno
     filename = method.func_code.co_filename
+
     @wraps(method)
     def not_implemented(*args, **kwargs):
-        raise NotImplementedError('Abstract method %s at File "%s", line %s'
-            'should be implemented by a concrete class' %
-            (repr(method), filename, line))
+        raise NotImplementedError(
+                'Abstract method %s at File "%s", line %s'
+                'should be implemented by a concrete class' % (
+                        repr(method), filename, line))
     return not_implemented
+
 
 class ClassRegistry(type):
     """ Register all subclasses """
@@ -47,7 +53,9 @@ class ClassRegistry(type):
         if not hasattr(cls, 'registry'):
             cls.registry = set()
         cls.registry.add(cls)
-        cls.registry -= set(bases) #Remove base classes
+        # Remove base classes
+        cls.registry -= set(bases)
+
     # Meta methods, called on class objects:
     def __iter__(cls):
         return iter(cls.registry)
@@ -57,18 +65,20 @@ class ClassRegistry(type):
             return cls.__name__
         return cls.__name__ + ":" + ', '.join([sc.__name__ for sc in cls])
 
+
 class AlignIO(object):
     """
     .. note::
         This class uses two patterns, composite and registry
 
         supported format:
-            FASTA - MultiFastaIO, 
-            clustalW - ClustalWIO, 
-            Phylip - PhylipIO 
+            FASTA - MultiFastaIO,
+            clustalW - ClustalWIO,
+            Phylip - PhylipIO
 
     .. ipython:: python
-        from bilab.sequence import Alphabet, generic_alphabet, protein_alphabet, nucleic_alphabet
+        from bilab.sequence import Alphabet, generic_alphabet, \
+                                   protein_alphabet, nucleic_alphabet
         from bilab.io import AlignIO
         filename="./Desktop/multifasta.aln"
         parser=AlignIO(filename, ConcreteIO='ClustalWIO')
@@ -98,7 +108,7 @@ class AlignIO(object):
 #            self.__ConcreteIO = ConcreteIO
 #        elif self.__isstr(ConcreteIO):
 #            # is string
-        #self.__ConcreteIO = 
+        # self.__ConcreteIO =
         self.__ConcreteIO = self.__create(ConcreteIO_cls, *args, **kwargs)
 
     def __create(self, clsname, *args, **kwargs):
@@ -116,13 +126,13 @@ class AlignIO(object):
         return obj
 
     def __str__(self):
-        #OK:    return self.__IO.__str__()
-        #Failed return self.__getattr__(self.__IO, '__str__')
+        # OK:    return self.__IO.__str__()
+        # Failed return self.__getattr__(self.__IO, '__str__')
         IO_func_str_ = self.__getattr__(self.__ConcreteIO, '__str__')
         return IO_func_str_()
 
     def __repr__(self):
-        #return self.__IO.__repr__()
+        # return self.__IO.__repr__()
         IO_func_str_ = self.__getattr__(self.__ConcreteIO, '__repr__')
         return IO_func_str_()
 
@@ -131,18 +141,19 @@ class AlignIO(object):
 
     def __getattr__(self, attr):
         """ get delegation to the object """
-        #return getattr(obj, attr)
+        # return getattr(obj, attr)
         try:
             return self.__ConcreteIO.__getattribute__(attr)
         except AttributeError:
-            raise AttributeError('{0} object has no attribute `{1}`'
-                .format(self.__class__.__name__, attr))
+            raise AttributeError('{0} object has no attribute `{1}`'.format(
+                    self.__class__.__name__, attr))
 
     def __isstr(self, s):
         try:
             return isinstance(s, basestring)
         except NameError:
             return isinstance(s, str)
+
 
 class IOBase(object):
     """ Base class for Conrete IO classes """
@@ -155,7 +166,7 @@ class IOBase(object):
         """
         super(IOBase, self).__init__()
         if isinstance(handle, FileType):
-            #file handle
+            # file handle
             self.handle = handle
         elif isinstance(handle, StringTypes):
             # is string
@@ -180,8 +191,10 @@ class IOBase(object):
             seq -- a list of bilab.sequence.Sequence
         """
 
+
 class MultiFastaIO(IOBase, AlignIO):
-    """ Derived class 
+    """
+    Derived class
     To read multiple alignments in Fasta format
     e.g.
         >id1:...
@@ -204,8 +217,9 @@ class MultiFastaIO(IOBase, AlignIO):
             seq -- a list of bilab.sequence.Sequence
         """
         handle = self.handle
-        alphabet = Alphabet(alphabet) 
-        def build_seq(seq, alphabet, header, header_lineno, 
+        alphabet = Alphabet(alphabet)
+
+        def build_seq(seq, alphabet, header, header_lineno,
                       comments, isAligned=False):
             try:
                 # Create a bilab.sequence object
@@ -217,7 +231,7 @@ class MultiFastaIO(IOBase, AlignIO):
             except ValueError:
                 raise ValueError(
                     "Failed to parse the file at the line %d: "
-                    "Character not in alphabet:%s" %(header_lineno, alphabet))
+                    "Character not in alphabet:%s" % (header_lineno, alphabet))
             return s
 
         # loop file handle
@@ -240,7 +254,7 @@ class MultiFastaIO(IOBase, AlignIO):
                                   header_lineno, comments, isAligned=isAligned)
                     seqs.append(s)
                     seq_str = ""
-                    header =None
+                    header = None
                     comments = []
                 header = line[1:]
                 header_lineno = lineno
@@ -250,9 +264,10 @@ class MultiFastaIO(IOBase, AlignIO):
                 seq_str += line
         # Store last one
         s = build_seq(seq_str, alphabet, header,
-                                  header_lineno, comments, isAligned=isAligned)
+                      header_lineno, comments, isAligned=isAligned)
         seqs.append(s)
         return seqs
+
 
 class ClustalWIO(IOBase, AlignIO):
     """
@@ -267,7 +282,7 @@ BLR_HUMAN         --------------------------LENLEDLF-WELDRLD------NYNDTSLVENH-
 CXCR1_HUMAN       --------------------------MSNITDPQMWDFDDLN-------FTGMPPADEDY
 CXCR4_MURINE      -----------------------------------YTSDN---------YSGSGDYDSNK
                                                      :  :          :..     ..
- 
+
 CXCR3_MOUSE       -SL-------NFDRTFLPALYSLLFLLGLLGNGAVAAVLLSQRTALSSTDTFLLHLAVAD
 BLR_HUMAN         --LC-PATMASFKAVFVPVAYSLIFLLGVIGNVLVLVILERHRQTRSSTETFLFHLAVAD
 CXCR1_HUMAN       -SPC-MLETETLNKYVVIIAYALVFLLSLLGNSLVMLVILYSRVGRSVTDVYLLNLALAD
@@ -279,38 +294,40 @@ BLR_HUMAN         LLLVFILPFAVAEGS-VGWVLGTFLCKTVIALHKVNFYCSSLLLACIAVDRYLAIVHAVH
 CXCR1_HUMAN       LLFALTLPIWAASKV-NGWIFGTFLCKVVSLLKEVNFYSGILLLACISVDRYLAIVHATR
 CXCR4_MURINE      LLFVITLPFWAVDAM-ADWYFGKFLCKAVHIIYTVNLYSSVLILAFISLDRYLAIVHATN
                   :*:.: **: ...     * :*  ***..  :  :*:*.. ::** *:.****:****..
-    
+
 
     """
     class Token(object):
         """Represents the items returned by a file scanner, normally processed
         by a parser.
-        
+
         Attributes :
         o typeof    -- a string describing the kind of token
         o data      -- the value of the token
-        o lineno    -- the line of the file on which the data was found (if known)
+        o lineno    -- the line of the file on which the data was found
+                       (if known)
         o offset    -- the offset of the data within the line (if known)
         """
-        __slots__ = [ 'typeof', 'data', 'lineno', 'offset']
-        def __init__(self, typeof, data=None, lineno=-1, offset=-1) :
+        __slots__ = ['typeof', 'data', 'lineno', 'offset']
+
+        def __init__(self, typeof, data=None, lineno=-1, offset=-1):
             self.typeof = typeof
             self.data = data
             self.lineno = lineno
             self.offset = offset
-     
-        def __repr__(self) :
-            return stdrepr( self) 
+
+        def __repr__(self):
+            return stdrepr(self)
 
         def __str__(self):
             coord = str(self.lineno)
-            if self.offset != -1 : coord += ':'+str(self.offset)
+            if self.offset != -1:
+                coord += ':'+str(self.offset)
             coord = coord.ljust(7)
-            return (coord+ '  '+ self.typeof +' : ').ljust(32)+ str(self.data or '')
+            return (coord+ '  '+ self.typeof +' : ').ljust(32) + str(self.data or '')
 
     def __init__(self, handle):
         super(ClustalWIO, self).__init__(handle)
-
 
     def parse(self, alphabet=None, isAligned=False):
         """ Impletementation of the abstract method defined in IOBase
@@ -326,15 +343,15 @@ CXCR4_MURINE      LLFVITLPFWAVDAM-ADWYFGKFLCKAVHIIYTVNLYSSVLILAFISLDRYLAIVHATN
         def scan(handle):
             """Scan a clustal format MSA file and yield tokens.
             The basic file structure is
-            
+
             begin_document
-                header?     
+                header?
                (begin_block
                    (seq_id seq seq_index?)+
                    match_line?
                end_block)*
-            end_document     
-    
+            end_document
+
             Usage:
                 for token in scan(clustal_file):
                     do_something(token)
@@ -344,96 +361,105 @@ CXCR4_MURINE      LLFVITLPFWAVDAM-ADWYFGKFLCKAVHIIYTVNLYSSVLILAFISLDRYLAIVHATN
             leader_width = -1
             state = header
             for L, line in enumerate(handle):
-                if state==header :
-                    if line.isspace() : continue
+                if state == header:
+                    if line.isspace():
+                        continue
                     m = header_line.match(line)
                     state = body
-                    if m is not None :
-                        yield self.Token("header", m.group() )
+                    if m is not None:
+                        yield self.Token("header", m.group())
                         continue
                     # Just keep going and hope for the best.
-                    #else :
-                        #raise ValueError("Cannot find required header")
+                    # else :
+                        # raise ValueError("Cannot find required header")
 
-                if state == body :
-                    if line.isspace() : continue
+                if state == body:
+                    if line.isspace():
+                        continue
                     yield self.Token("begin_block")
                     state = block
                     # fall through to block
-                
-                if state ==  block:
-                    if line.isspace() :
+
+                if state == block:
+                    if line.isspace():
                         yield self.Token("end_block")
                         state = body
                         continue
-                    
+
                     m = match_line.match(line)
-                    if m is not None :
+                    if m is not None:
                         yield self.Token("match_line", line[leader_width:-1])
                         continue
-             
-                    m = seq_line.match(line) 
-                    if m is None: 
-                        raise ValueError("Parse error on line: %d (%s)" % (L,line))
+
+                    m = seq_line.match(line)
+                    if m is None:
+                        raise ValueError(
+                            "Parse error on line: %d (%s)" % (L, line))
                     leader_width = len(m.group(1))
-                    yield self.Token("seq_id", m.group(1).strip() )
-                    yield self.Token("seq", m.group(2).strip() )
-                    if m.group(3)  :
-                        yield self.Token("seq_num", m.group(3)) 
+                    yield self.Token("seq_id", m.group(1).strip())
+                    yield self.Token("seq", m.group(2).strip())
+                    if m.group(3):
+                        yield self.Token("seq_num", m.group(3))
                     continue
 
-                # END state blocks. If I ever get here something has gone terrible wrong
+                # END state blocks.
+                # If I ever get here something has gone terrible wrong
                 raise RuntimeError()
-            
-            if state==block:
-                 yield self.Token("end_block")
-            yield self.Token("end")     
+
+            if state == block:
+                yield self.Token("end_block")
+            yield self.Token("end")
             return
 
         handle = self.handle
         header_line = re.compile(r'(CLUSTAL.*)$')
         # (sequence_id) (Sequence) (Optional sequence number)
-        seq_line   = re.compile(r'(\s*\S+\s+)(\S+)\s*(\d*)\s*$')
+        seq_line = re.compile(r'(\s*\S+\s+)(\S+)\s*(\d*)\s*$')
         # Saved group includes variable length leading space.
-        # Must consult a seq_line to figure out how long the leading space is since
-        # the maximum CLUSTAL ids length (normally 10 characters) can be changed.
+        # Must consult a seq_line to figure out how long
+        #  the leading space is since
+        # the maximum CLUSTAL ids length (normally 10 characters)
+        # can be changed.
         match_line = re.compile(r'([\s:\.\*]*)$')
-        alphabet = Alphabet(alphabet) 
+        alphabet = Alphabet(alphabet)
         seq_ids = []
         seqs = []
         block_counts = 0
         data_len = 0
         for token in scan(handle):
-            if token.typeof== "begin_block":
+            if token.typeof == "begin_block":
                 block_count = 0
             elif token.typeof == "seq_id":
-                if len(seqs) <= block_count :
+                if len(seqs) <= block_count:
                     seq_ids.append(token.data)
                     seqs.append([])
             elif token.typeof == "seq":
-                if not alphabet.alphabetic(token.data) :
+                if not alphabet.alphabetic(token.data):
                     raise ValueError(
-                        "Character on line: %d not in alphabet: %s : %s" % (
-                        token.lineno, alphabet, token.data) )
+                        "Character on line: %d not in alphabet: %s : %s" %
+                        (token.lineno, alphabet, token.data))
                 seqs[block_count].append(token.data)
-                if block_count==0 :
-                    data_len = len(token.data) 
-                elif data_len != len(token.data) :
+                if block_count == 0:
+                    data_len = len(token.data)
+                elif data_len != len(token.data):
                     raise ValueError("Inconsistent line lengths")
-                    
-                block_count +=1
-        seqs = [Sequence("".join(s), alphabet, name=i) for s, i in zip(seqs, seq_ids)]
+
+                block_count += 1
+        seqs = [Sequence("".join(s), alphabet, name=i) for s, i in
+                zip(seqs, seq_ids)]
         return seqs
 
+
 class PhylipIO(IOBase, AlignIO):
-    """ Derived class 
+    """
+    Derived class
     To read multiple alignments in PHYLIP format
 1. First line contains number of species and number of characters in a species
    sequence.
 2. A user tree may appear at end of the file
 3. options
   U - User Tree
-  G - Global 
+  G - Global
   J - Jumble
   O - Outgroup
   T - Threshold
@@ -441,23 +467,23 @@ class PhylipIO(IOBase, AlignIO):
   W - Weights
 -------------------------------------------
   6   50   W
-W         0101001111 0101110101 01011   
-dmras1    GTCGTCGTTG GACCTGGAGG CGTGG   
+W         0101001111 0101110101 01011
+dmras1    GTCGTCGTTG GACCTGGAGG CGTGG
 hschras   GTGGTGGTGG GCGCCGGCCG TGTGG
 ddrasa    GTTATTGTTG GTGGTGGTGG TGTCG
 spras     GTAGTTGTAG GAGATGGTGG TGTTG
 scras1    GTAGTTGTCG GTGGAGGTGG CGTTG
 scras2    GTCGTCGTTG GTGGTGGTGG TGTTG
 
-0101001111 0101110101 01011 
-GTCGTCGTTG GACCTGGAGG CGTGG 
+0101001111 0101110101 01011
+GTCGTCGTTG GACCTGGAGG CGTGG
 GTGGTGGTGG GCGCCGGCCG TGTGG
 GTTATTGTTG GTGGTGGTGG TGTCG
 GTAGTTGTAG GAGATGGTGG TGTTG
 GTAGTTGTCG GTGGAGGTGG CGTTG
 GTCGTCGTTG GTGGTGGTGG TGTTG
 
-1                   
+1
 ((dmras1,ddrasa),((hschras,spras),(scras1,scras2)));
 -----------------------------------------------------
     """
@@ -476,24 +502,31 @@ GTCGTCGTTG GTGGTGGTGG TGTTG
             a list of bilab.sequence.Sequence
         """
         seqs = []
-        idents=[]
-        num_seq=0
-        num_total_seq=0 #length of sequence of 1 species
-        tracker=0 #track what sequence the line is on
-        usertree_tracker=0 #track usertree lines
-        options='' #options
-        num_options=0 #number/lens of options - U
+        idents = []
+        num_seq = 0
+        # length of sequence of 1 species
+        num_total_seq = 0
+        # track what sequence the line is on
+        tracker = 0
+        # track usertree lines
+        usertree_tracker = 0
+        # options
+        options = ''
+        # number/lens of options - U
+        num_options = 0
         handle = self.handle
         for lineno, currline in enumerate(handle):
-            #split into fields
+            # split into fields
             line = currline.strip("\n").split()
             if line == []:
                 continue
 
-            if (line[0].isdigit() and len(line) == 1 and 
-                len(seqs) == num_seq and len(seqs[0]) == num_total_seq):
+            if (line[0].isdigit() and len(line) == 1 and
+                    len(seqs) == num_seq and
+                    len(seqs[0]) == num_total_seq):
                 usertree_tracker = int(line[0])
-                pass #identifies usertree
+                # identifies usertree
+                pass
             elif num_options > 0:
                 if len(seqs) < num_seq:
                     if line[0][0] in options:
@@ -505,7 +538,7 @@ GTCGTCGTTG GTGGTGGTGG TGTTG
                     num_options -= 1
                     pass
             elif usertree_tracker > 0:
-                #skip usertree basically
+                # skip usertree basically
                 if len(seqs[num_seq - 1]) == num_total_seq:
                     usertree_tracker -= 1
                     pass
@@ -521,30 +554,33 @@ GTCGTCGTTG GTGGTGGTGG TGTTG
                     if len(line) > 2:
                         options = (''.join(line[2:]))
                         num_options = len(options) - options.count('U')
-                    #else:
+                    # else:
                     #    raise ValueError('parse error')
             elif num_options == 0:
                 if num_seq == 0:
                     raise ValueError("Empty File, or possibly wrong file")
                 elif tracker < num_seq:
                     if num_seq > len(seqs):
-                        seqs.append(''.join(currline[10:].split())) # removes species name
+                        # removes species name
+                        seqs.append(''.join(currline[10:].split()))
                         idents.append(currline[0:10].strip())
-                        tracker +=1
+                        tracker += 1
                     else:
                         seqs[tracker] += (''.join(line))
                         tracker += 1
                     if tracker == num_seq:
                         tracker = 0
                         num_options = len(options) - options.count('U')
-        if len(seqs) != len(idents) or len(seqs)!=num_seq:
+        if len(seqs) != len(idents) or len(seqs) != num_seq:
             raise ValueError("Number of different sequences wrong")
         sequence = []
         for i in range(0, len(idents)):
             if len(seqs[i]) == num_total_seq:
                 sequence.append(
-                    Sequence(seqs[i], alphabet=alphabet, 
-                            name=idents[i], isAligned=isAligned))
+                    Sequence(
+                        seqs[i], alphabet=alphabet, name=idents[i],
+                        isAligned=isAligned)
+                    )
             else:
                 raise ValueError("extra sequence in list")
         return sequence

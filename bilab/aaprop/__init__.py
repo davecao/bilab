@@ -8,11 +8,11 @@
 
 __all__ = []
 
-#from . import aaindex
-from .aaindex import *
+# from . import aaindex
+from bilab.aaprop.aaindex import *
 
-from .gencode import *
+from bilab.aaprop.gencode import *
 
-from .descriptor import *
+from bilab.aaprop.descriptor import *
 
-from .aminoacids import *
+from bilab.aaprop.aminoacids import *

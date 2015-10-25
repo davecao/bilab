@@ -36,7 +36,7 @@ __all__ = ['properties', 'get_aaprop_distance']
         Biophys J. Feb 1994; 66(2 Pt 1): 335–344.
 """
 
-#properties = {
+# properties = {
 #    "GLY" : ("G",  57.02146,  57.0519,  60.1),
 #    "ALA" : ("A",  71.03711,  71.0788,  88.6),
 #    "LEU" : ("L", 113.08406, 113.1594, 166.7),
@@ -60,10 +60,10 @@ __all__ = ['properties', 'get_aaprop_distance']
 #    "M3L" : ("K",float("NaN"), 189.2800, float("NaN")),
 #    "MSE" : ("M",float("NaN"), 196.1100, float("NaN")),
 #    "CAS" : ("C",float("NaN"), 225.1400, float("NaN"))
-#}
+# }
 properties = {
     "Code": {
-            "GLY" : "G",
+            "GLY":"G",
             "ALA" : "A",
             "LEU" : "L",
             "ILE" : "I",
@@ -84,7 +84,7 @@ properties = {
             "HIS" : "H",
             "VAL" : "V"},
 
-    "Mass" : {"G":  57.0519,
+    "Mass" : {"G": 57.0519,
               "A":  71.0788,
               "L": 113.1594,
               "I": 113.1594,
@@ -107,25 +107,25 @@ properties = {
     "Volume": {
               "G": 60.1,
               "A": 88.6,
-              "L":166.7,
-              "I":166.7,
-              "R":173.4,
-              "K":168.6,
-              "M":162.9,
-              "C":108.5,
-              "Y":193.6,
-              "T":116.1,
-              "P":112.7,
+              "L": 166.7,
+              "I": 166.7,
+              "R": 173.4,
+              "K": 168.6,
+              "M": 162.9,
+              "C": 108.5,
+              "Y": 193.6,
+              "T": 116.1,
+              "P": 112.7,
               "S": 89.0,
-              "W":227.8,
-              "D":111.1,
-              "E":138.4,
-              "N":114.1,
-              "Q":143.8,
-              "F":189.9,
-              "H":153.2,
-              "V":140.0},
-    "distance":[
+              "W": 227.8,
+              "D": 111.1,
+              "E": 138.4,
+              "N": 114.1,
+              "Q": 143.8,
+              "F": 189.9,
+              "H": 153.2,
+              "V": 140.0},
+    "distance": [
         [0    , 0.112, 0.819, 0.827, 0.540, 0.208, 0.696, 0.407, 0.891, 0.406,
          0.379, 0.318, 0.191, 0.372, 1    , 0.094, 0.220, 0.273, 0.739, 0.552],
         [0.114, 0    , 0.847, 0.838, 0.437, 0.32 , 0.66 , 0.304, 0.887, 0.301,
@@ -169,6 +169,7 @@ properties = {
     ]
 }
 
+
 def isstandard_aminoacid(aa, order="ACDEFGHIKLMNPQRSTVWY"):
     """ Check the given string representing one of 20 standard amino acids
 
@@ -189,13 +190,14 @@ def isstandard_aminoacid(aa, order="ACDEFGHIKLMNPQRSTVWY"):
         print("The first argument should be a string. Return None")
     else:
         if len(aa_upper) == 3 or len(aa_upper) == 1:
-            found =  aa_upper in coding or aa_upper in coding.values()
+            found = aa_upper in coding or aa_upper in coding.values()
         else:
             print("Improper argument {}".format(aa))
 
     return found
 
-def get_aaprop_distance(aa1, aa2, not_found = "NaN"):
+
+def get_aaprop_distance(aa1, aa2, not_found="NaN"):
     """ Get the distance parameter for a pair of amino acids
 
     Args:

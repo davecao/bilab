@@ -32,9 +32,9 @@ SETTINGS = PackageSettings('bilab', logger=LOGGER)
 SETTINGS.load()
 
 # get path of resources, i.e., aaindex1, aadindex2 and aaindex3
-#data = os.path.dirname(os.path.realpath(__file__)) + os.sep + 'data'
+# data = os.path.dirname(os.path.realpath(__file__)) + os.sep + 'data'
 data = "{}{}{}{}{}".format(
-        sysconfig.get_config_var('datarootdir'), 
+        sysconfig.get_config_var('datarootdir'),
         os.sep, 'bilab', os.sep, 'data')
 ff_location = data + os.sep + 'ff' + os.sep
 
