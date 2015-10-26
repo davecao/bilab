@@ -355,7 +355,6 @@ class AmberParamParser(FFParserInterface):
             lineIter = iter(fhandle)
             # 1. title
             title = lineIter.next()
-            state_ += 1
             line_format = formats[state_]
             # 2. AtomType
             while True:
