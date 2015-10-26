@@ -2,6 +2,7 @@
 # from __future__ import absolute_import
 
 from functools import wraps
+from collections import defaultdict
 # from abc import ABCMeta, abstractmethod
 from bilab.io.FortranFormat import FortranFormat, FortranLine
 from bilab import PY3K
@@ -239,8 +240,8 @@ class AmberParamParser(FFParserInterface):
                         app = None
                 else:
                     p = AmberDihedralParameters(
-                        self.atom_types[name1], self.atom_types[name2],
-                        self.atom_types[name3], self.atom_types[name4],
+                        atomType_dict[name1], atomType_dict[name2],
+                        atomType_dict[name3], atomType_dict[name4],
                         con[4], con[5], con[6], con[7])
                     if name1 == 'X' and name4 == 'X':
                         dihedral2_dict[(name2, name3)] = p
@@ -272,7 +273,7 @@ class AmberParamParser(FFParserInterface):
                         name4 = 'X'
                 else:
                     name1, name2, name3, name4 = \
-                       (name3, ) + sorted[(name1, name2, name4)]
+                       (name3, ) + tuple(sorted([name1, name2, name4]))
                 p = AmberImproperParameters(atomType_dict[name1],
                                             atomType_dict[name2],
                                             atomType_dict[name3],
@@ -293,7 +294,7 @@ class AmberParamParser(FFParserInterface):
                 line = fhandle.next()
                 if line.isspace():
                     break
-                con = FortranLine(line.strip(), formats[6])
+                con = FortranLine(line, formats[6])
                 name1 = con[0]
                 name2 = con[1]
                 name1, name2 = sorted([name1, name2])
@@ -307,25 +308,25 @@ class AmberParamParser(FFParserInterface):
             while True:
                 line = fhandle.next()
                 con = FortranLine(line.strip(), formats[8])
-                if con[0] == 'END':
+                if con[0].strip() == 'END':
                     break
                 set_name = con[0]
                 ljpar_ = AmberLJParameterSet(set_name, con[1])
                 ljparams_dict[set_name] = ljpar_
                 # 10A
                 while True:
-                    line = lineIter.next()
+                    line = fhandle.next()
                     if line.isspace():
                         break
-                    con = FortranLine(line.strip(), FortranFormat(
+                    con = FortranLine(line, FortranFormat(
                                     '2X,A2,6X,3F10.6'))
                     name = con[0].strip()
                     ljpar_.addEntry(name, con[1], con[2], con[3])
             return _readLJParameters
 
-        state_ = 0
+        # state_ = 0
         title = ""
-        atomType_dict = {}
+        atomType_dict = defaultdict(lambda: AmberAtomType(None, None))
         bond_dict = {}
         bondangle_dict = {}
         dihedral_dict = {}
@@ -337,24 +338,20 @@ class AmberParamParser(FFParserInterface):
         lj_equivalent_dict = {}
         ljparams_dict = {}
         formats = [
-            FortranFormat('A2,1X,F10.2'),  # 0. AtomTypes
+            # FortranFormat('A2,1X,F10.2'),  # 0. AtomTypes
+            FortranFormat('A2,2X,F10.2,f10.2'),
             FortranFormat('20(A2,2X)'),    # 1. Hydrophylic types
             FortranFormat('A2,1X,A2,2F10.2'),  # 2.Bond length
             FortranFormat('A2,1X,A2,1X,A2,2F10.2'),  # 3.Bond angle
-            FortranFormat('A2,1X,A2,1X,A2,1X,A2,I4,3F15.2'),  #4. dihedral
-            FortranFormat('A2,1X,A2,1X,A2,1X,A2,I4,3F15.2'),  #5. improper
-            FortranFormat('2X,A2,2X,A2,2X,2F10.2'),  #6. H-bond
-            FortranFormat('20(A2,2X)'),  #7. LJ AtomTypes
-            FortranFormat('A4,6X,A2')  #8. LJ Parameters
+            FortranFormat('A2,1X,A2,1X,A2,1X,A2,I4,3F15.2'),  # 4. dihedral
+            FortranFormat('A2,1X,A2,1X,A2,1X,A2,I4,3F15.2'),  # 5. improper
+            FortranFormat('2X,A2,2X,A2,2X,2F10.2'),  # 6. H-bond
+            FortranFormat('20(A2,2X)'),  # 7. LJ AtomTypes
+            FortranFormat('A4,6X,A2')  # 8. LJ Parameters
         ]
         with open(filename, 'r') as fhandle:
-            # line by line
-            line_format = formats[0]
-            # using iterator
-            lineIter = iter(fhandle)
-            # 1. title
-            title = lineIter.next()
-            line_format = formats[state_]
+            # 1. Read title
+            title = fhandle.next()
             # 2. AtomType
             _readAtomTypes(fhandle)
 #            while True:
@@ -368,7 +365,8 @@ class AmberParamParser(FFParserInterface):
 #                            con[0].strip(), con[1])
             # 3. hydrophilic
             while True:
-                line = lineIter.next()
+                #line = lineIter.next()
+                line = fhandle.next()
                 con = FortranLine(line.strip(), formats[1])
                 con = filter(None, map(str.strip, con))
                 for at in con:
@@ -377,8 +375,8 @@ class AmberParamParser(FFParserInterface):
                     except KeyError:
                         print("Hydrophilic atom {} is not"
                               " existed in Atom types".format(at))
-                state_ += 1
-                line_format = formats[state_]
+                # state_ += 1
+                # line_format = formats[state_]
                 break
             # 4. Bond length
             _readBondParameters(fhandle)
@@ -493,13 +491,14 @@ class AmberParamParser(FFParserInterface):
 #                                         con[2], con[3])
             # 9. Atom Types for Non-bonded 6-12 Potential
             while True:
-                line = lineIter.next()
+                line = fhandle.next()
                 if line.isspace():
                     break
                 con = FortranLine(line.strip(), formats[7])
+                con = filter(None, map(str.strip, con))
                 name1 = con[0]
                 for s in con[1:]:
-                    name2 = s.strip()
+                    name2 = s
                     lj_equivalent_dict[name2] = name1
             # 10. LJ parameters (END)
             _readLJParameters(fhandle)
