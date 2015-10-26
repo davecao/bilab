@@ -46,7 +46,7 @@ from numpy import array, ones, zeros
 from bilab import SETTINGS, LOGGER
 from bilab.utilities import joinLinks, joinTerms, wrapText
 
-__all__ = ['flagDefinition', 'listNonstdAAProps', 
+__all__ = ['flagDefinition', 'listNonstdAAProps',
            'addNonstdAminoacid', 'delNonstdAminoacid']
 
 
