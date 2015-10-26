@@ -375,13 +375,14 @@ class AmberParamParser(FFParserInterface):
                     break
                 con = FortranLine(line.strip(), line_format)
                 for at in con:
+                    at = at.strip()
                     if not at:
                         continue
                     try:
-                        atomType_dict[at.strip()].hydrophilic = True
+                        atomType_dict[at].hydrophilic = True
                     except KeyError:
                         print("Hydrophilic atom {} is not"
-                              " existed in Atom types".format(at.strip()))
+                              " existed in Atom types".format(at))
             # 4. Bond length
             while True:
                 line = lineIter.next()
