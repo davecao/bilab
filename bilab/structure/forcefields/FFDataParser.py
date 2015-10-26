@@ -380,8 +380,8 @@ class AmberParamParser(FFParserInterface):
                     try:
                         atomType_dict[at.strip()].hydrophilic = True
                     except KeyError:
-                        print("Hydrophilic atom {} is not \
-                            existed in Atom types".format(at.strip()))
+                        print("Hydrophilic atom {} is not"
+                              " existed in Atom types".format(at.strip()))
             # 4. Bond length
             while True:
                 line = lineIter.next()
