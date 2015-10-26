@@ -149,8 +149,7 @@ class AmberParamParser(FFParserInterface):
             FortranFormat(20(A2,2X))
             -- blank line --
         10. Lennard-Jones Parameters (Non-bonded 6-12 Potential)
-
-            FortranFormat('2X,A2,6X,3F10.6')
+            FortranFormat('A4,6X,A2')
             -- blank line --
         END
         Caution: FortranFormat('2X,A2,6X,3F10.6')
@@ -339,15 +338,15 @@ class AmberParamParser(FFParserInterface):
         lj_equivalent_dict = {}
         ljparams_dict = {}
         formats = [
-            FortranFormat('A2,1X,F10.2'),
-            FortranFormat('20(A2,2X)'),
-            FortranFormat('A2,1X,A2,2F10.2'),
-            FortranFormat('A2,1X,A2,1X,A2,2F10.2'),
-            FortranFormat('A2,1X,A2,1X,A2,1X,A2,I4,3F15.2'),
-            FortranFormat('A2,1X,A2,1X,A2,1X,A2,I4,3F15.2'),
-            FortranFormat('2X,A2,2X,A2,2X,2F10.2'),
-            FortranFormat('20(A2,2X)'),
-            FortranFormat('A4,6X,A2')
+            FortranFormat('A2,1X,F10.2'),  # AtomTypes
+            FortranFormat('20(A2,2X)'),    # Hydrophylic types
+            FortranFormat('A2,1X,A2,2F10.2'),  # Bond length
+            FortranFormat('A2,1X,A2,1X,A2,2F10.2'),  # Bond angle
+            FortranFormat('A2,1X,A2,1X,A2,1X,A2,I4,3F15.2'),  # dihedral
+            FortranFormat('A2,1X,A2,1X,A2,1X,A2,I4,3F15.2'),  # improper
+            FortranFormat('2X,A2,2X,A2,2X,2F10.2'),  # H-bond
+            FortranFormat('20(A2,2X)'),  # LJ AtomTypes
+            FortranFormat('A4,6X,A2')  # LJ Parameters
         ]
         with open(filename, 'r') as fhandle:
             # line by line
@@ -367,7 +366,7 @@ class AmberParamParser(FFParserInterface):
                     break
                 con = FortranLine(line.strip(), line_format)
                 atomType_dict[con[0].strip()] = AmberAtomType(
-                            con[0].strip(), con[1])
+                            con[0].strip(), con[1].strip())
             # 3. hydrophilic
             while True:
                 line = lineIter.next()
