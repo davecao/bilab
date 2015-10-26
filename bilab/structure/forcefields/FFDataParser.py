@@ -365,7 +365,7 @@ class AmberParamParser(FFParserInterface):
                     break
                 con = FortranLine(line.strip(), line_format)
                 atomType_dict[con[0].strip()] = AmberAtomType(
-                            con[0].strip(), con[1].strip())
+                            con[0].strip(), con[1])
             # 3. hydrophilic
             while True:
                 line = lineIter.next()
@@ -402,7 +402,7 @@ class AmberParamParser(FFParserInterface):
                 bondangle_dict[(name1, name2, name3)] = \
                     AmberBondAngleParameters(
                         atomType_dict[name1], atomType_dict[name2],
-                        atomType_dict[name3], con[3].strip(), con[4].strip())
+                        atomType_dict[name3], con[3].strip(), con[4])
             # 6. Dihedral angle
             app = None
             while True:
