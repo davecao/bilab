@@ -8,7 +8,7 @@ import distutils.sysconfig as dsc
 import platform as plat
 
 from distutils import core, dir_util
-from distutils.core import setup,Extension
+from distutils.core import setup, Extension
 from distutils.command import build_ext
 from distutils.sysconfig import get_config_var
 # from distutils.ccompiler import show_compilers

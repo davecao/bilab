@@ -5,9 +5,9 @@ __contact__ = "davecao@bi.a.u-tokyo.ac.jp"
 __date__ = "2014/08/04"
 __version__ = '1.0.0'
 
-import os.path
+import os
 import sys
-import warnings
+# import warnings
 import sysconfig
 
 if sys.version_info[:2] < (2, 7):
@@ -22,7 +22,7 @@ else:
         raise ImportError('Numpy v1.8 or later is required.')
 
 from .utilities import PackageLogger, PackageSettings
-#from .utilities import getPackagePath, joinRepr, tabulate
+# from .utilities import getPackagePath, joinRepr, tabulate
 
 _PY3K = PY3K = sys.version_info[0] > 2
 PY2K = not PY3K
@@ -33,8 +33,15 @@ SETTINGS.load()
 
 # get path of resources, i.e., aaindex1, aadindex2 and aaindex3
 # data = os.path.dirname(os.path.realpath(__file__)) + os.sep + 'data'
+# On ubuntu: sysconfig.get_config_var("datarootdir")
+#             -- /usr/share
+#            sysconfig.get_path("data")
+#             -- /usr/local
+#     Point to different locations
+#  using sysconfig.get_path("data") instead
+#             -- /usr/local
 data = "{}{}{}{}{}".format(
-        sysconfig.get_config_var('datarootdir'),
+        sysconfig.get_path('data'),
         os.sep, 'bilab', os.sep, 'data')
 ff_location = data + os.sep + 'ff' + os.sep
 
@@ -46,61 +53,59 @@ forcefieldsList = {
 }
 __all__ = []
 
-#from . import chemicals
+# from . import chemicals
 from .chemicals import *
-#__all__.extend(chemicals.__all__)
-#__all__.append('chemicals')
+# __all__.extend(chemicals.__all__)
+# __all__.append('chemicals')
 
-#from . import utilities
+# from . import utilities
 from .utilities import *
-#__all__.extend(utilities.__all__)
-#__all__.append('utilities')
+# __all__.extend(utilities.__all__)
+# __all__.append('utilities')
 
-#from . import sequence
+# from . import sequence
 from .sequence import *
-#__all__.extend(sequence.__all__)
-#__all__.append('sequence')
+# __all__.extend(sequence.__all__)
+# __all__.append('sequence')
 
-#from . import webservice
+# from . import webservice
 from .webservice import *
-#__all__.extend(webservice.__all__)
-#__all__.append('webservice')
+# __all__.extend(webservice.__all__)
+# __all__.append('webservice')
 
-#from . import aaprop
+# from . import aaprop
 from .aaprop import *
-#__all__.extend(aaprop.__all__)
-#__all__.append('aaprop')
+# __all__.extend(aaprop.__all__)
+# __all__.append('aaprop')
 
-#from . import io
+# from . import io
 from .io import *
-#__all__.extend(io.__all__)
-#__all__.append('io')
+# __all__.extend(io.__all__)
+# __all__.append('io')
 
-#from . import ml
+# from . import ml
 from .ml import *
-#__all__.extend(io.__all__)
-#__all__.append('io')
+# __all__.extend(io.__all__)
+# __all__.append('io')
 
-#from . import optimization
+# from . import optimization
 from .optimization import *
-#__all__.extend(optimization.__all__)
-#__all__.append('optimization')
+# __all__.extend(optimization.__all__)
+# __all__.append('optimization')
 
-#from . import optimization
+# from . import optimization
 from .geometry import *
-#__all__.extend(geometry.__all__)
-#__all__.append('geometry')
+# __all__.extend(geometry.__all__)
+# __all__.append('geometry')
 
-#from . import structure
+# from . import structure
 from .structure import *
-#__all__.extend(structure.__all__)
-#__all__.append('structure')
+# __all__.extend(structure.__all__)
+# __all__.append('structure')
 
-#from . import concurrent
+# from . import concurrent
 from .concurrent import *
-#__all__.extend(concurrent.__all__)
-#__all__.append('concurrent')
+# __all__.extend(concurrent.__all__)
+# __all__.append('concurrent')
 
 from .apps import *
-
-
