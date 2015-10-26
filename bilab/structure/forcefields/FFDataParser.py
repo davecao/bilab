@@ -354,18 +354,8 @@ class AmberParamParser(FFParserInterface):
             title = fhandle.next()
             # 2. AtomType
             _readAtomTypes(fhandle)
-#            while True:
-#                line = lineIter.next()
-#                if line.isspace():
-#                    state_ += 1
-#                    line_format = formats[state_]
-#                    break
-#                con = FortranLine(line.strip(), line_format)
-#                atomType_dict[con[0].strip()] = AmberAtomType(
-#                            con[0].strip(), con[1])
             # 3. hydrophilic
             while True:
-                #line = lineIter.next()
                 line = fhandle.next()
                 con = FortranLine(line.strip(), formats[1])
                 con = filter(None, map(str.strip, con))
@@ -375,120 +365,17 @@ class AmberParamParser(FFParserInterface):
                     except KeyError:
                         print("Hydrophilic atom {} is not"
                               " existed in Atom types".format(at))
-                # state_ += 1
-                # line_format = formats[state_]
                 break
             # 4. Bond length
             _readBondParameters(fhandle)
-#            while True:
-#                line = lineIter.next()
-#                if line.isspace():
-#                    state_ += 1
-#                    line_format = formats[state_]
-#                    break
-#                con = FortranLine(line.strip(), line_format)
-#                name1, name2 = sorted([con[0].strip(), con[1].strip()])
-#                bond_dict[(name1, name2)] = AmberBondParameters(
-#                                            atomType_dict[name1],
-#                                            atomType_dict[name2],
-#                                            con[2], con[3])
             # 5. Bond Angle
             _readAngleParameters(fhandle)
-#            while True:
-#                line = lineIter.next()
-#                if line.isspace():
-#                    state_ += 1
-#                    line_format = formats[state_]
-#                    break
-#                con = FortranLine(line.strip(), line_format)
-#                name1, name2, name3 = sorted(
-#                            [con[0].strip(), con[1].strip(), con[2].strip(#)])
-#                bondangle_dict[(name1, name2, name3)] = \
-#                    AmberBondAngleParameters(
-#                        atomType_dict[name1], atomType_dict[name2],
-#                        atomType_dict[name3], con[3].strip(), con[4])
             # 6. Dihedral angle
             _readDihedralParameters(fhandle)
-#            app = None
-#            while True:
-#                line = lineIter.next()
-#                if line.isspace():
-#                    state_ += 1
-#                    line_format = formats[state_]
-#                    break
-#                con = FortranLine(line.strip(), line_format)
-#                name1, name2, name3, name4 = sorted(
-#                        [con[0].strip(), con[1].strip(),
-#                         con[2].strip(), con[3].strip()])
-#                if app is not None:
-#                    app.addTerm(con[4], con[5], con[6], con[7])
-#                    if con[7] >= 0:
-#                        app = None
-#                else:
-#                    p = AmberDihedralParameters(
-#                        self.atom_types[name1], self.atom_types[name2],
-#                        self.atom_types[name3], self.atom_types[name4],
-#                        con[4], con[5], con[6], con[7])
-#                    if name1 == 'X' and name4 == 'X':
-#                        dihedral2_dict[(name2, name3)] = p
-#                    else:
-#                        dihedral_dict[(name1, name2, name3, name4)] = p
-#                    if con[7] < 0:
-#                        app = p
             # 7. Improper Dihedral Parameters
             _readImproperParameters(fhandle)
-#            while True:
-#                line = lineIter.next()
-#                if line.isspace():
-#                    state_ += 1
-#                    line_format = formats[state_]
-#                    break
-#                con = FortranLine(line.strip(), line_format)
-#                name1 = con[0].strip()
-#                name2 = con[1].strip()
-#                name3 = con[2].strip()
-#                name4 = con[3].strip()
-#                if name1 == 'X':
-#                    if name2 == 'X':
-#                        name1 = name3
-#                        name2 = name4
-#                        name3 = 'X'
-#                        name4 = 'X'
-#                    else:
-#                        name1 = name3
-#                        name2, name3 = sorted([name2, name4])
-#                        name4 = 'X'
-#                else:
-#                    name1, name2, name3, name4 = \
-#                       (name3, ) + sorted[(name1, name2, name4)]
-#                p = AmberImproperParameters(atomType_dict[name1],
-#                                            atomType_dict[name2],
-#                                            atomType_dict[name3],
-#                                            atomType_dict[name4],
-#                                            con[4], con[5], con[6], con[7]#)
-#                if name4 == 'X':
-#                    if name3 == 'X':
-#                        impropers2_dict[(name1, name2)] = p
-#                    else:
-#                        impropers1_dict[(name1, name2, name3)] = p
-#                else:
-#                    impropers_dict[(name1, name2, name3, name4)] = p
             # 8. H-bond 10-12 Potential
             _readHbondParameters(fhandle)
-#            while True:
-#                line = lineIter.next()
-#                if line.isspace():
-#                    state_ += 1
-#                    line_format = formats[state_]
-#                    break
-#                con = FortranLine(line.strip(), line_format)
-#                name1 = con[0]
-#                name2 = con[1]
-#                name1, name2 = sorted([name1, name2])
-#                hbonds_dict[(name1, name2)] = \
-#                    AmberHbondParameters(atomType_dict[name1],
-#                                         atomType_dict[name2],
-#                                         con[2], con[3])
             # 9. Atom Types for Non-bonded 6-12 Potential
             while True:
                 line = fhandle.next()
@@ -502,31 +389,13 @@ class AmberParamParser(FFParserInterface):
                     lj_equivalent_dict[name2] = name1
             # 10. LJ parameters (END)
             _readLJParameters(fhandle)
-#            while True:
-#                line = lineIter.next()
-#                con = FortranLine(line.strip(), line_format)
-#                if con[0] == 'END':
-#                    break
-#                set_name = con[0]
-#                ljpar_ = AmberLJParameterSet(set_name, con[1])
-#                ljparams_dict[set_name] = ljpar_
-#                # 10A
-#                while True:
-#                    line = lineIter.next()
-#                    if line.isspace():
-#                        break
-#                    con = FortranLine(line.strip(), FortranFormat(
-#                                    '2X,A2,6X,3F10.6'))
-#                    name = con[0].strip()
-#                    ljpar_.addEntry(name, con[1], con[2], con[3])
         mod_title = ""
         for mod, ljname in modifications:
             with open(mod, 'r') as fhandle:
-                # lineIter = iter(fhandle)
                 mod_title = fhandle.next()
-                lineIter.next()  # blank line
+                fhandle.next()  # blank line
                 while True:
-                    line = lineIter.next()
+                    line = fhandle.next()
                     kw = line.strip()[:4]
                     if kw == 'MASS':
                         _readAtomTypes(fhandle)
@@ -542,3 +411,16 @@ class AmberParamParser(FFParserInterface):
                         _readHbondParameters(fhandle)
                     elif kw == 'NONB':
                         _readLJParameters(fhandle)
+        return {'title': title,
+                'modTitle': mod_title,
+                'AtomTypes': atomType_dict,
+                'bondTypes': bond_dict,
+                'bondAngles': bondangle_dict,
+                'dihedTypes': {'complete': dihedral_dict,
+                               'XTypes': dihedral2_dict},
+                'improperDihed': {'complete': impropers_dict,
+                                  '1X': impropers1_dict,
+                                  '2X': impropers2_dict},
+                'Hbonds': hbonds_dict,
+                'AtomEquiv': ljparams_dict,
+                'potParams': ljparams_dict}
