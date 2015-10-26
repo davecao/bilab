@@ -374,10 +374,8 @@ class AmberParamParser(FFParserInterface):
                     line_format = formats[state_]
                     break
                 con = FortranLine(line.strip(), line_format)
+                con = filter(map(str.strip, con))
                 for at in con:
-                    at = at.strip()
-                    if not at:
-                        continue
                     try:
                         atomType_dict[at].hydrophilic = True
                     except KeyError:
