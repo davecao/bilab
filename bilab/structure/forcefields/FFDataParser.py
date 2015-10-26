@@ -127,8 +127,8 @@ class AmberParamParser(FFParserInterface):
             FortranFormat('A2,1X,F10.2')
             FortranLine(file.readline()[:-1], format)
             -- blank line --
-        3. Hydrophylic atom types
-            FortranFormat('20(A2,2X)') <-- Hydrophylic atom
+        3. Hydrophilic atom types
+            FortranFormat('20(A2,2X)') <-- Hydrophyilic atom
             -- blank line --
         4. BondParameters (Bond length)
             FortranFormat('A2,1X,A2,2F10.2')
@@ -375,7 +375,11 @@ class AmberParamParser(FFParserInterface):
                     break
                 con = FortranLine(line.strip(), line_format)
                 for at in con:
-                    atomType_dict[at.strip()].hydrophylic = True
+                    try:
+                        atomType_dict[at.strip()].hydrophilic = True
+                    except KeyError:
+                        print("Hydrophilic atom {} is not \
+                            existed in Atom types".format(at.strip()))
             # 4. Bond length
             while True:
                 line = lineIter.next()
