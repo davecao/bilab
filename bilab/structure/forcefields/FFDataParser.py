@@ -129,7 +129,6 @@ class AmberParamParser(FFParserInterface):
             -- blank line --
         3. Hydrophilic atom types
             FortranFormat('20(A2,2X)') <-- Hydrophyilic atom
-            -- blank line --
         4. BondParameters (Bond length)
             FortranFormat('A2,1X,A2,2F10.2')
             -- blank line --
@@ -203,7 +202,7 @@ class AmberParamParser(FFParserInterface):
                 if line.isspace():
                     break
                 con = FortranLine(line.strip(), formats[2])
-                name1, name2 = sorted(con[0].strip(), con[1].strip())
+                name1, name2 = sorted([con[0].strip(), con[1].strip()])
                 bond_dict[(name1, name2)] = AmberBondParameters(
                                             atomType_dict[name1],
                                             atomType_dict[name2],
@@ -221,7 +220,7 @@ class AmberParamParser(FFParserInterface):
                 bondangle_dict[(name1, name2, name3)] = \
                     AmberBondAngleParameters(
                         atomType_dict[name1], atomType_dict[name2],
-                        atomType_dict[name3], con[3].strip(), con[4].strip())
+                        atomType_dict[name3], con[3], con[4])
             return _readAngleParameters
 
         def _readDihedralParameters(fhandle):
@@ -230,7 +229,7 @@ class AmberParamParser(FFParserInterface):
                 line = fhandle.next()
                 if line.isspace():
                     break
-                con = FortranLine(line.strip(), fromats[4])
+                con = FortranLine(line.strip(), formats[4])
                 name1, name2, name3, name4 = sorted(
                         [con[0].strip(), con[1].strip(),
                          con[2].strip(), con[3].strip()])
@@ -307,7 +306,7 @@ class AmberParamParser(FFParserInterface):
         def _readLJParameters(fhandle):
             while True:
                 line = fhandle.next()
-                con = FortranLine(line.strip(), line_format)
+                con = FortranLine(line.strip(), formats[8])
                 if con[0] == 'END':
                     break
                 set_name = con[0]
@@ -338,15 +337,15 @@ class AmberParamParser(FFParserInterface):
         lj_equivalent_dict = {}
         ljparams_dict = {}
         formats = [
-            FortranFormat('A2,1X,F10.2'),  # AtomTypes
-            FortranFormat('20(A2,2X)'),    # Hydrophylic types
-            FortranFormat('A2,1X,A2,2F10.2'),  # Bond length
-            FortranFormat('A2,1X,A2,1X,A2,2F10.2'),  # Bond angle
-            FortranFormat('A2,1X,A2,1X,A2,1X,A2,I4,3F15.2'),  # dihedral
-            FortranFormat('A2,1X,A2,1X,A2,1X,A2,I4,3F15.2'),  # improper
-            FortranFormat('2X,A2,2X,A2,2X,2F10.2'),  # H-bond
-            FortranFormat('20(A2,2X)'),  # LJ AtomTypes
-            FortranFormat('A4,6X,A2')  # LJ Parameters
+            FortranFormat('A2,1X,F10.2'),  # 0. AtomTypes
+            FortranFormat('20(A2,2X)'),    # 1. Hydrophylic types
+            FortranFormat('A2,1X,A2,2F10.2'),  # 2.Bond length
+            FortranFormat('A2,1X,A2,1X,A2,2F10.2'),  # 3.Bond angle
+            FortranFormat('A2,1X,A2,1X,A2,1X,A2,I4,3F15.2'),  #4. dihedral
+            FortranFormat('A2,1X,A2,1X,A2,1X,A2,I4,3F15.2'),  #5. improper
+            FortranFormat('2X,A2,2X,A2,2X,2F10.2'),  #6. H-bond
+            FortranFormat('20(A2,2X)'),  #7. LJ AtomTypes
+            FortranFormat('A4,6X,A2')  #8. LJ Parameters
         ]
         with open(filename, 'r') as fhandle:
             # line by line
@@ -357,23 +356,20 @@ class AmberParamParser(FFParserInterface):
             title = lineIter.next()
             line_format = formats[state_]
             # 2. AtomType
-            while True:
-                line = lineIter.next()
-                if line.isspace():
-                    state_ += 1
-                    line_format = formats[state_]
-                    break
-                con = FortranLine(line.strip(), line_format)
-                atomType_dict[con[0].strip()] = AmberAtomType(
-                            con[0].strip(), con[1])
+            _readAtomTypes(fhandle)
+#            while True:
+#                line = lineIter.next()
+#                if line.isspace():
+#                    state_ += 1
+#                    line_format = formats[state_]
+#                    break
+#                con = FortranLine(line.strip(), line_format)
+#                atomType_dict[con[0].strip()] = AmberAtomType(
+#                            con[0].strip(), con[1])
             # 3. hydrophilic
             while True:
                 line = lineIter.next()
-                if line.isspace():
-                    state_ += 1
-                    line_format = formats[state_]
-                    break
-                con = FortranLine(line.strip(), line_format)
+                con = FortranLine(line.strip(), formats[1])
                 con = filter(None, map(str.strip, con))
                 for at in con:
                     try:
@@ -381,142 +377,149 @@ class AmberParamParser(FFParserInterface):
                     except KeyError:
                         print("Hydrophilic atom {} is not"
                               " existed in Atom types".format(at))
+                state_ += 1
+                line_format = formats[state_]
+                break
             # 4. Bond length
-            while True:
-                line = lineIter.next()
-                if line.isspace():
-                    state_ += 1
-                    line_format = formats[state_]
-                    break
-                con = FortranLine(line.strip(), line_format)
-                name1, name2 = sorted(con[0].strip(), con[1].strip())
-                bond_dict[(name1, name2)] = AmberBondParameters(
-                                            atomType_dict[name1],
-                                            atomType_dict[name2],
-                                            con[2], con[3])
+            _readBondParameters(fhandle)
+#            while True:
+#                line = lineIter.next()
+#                if line.isspace():
+#                    state_ += 1
+#                    line_format = formats[state_]
+#                    break
+#                con = FortranLine(line.strip(), line_format)
+#                name1, name2 = sorted([con[0].strip(), con[1].strip()])
+#                bond_dict[(name1, name2)] = AmberBondParameters(
+#                                            atomType_dict[name1],
+#                                            atomType_dict[name2],
+#                                            con[2], con[3])
             # 5. Bond Angle
-            while True:
-                line = lineIter.next()
-                if line.isspace():
-                    state_ += 1
-                    line_format = formats[state_]
-                    break
-                con = FortranLine(line.strip(), line_format)
-                name1, name2, name3 = sorted(
-                            [con[0].strip(), con[1].strip(), con[2].strip()])
-                bondangle_dict[(name1, name2, name3)] = \
-                    AmberBondAngleParameters(
-                        atomType_dict[name1], atomType_dict[name2],
-                        atomType_dict[name3], con[3].strip(), con[4])
+            _readAngleParameters(fhandle)
+#            while True:
+#                line = lineIter.next()
+#                if line.isspace():
+#                    state_ += 1
+#                    line_format = formats[state_]
+#                    break
+#                con = FortranLine(line.strip(), line_format)
+#                name1, name2, name3 = sorted(
+#                            [con[0].strip(), con[1].strip(), con[2].strip(#)])
+#                bondangle_dict[(name1, name2, name3)] = \
+#                    AmberBondAngleParameters(
+#                        atomType_dict[name1], atomType_dict[name2],
+#                        atomType_dict[name3], con[3].strip(), con[4])
             # 6. Dihedral angle
-            app = None
-            while True:
-                line = lineIter.next()
-                if line.isspace():
-                    state_ += 1
-                    line_format = formats[state_]
-                    break
-                con = FortranLine(line.strip(), line_format)
-                name1, name2, name3, name4 = sorted(
-                        [con[0].strip(), con[1].strip(),
-                         con[2].strip(), con[3].strip()])
-                if app is not None:
-                    app.addTerm(con[4], con[5], con[6], con[7])
-                    if con[7] >= 0:
-                        app = None
-                else:
-                    p = AmberDihedralParameters(
-                        self.atom_types[name1], self.atom_types[name2],
-                        self.atom_types[name3], self.atom_types[name4],
-                        con[4], con[5], con[6], con[7])
-                    if name1 == 'X' and name4 == 'X':
-                        dihedral2_dict[(name2, name3)] = p
-                    else:
-                        dihedral_dict[(name1, name2, name3, name4)] = p
-                    if con[7] < 0:
-                        app = p
+            _readDihedralParameters(fhandle)
+#            app = None
+#            while True:
+#                line = lineIter.next()
+#                if line.isspace():
+#                    state_ += 1
+#                    line_format = formats[state_]
+#                    break
+#                con = FortranLine(line.strip(), line_format)
+#                name1, name2, name3, name4 = sorted(
+#                        [con[0].strip(), con[1].strip(),
+#                         con[2].strip(), con[3].strip()])
+#                if app is not None:
+#                    app.addTerm(con[4], con[5], con[6], con[7])
+#                    if con[7] >= 0:
+#                        app = None
+#                else:
+#                    p = AmberDihedralParameters(
+#                        self.atom_types[name1], self.atom_types[name2],
+#                        self.atom_types[name3], self.atom_types[name4],
+#                        con[4], con[5], con[6], con[7])
+#                    if name1 == 'X' and name4 == 'X':
+#                        dihedral2_dict[(name2, name3)] = p
+#                    else:
+#                        dihedral_dict[(name1, name2, name3, name4)] = p
+#                    if con[7] < 0:
+#                        app = p
             # 7. Improper Dihedral Parameters
-            while True:
-                line = lineIter.next()
-                if line.isspace():
-                    state_ += 1
-                    line_format = formats[state_]
-                    break
-                con = FortranLine(line.strip(), line_format)
-                name1 = con[0].strip()
-                name2 = con[1].strip()
-                name3 = con[2].strip()
-                name4 = con[3].strip()
-                if name1 == 'X':
-                    if name2 == 'X':
-                        name1 = name3
-                        name2 = name4
-                        name3 = 'X'
-                        name4 = 'X'
-                    else:
-                        name1 = name3
-                        name2, name3 = sorted([name2, name4])
-                        name4 = 'X'
-                else:
-                    name1, name2, name3, name4 = \
-                       (name3, ) + sorted[(name1, name2, name4)]
-                p = AmberImproperParameters(atomType_dict[name1],
-                                            atomType_dict[name2],
-                                            atomType_dict[name3],
-                                            atomType_dict[name4],
-                                            con[4], con[5], con[6], con[7])
-                if name4 == 'X':
-                    if name3 == 'X':
-                        impropers2_dict[(name1, name2)] = p
-                    else:
-                        impropers1_dict[(name1, name2, name3)] = p
-                else:
-                    impropers_dict[(name1, name2, name3, name4)] = p
+            _readImproperParameters(fhandle)
+#            while True:
+#                line = lineIter.next()
+#                if line.isspace():
+#                    state_ += 1
+#                    line_format = formats[state_]
+#                    break
+#                con = FortranLine(line.strip(), line_format)
+#                name1 = con[0].strip()
+#                name2 = con[1].strip()
+#                name3 = con[2].strip()
+#                name4 = con[3].strip()
+#                if name1 == 'X':
+#                    if name2 == 'X':
+#                        name1 = name3
+#                        name2 = name4
+#                        name3 = 'X'
+#                        name4 = 'X'
+#                    else:
+#                        name1 = name3
+#                        name2, name3 = sorted([name2, name4])
+#                        name4 = 'X'
+#                else:
+#                    name1, name2, name3, name4 = \
+#                       (name3, ) + sorted[(name1, name2, name4)]
+#                p = AmberImproperParameters(atomType_dict[name1],
+#                                            atomType_dict[name2],
+#                                            atomType_dict[name3],
+#                                            atomType_dict[name4],
+#                                            con[4], con[5], con[6], con[7]#)
+#                if name4 == 'X':
+#                    if name3 == 'X':
+#                        impropers2_dict[(name1, name2)] = p
+#                    else:
+#                        impropers1_dict[(name1, name2, name3)] = p
+#                else:
+#                    impropers_dict[(name1, name2, name3, name4)] = p
             # 8. H-bond 10-12 Potential
-            while True:
-                line = lineIter.next()
-                if line.isspace():
-                    state_ += 1
-                    line_format = formats[state_]
-                    break
-                con = FortranLine(line.strip(), line_format)
-                name1 = con[0]
-                name2 = con[1]
-                name1, name2 = sorted([name1, name2])
-                hbonds_dict[(name1, name2)] = \
-                    AmberHbondParameters(atomType_dict[name1],
-                                         atomType_dict[name2],
-                                         con[2], con[3])
+            _readHbondParameters(fhandle)
+#            while True:
+#                line = lineIter.next()
+#                if line.isspace():
+#                    state_ += 1
+#                    line_format = formats[state_]
+#                    break
+#                con = FortranLine(line.strip(), line_format)
+#                name1 = con[0]
+#                name2 = con[1]
+#                name1, name2 = sorted([name1, name2])
+#                hbonds_dict[(name1, name2)] = \
+#                    AmberHbondParameters(atomType_dict[name1],
+#                                         atomType_dict[name2],
+#                                         con[2], con[3])
             # 9. Atom Types for Non-bonded 6-12 Potential
             while True:
                 line = lineIter.next()
                 if line.isspace():
-                    state_ += 1
-                    line_format = formats[state_]
                     break
-                con = FortranLine(line.strip(), line_format)
+                con = FortranLine(line.strip(), formats[7])
                 name1 = con[0]
                 for s in con[1:]:
                     name2 = s.strip()
                     lj_equivalent_dict[name2] = name1
             # 10. LJ parameters (END)
-            while True:
-                line = lineIter.next()
-                con = FortranLine(line.strip(), line_format)
-                if con[0] == 'END':
-                    break
-                set_name = con[0]
-                ljpar_ = AmberLJParameterSet(set_name, con[1])
-                ljparams_dict[set_name] = ljpar_
-                # 10A
-                while True:
-                    line = lineIter.next()
-                    if line.isspace():
-                        break
-                    con = FortranLine(line.strip(), FortranFormat(
-                                    '2X,A2,6X,3F10.6'))
-                    name = con[0].strip()
-                    ljpar_.addEntry(name, con[1], con[2], con[3])
+            _readLJParameters(fhandle)
+#            while True:
+#                line = lineIter.next()
+#                con = FortranLine(line.strip(), line_format)
+#                if con[0] == 'END':
+#                    break
+#                set_name = con[0]
+#                ljpar_ = AmberLJParameterSet(set_name, con[1])
+#                ljparams_dict[set_name] = ljpar_
+#                # 10A
+#                while True:
+#                    line = lineIter.next()
+#                    if line.isspace():
+#                        break
+#                    con = FortranLine(line.strip(), FortranFormat(
+#                                    '2X,A2,6X,3F10.6'))
+#                    name = con[0].strip()
+#                    ljpar_.addEntry(name, con[1], con[2], con[3])
         mod_title = ""
         for mod, ljname in modifications:
             with open(mod, 'r') as fhandle:
