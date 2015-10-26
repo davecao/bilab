@@ -15,7 +15,7 @@ class AmberAtomType(object):
     def __init__(self, name, mass):
         self.name = name
         self.mass = mass
-        self.hydrophlic = False
+        self.hydrophylic = False
 
 
 class AmberBondParameters(object):
