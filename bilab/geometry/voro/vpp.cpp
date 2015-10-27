@@ -18,19 +18,27 @@
 using namespace voro;
 using namespace std;
 
-void* container_poly_create(double ax_, double bx_, double ay_, double by_,
-  double az_, double bz_, int nx_, int ny_, int nz_, int px_, int py_, int pz_) {
-  
-  return (void*)new container_poly(ax_, bx_, ay_, by_, az_, bz_, nx_, ny_, nz_, (bool)px_,
-      (bool)py_, (bool)pz_, 3);
+void* container_poly_create(double ax_, double bx_, 
+                            double ay_, double by_,
+                            double az_, double bz_, 
+                            int nx_, int ny_, int nz_, 
+                            int px_, int py_, int pz_) {
+
+  return (void*)new container_poly(ax_, bx_, 
+                                   ay_, by_, 
+                                   az_, bz_, 
+                                   nx_, ny_, nz_, 
+                                   (bool)px_, (bool)py_, (bool)pz_, 3);
 }
 
-void put_particle(void* container_poly_, int i_, double x_, double y_, double z_, double r_) {
+void put_particle(void* container_poly_, int i_, 
+                  double x_, double y_, double z_, double r_) {
   container_poly* c = (container_poly*)container_poly_;
   c->put(i_, x_, y_, z_, r_);
 }
 
-void put_particles(void* container_poly_, int n_, double* x_, double* y_, double* z_, double* r_) {
+void put_particles(void* container_poly_, int n_, 
+                   double* x_, double* y_, double* z_, double* r_) {
   container_poly* c = (container_poly*)container_poly_;
   int i;
   for (i = 0; i < n_; i++) {
@@ -46,27 +54,27 @@ void** compute_voronoi_tesselation(void* container_poly_, int n_) {
   c_loop_all* cla = new c_loop_all(*(con));
   voronoicell_neighbor cell;
   voronoicell_neighbor* cellptr = NULL;
-  
+
   void** vorocells = (void**)malloc(sizeof(void*) * n_);
-  
+
   for (i = 0; i < n_; i++) vorocells[i] = NULL;
-  
+
   if(cla->start()) do if (con->compute_cell(cell, *(cla))) {
 
     // Get the position and ID information for the particle
     // currently being considered by the loop.
     cla->pos(i, x, y, z, r);
-    
+
     // Store the resulting cell instance at the appropriate index on vorocells.
     cellptr = new voronoicell_neighbor();
     *(cellptr) = cell;
     vorocells[i] = (void*)cellptr;
     found++;
-    
+
   } while (cla->inc());
-  
+
   delete cla;
-  
+
   if (found != n_) {
     printf("missing cells: ");
     for (i = 0; i < n_; i++) {
@@ -94,7 +102,8 @@ double cell_get_volume(void* cell_) {
  * returns:
  * vector of doubles, coord j of vertex i at ret[i*3 + j]
  */
-vector<double> cell_get_vertex_positions(void* cell_, double x_, double y_, double z_) {
+vector<double> cell_get_vertex_positions(void* cell_, 
+                      double x_, double y_, double z_) {
   voronoicell_neighbor* cell = (voronoicell_neighbor*)cell_;
   vector<double> positions;
   
@@ -131,12 +140,12 @@ void** cell_get_vertex_adjacency(void* cell_) {
 void** cell_get_faces(void* cell_) {
   voronoicell_neighbor* cell = (voronoicell_neighbor*)cell_;
   int i, j, f_i_order, num_faces = cell->number_of_faces();
-  
+
   void** faces = (void**)malloc(sizeof(void*) * (num_faces + 1));
   vector<int> vertices;
   vector<int> neighbours;
   vector<int>* output_list = NULL;
-  
+
   cell->neighbors(neighbours);
   cell->face_vertices(vertices);
   for (i = 0; i < num_faces; i++) {
@@ -150,21 +159,20 @@ void** cell_get_faces(void* cell_) {
     faces[i] = (void*)output_list;
   }
   faces[num_faces] = NULL;
-  
+
   return faces;
 }
 
 
 void dispose_all(void* container_poly_, void** vorocells, int n_) {
   delete (container_poly*)container_poly_;
-  
+
   if (vorocells == NULL) return;
-  
   int i;
   for (i = 0; i < n_; i++) {
     delete (voronoicell_neighbor*)vorocells[i];
   }
-  
+
   free(vorocells);
 }
 

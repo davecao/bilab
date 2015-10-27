@@ -17,6 +17,7 @@ def compute_voronoi(points, limits, dispersion,
                Voronoi-tessellate.
       limits = 3-list of 2-lists, specifying the start and end sizes of
                the box the points are in.
+               [[xmin, xmax],[ymin, ymax],[zmin,zmax]]
       dispersion = max distance between two points that might be adjacent
                (sets voro++ block sizes.)
       radii (optional) = list of python floats as the sphere radii of

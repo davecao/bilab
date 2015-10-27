@@ -19,12 +19,17 @@
 
 #include <vector>
 
-void* container_poly_create(double ax_, double bx_, double ay_, double by_,
-  double az_, double bz_, int nx_, int ny_, int nz_, int px_, int py_, int pz_);
+void* container_poly_create(double ax_, double bx_, 
+                            double ay_, double by_,
+                            double az_, double bz_, 
+                            int nx_, int ny_, int nz_,
+                            int px_, int py_, int pz_);
 
-void put_particle(void* container_poly_, int i_, double x_, double y_, double z_, double r_);
+void put_particle(void* container_poly_, int i_, 
+                  double x_, double y_, double z_, double r_);
 
-void put_particles(void* container_poly_, int n_, double* x_, double* y_, double* z_, double* r_);
+void put_particles(void* container_poly_, int n_, 
+                  double* x_, double* y_, double* z_, double* r_);
 
 void** compute_voronoi_tesselation(void* container_poly_, int n_);
 
@@ -35,7 +40,8 @@ double cell_get_volume(void* cell_);
  * returns:
  * vector of doubles, coord j of vertex i at ret[i*3 + j]
  */
-std::vector<double> cell_get_vertex_positions(void* cell_, double x_, double y_, double z_);
+std::vector<double> cell_get_vertex_positions(void* cell_, 
+                      double x_, double y_, double z_);
 
 /* NULL-termed list (i) of vector<int>s (j) of vertices adjacent to i. */
 void** cell_get_vertex_adjacency(void* cell_);
