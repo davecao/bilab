@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 __all__ = []
 
 #from . import gemath
@@ -18,3 +17,6 @@ from .tess import *
 from .distance import *
 
 from .dtw import *
+
+from bilab.geometry import voro
+#import compute_voronoi, compute_2d_voronoi

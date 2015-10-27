@@ -191,13 +191,22 @@ netcdf_inc_dir = '/opt/local/include'
 #    print("Could not find Boost_LIBRARY_DIR; terminated!!!")
 #    sys.exit(0)
 
+voroplusplus = Extension(
+    'bilab.geometry.voro.voroplusplus',
+    include_dirs=['bilab/geometry/voro/src'],
+    sources=[
+        'bilab/geometry/voro/voroplusplus.pyx',
+        'bilab/geometry/voro/vpp.cpp',
+        'bilab/geometry/voro/src/voro++.cc'],
+    language="c++")
+
 # clang -fopenmp -I <path to omp.h> -L <LLVM OpenMP library path>
 lfdfiles = Extension(
     'bilab.io._lfdfiles',
     sources=['bilab/io/_lfdfiles.pyx'],
-    include_dirs=[np_include_dir])
-    # extra_compile_args=['-fopenmp=libiomp5'],
-    # extra_link_args=['-fopenmp=libiomp5'])
+    include_dirs=[np_include_dir],
+    extra_compile_args=['-fopenmp'],
+    extra_link_args=['-fopenmp'])
 
 distance_wrap = Extension(
     'bilab.geometry._distance_wrap',
@@ -499,7 +508,7 @@ general_settings['cmdclass'] = {'build_ext': build_ext}
 # extensions
 general_settings['ext_modules'] = [
     distance_wrap, kdtree_lib, bhtsne_wrap,
-    netcdf_wrap, lfdfiles,
+    netcdf_wrap, lfdfiles, voroplusplus,
     MMTK_surface, MMTK_minimization, MMTK_trajectory,
     MMTK_universe, MMTK_energy_term, MMTK_force_field
     ]
