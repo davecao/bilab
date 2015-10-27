@@ -202,12 +202,12 @@ voroplusplus = Extension(
 
 # clang -fopenmp -I <path to omp.h> -L <LLVM OpenMP library path>
 lfdfiles = ""
-if plt.system() == "Darwin":
+if plat.system() == "Darwin":
     lfdfiles = Extension(
         'bilab.io._lfdfiles',
         sources=['bilab/io/_lfdfiles.pyx'],
         include_dirs=[np_include_dir])
-elif plt.system() == "Linux":
+elif plat.system() == "Linux":
     lfdfiles = Extension(
         'bilab.io._lfdfiles',
         sources=['bilab/io/_lfdfiles.pyx'],
