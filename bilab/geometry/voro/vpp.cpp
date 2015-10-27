@@ -56,7 +56,7 @@ void** compute_voronoi_tesselation(void* container_poly_, int n_) {
   voronoicell_neighbor* cellptr = NULL;
 
   void** vorocells = (void**)malloc(sizeof(void*) * n_);
-
+  printf("Generate %d cells\n", n_);
   for (i = 0; i < n_; i++) vorocells[i] = NULL;
 
   if(cla->start()) do if (con->compute_cell(cell, *(cla))) {
@@ -76,6 +76,7 @@ void** compute_voronoi_tesselation(void* container_poly_, int n_) {
   delete cla;
 
   if (found != n_) {
+    printf("Found %d cells\n", found);
     printf("missing cells: ");
     for (i = 0; i < n_; i++) {
       if (vorocells[i] != NULL) {
