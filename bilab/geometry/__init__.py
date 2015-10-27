@@ -18,5 +18,5 @@ from .distance import *
 
 from .dtw import *
 
-from bilab.geometry import voro
-#import compute_voronoi, compute_2d_voronoi
+from . import voro
+#from .voro import compute_voronoi, compute_2d_voronoi
