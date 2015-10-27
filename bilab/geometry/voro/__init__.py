@@ -5,7 +5,7 @@ except ImportError:
     raise ImportError('Could not load voroplusplus.so')
 else:
     pass
-__all__ = ['compute_voronoi']
+__all__ = []
 
 
 def compute_voronoi(points, limits, dispersion,
