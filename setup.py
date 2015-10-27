@@ -5,7 +5,7 @@ import os
 import io
 import re
 import distutils.sysconfig as dsc
-# import platform as plat
+import platform as plat
 
 # from distutils import core, dir_util
 from distutils.core import setup, Extension
@@ -201,12 +201,19 @@ voroplusplus = Extension(
     language="c++")
 
 # clang -fopenmp -I <path to omp.h> -L <LLVM OpenMP library path>
-lfdfiles = Extension(
-    'bilab.io._lfdfiles',
-    sources=['bilab/io/_lfdfiles.pyx'],
-    include_dirs=[np_include_dir],
-    extra_compile_args=['-fopenmp'],
-    extra_link_args=['-fopenmp'])
+lfdfiles = ""
+if plt.system() == "Darwin":
+    lfdfiles = Extension(
+        'bilab.io._lfdfiles',
+        sources=['bilab/io/_lfdfiles.pyx'],
+        include_dirs=[np_include_dir])
+elif plt.system() == "Linux":
+    lfdfiles = Extension(
+        'bilab.io._lfdfiles',
+        sources=['bilab/io/_lfdfiles.pyx'],
+        include_dirs=[np_include_dir],
+        extra_compile_args=['-fopenmp'],
+        extra_link_args=['-fopenmp'])
 
 distance_wrap = Extension(
     'bilab.geometry._distance_wrap',
