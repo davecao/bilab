@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 try:
-    import voroplusplus
+    from bilab.geometry.voro import voroplusplus
 except ImportError:
     raise ImportError('Could not load voroplusplus.so')
 else:
@@ -9,7 +9,7 @@ __all__ = []
 
 
 def compute_voronoi(points, limits, dispersion,
-                    radii=[], periodic=[False]*3):
+                    radii=[], periodic=[False]*3, fmt='pov', out=None):
     """
     Input arg formats:
       points = list of 3-vectors (lists or compatible class instances)
@@ -48,7 +48,7 @@ def compute_voronoi(points, limits, dispersion,
             requirement.)
     """
     return voroplusplus.compute_voronoi(
-            points, limits, dispersion, radii, periodic)
+            points, limits, dispersion, radii, periodic, fmt, out)
 
 
 def compute_2d_voronoi(points, limits, dispersion,

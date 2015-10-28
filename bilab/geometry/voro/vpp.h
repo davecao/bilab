@@ -52,6 +52,9 @@ void** cell_get_vertex_adjacency(void* cell_);
  */
 void** cell_get_faces(void* cell_);
 
+void draw_pov(void* container_poly_, char *fp);
+void draw_gnu(void* container_poly_, char *fp);
+
 void dispose_all(void* container_poly_, void** vorocells, int n_);
 
 #endif

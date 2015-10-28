@@ -25,6 +25,8 @@ cdef extern from "vpp.h":
   vector[double] cell_get_vertex_positions(void* cell_, double x_, double y_, double z_)
   void** cell_get_vertex_adjacency(void* cell_)
   void** cell_get_faces(void* cell_)
+  void draw_pov(void* container_poly_, char *fp)
+  void draw_gnu(void* container_poly_, char *fp)
   void dispose_all(void* container_poly_, void** vorocells, int n_)
 
 
@@ -56,7 +58,8 @@ Input arg format:
   return typ
 
 
-def compute_voronoi(points, limits, dispersion, radii=[], periodic=[False]*3):
+def compute_voronoi(points, limits, dispersion, radii=[], periodic=[False]*3, 
+fmt='pov', out=None):
   """
 Input arg formats:
   points = list of 3-vectors (lists or compatible class instances) of doubles,
@@ -148,7 +151,14 @@ Output format is a list of cells as follows:
   if voronoi_cells == NULL:
     dispose_all(container, NULL, 0)
     raise VoronoiPlusPlusError("number of cells found was not equal to the number of particles.")
-    
+  # write to file if out is given
+  if out is not None:
+    print(fmt)
+    if fmt == "pov":
+      print("pov")
+      draw_pov(container, out)
+    elif fmt == "gnuplot":
+      draw_gnu(container, out)
   # extract the Voronoi cells into python objects:
   py_cells = [{'original':p} for p in points]
   cdef vector[double] vertex_positions
@@ -196,7 +206,7 @@ Output format is a list of cells as follows:
       j += 1
     free(lists)
     py_cells[i]['faces'] = faces
-    
+
   # finally, tidy up.
   dispose_all(container, voronoi_cells, n)
   free(xs)

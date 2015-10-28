@@ -13,10 +13,10 @@ from .fitting import *
 
 from .tess import *
 
-# 
+#
 from .distance import *
 
 from .dtw import *
 
 from . import voro
-#from .voro import compute_voronoi, compute_2d_voronoi
+# from .voro import compute_voronoi, compute_2d_voronoi
