@@ -17,9 +17,13 @@ from cython.operator cimport dereference as deref
 
 cdef extern from "vpp.h":
   void* container_poly_create(double ax_, double bx_, double ay_, double by_,
-    double az_, double bz_, int nx_, int ny_, int nz_, int px_, int py_, int pz_)
-  void put_particle(void* container_poly_, int i_, double x_, double y_, double z_, double r_)
-  void put_particles(void* container_poly_, int n_, double* x_, double* y_, double* z_, double* r_)
+                                double az_, double bz_,
+                                int nx_, int ny_, int nz_,
+                                int px_, int py_, int pz_)
+  void put_particle(void* container_poly_, int i_,
+                      double x_, double y_, double z_, double r_)
+  void put_particles(void* container_poly_, int n_,
+                  double* x_, double* y_, double* z_, double* r_)
   void** compute_voronoi_tesselation(void* container_poly_, int n_)
   double cell_get_volume(void* cell_)
   vector[double] cell_get_vertex_positions(void* cell_, double x_, double y_, double z_)
@@ -155,7 +159,6 @@ Output format is a list of cells as follows:
   if out is not None:
     print(fmt)
     if fmt == "pov":
-      print("pov")
       draw_pov(container, out)
     elif fmt == "gnuplot":
       draw_gnu(container, out)
@@ -189,7 +192,7 @@ Output format is a list of cells as follows:
       j += 1
     free(lists)
     py_cells[i]['adjacency'] = adjacency
-    
+
     lists = cell_get_faces(voronoi_cells[i])
     faces = []
     j = 0
