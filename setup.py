@@ -15,6 +15,8 @@ try:
     from Cython.Build import cythonize
 except ImportError:
     from distutils.command import build_ext
+# setuptools --> pip install_requires
+# from setuptools import setup, Extension
 
 # from distutils.ccompiler import show_compilers
 
@@ -233,36 +235,70 @@ kdtree_lib = Extension(
     sources=['bilab/structure/kdtree/KDTree.c',
              'bilab/structure/kdtree/KDTreemodule.c'])
 
-CWMatrix = Extension(
-    'bilab.linalg._CWMatrix',
-    define_macros=[('MAJOR_VERSION', '1'),
-                   ('MINOR_VERSION', '0')],
-    # include_dirs = [boost_root],
-    libraries=['boost_python'],
-    # library_dirs = [boost_lib_dir],
-    extra_compile_args=['-ftemplate-backtrace-limit=64'],
-    sources=['bilab/linalg/matrix/export.cpp'])
-    # 'bilab/linalg/matrix/matrix.cpp'])
+marching_cubes = Extension(
+    "bilab.geometry.isosurface._marching_cubes_cy",
+    include_dirs=[np_include_dir],
+    sources=[
+        'bilab/geometry/isosurface/_marching_cubes_cy.pyx'
+        ])
 
+# Isosurface = Extension(
+#    'bilab.geometry._IsoSurface',
+#    define_macros=[('MAJOR_VERSION', '1'),
+#                   ('MINOR_VERSION', '0')],
+#    include_dirs=[boost_inc_dir],
+#    libraries=['boost_python'],
+#    library_dirs=[boost_lib_dir],
+#    extra_compile_args=['-ftemplate-backtrace-limit=64'],
+#    sources=['bilab/geometry/isosurface/export.cpp'])
+
+# CWMatrix = Extension(
+#     'bilab.linalg._CWMatrix',
+#     define_macros=[('MAJOR_VERSION', '1'),
+#                    ('MINOR_VERSION', '0')],
+#     # include_dirs = [boost_root],
+#     libraries=['boost_python'],
+#     # library_dirs = [boost_lib_dir],
+#     extra_compile_args=['-ftemplate-backtrace-limit=64'],
+#     sources=['bilab/linalg/matrix/export.cpp'])
+#     # 'bilab/linalg/matrix/matrix.cpp'])
+
+# using Boost.Python
+#bhtsne_wrap = Extension(
+#    'bilab.ml.NDR.tSNE._bhtsne_wrap',
+#    define_macros=[('MAJOR_VERSION', '1'),
+#                   ('MINOR_VERSION', '0')],
+#    include_dirs=[np_include_dir, boost_inc_dir],
+#    library_dirs=[boost_lib_dir],
+#    libraries=['boost_python'],
+#    extra_compile_args=['-ftemplate-backtrace-limit=64',
+#                        '-std=c++11', '-g'],
+#    sources=['bilab/ml/NDR/tSNE/bhtsne_export.cpp',
+#             'bilab/ml/NDR/tSNE/bhtsne.cpp',
+#             'bilab/ml/NDR/tSNE/sptree.cpp'])
+
+# Cython version
 bhtsne_wrap = Extension(
     'bilab.ml.NDR.tSNE._bhtsne_wrap',
     define_macros=[('MAJOR_VERSION', '1'),
                    ('MINOR_VERSION', '0')],
-    include_dirs=[np_include_dir, boost_inc_dir],
-    library_dirs=[boost_lib_dir],
-    libraries=['boost_python'],
+    include_dirs=[np_include_dir],
+    # library_dirs=[boost_lib_dir],
+    # libraries=['boost_python'],
     extra_compile_args=['-ftemplate-backtrace-limit=64',
                         '-std=c++11', '-g'],
-    sources=['bilab/ml/NDR/tSNE/bhtsne_export.cpp',
+    sources=['bilab/ml/NDR/tSNE/_bhtsne_wrap.pyx',
              'bilab/ml/NDR/tSNE/bhtsne.cpp',
-             'bilab/ml/NDR/tSNE/sptree.cpp'])
+             'bilab/ml/NDR/tSNE/sptree.cpp'],
+    language="c++")
 
 netcdf_wrap = Extension(
     'bilab.structure.minimization._NetCDF',
     define_macros=[('MAJOR_VERSION', '1'),
                    ('MINOR_VERSION', '0'),
                    ('NUMPY', 1)],
-    include_dirs=[np_include_dir, boost_inc_dir,
+    include_dirs=[np_include_dir,
+                  #  boost_inc_dir,
                   netcdf_inc_dir,
                   'bilab/structure/minimization',
                   'bilab/structure/minimization/MMTK'],
@@ -276,7 +312,9 @@ MMTK_universe = Extension(
     define_macros=[('MAJOR_VERSION', '1'),
                    ('MINOR_VERSION', '0'),
                    ('NUMPY', 1)],
-    include_dirs=[np_include_dir, boost_inc_dir, netcdf_inc_dir,
+    include_dirs=[np_include_dir,
+                  #  boost_inc_dir,
+                  netcdf_inc_dir,
                   'bilab/structure/minimization'],
     # library_dirs=[boost_lib_dir],
     # libraries=['boost_python'],
@@ -288,7 +326,9 @@ MMTK_surface = Extension(
     define_macros=[('MAJOR_VERSION', '1'),
                    ('MINOR_VERSION', '0'),
                    ('NUMPY', 1)],
-    include_dirs=[np_include_dir, boost_inc_dir, netcdf_inc_dir,
+    include_dirs=[np_include_dir,
+                  #  boost_inc_dir,
+                  netcdf_inc_dir,
                   'bilab/structure/minimization'],
     # library_dirs=[boost_lib_dir],
     # libraries=['boost_python'],
@@ -300,7 +340,9 @@ MMTK_trajectory = Extension(
     define_macros=[('MAJOR_VERSION', '1'),
                    ('MINOR_VERSION', '0'),
                    ('NUMPY', 1)],
-    include_dirs=[np_include_dir, boost_inc_dir, netcdf_inc_dir,
+    include_dirs=[np_include_dir,
+                  # boost_inc_dir,
+                  netcdf_inc_dir,
                   'bilab/structure/minimization'],
     # library_dirs = [boost_lib_dir],
     # libraries = ['boost_python'],
@@ -311,8 +353,10 @@ MMTK_minimization = Extension(
     'bilab.structure.minimization._MMTK_minimization',
     define_macros=[('MAJOR_VERSION', '1'),
                    ('MINOR_VERSION', '0')],
-    include_dirs=[np_include_dir, boost_inc_dir,
-                  netcdf_inc_dir, 'bilab/structure/minimization'],
+    include_dirs=[np_include_dir,
+                  # boost_inc_dir,
+                  netcdf_inc_dir,
+                  'bilab/structure/minimization'],
     # library_dirs=[boost_lib_dir],
     # libraries=['boost_python'],
     extra_compile_args=['-ftemplate-backtrace-limit=64', '-DNUMPY=1', '-g'],
@@ -323,7 +367,9 @@ MMTK_energy_term = Extension(
     define_macros=[('MAJOR_VERSION', '1'),
                    ('MINOR_VERSION', '0'),
                    ('NUMPY', 1)],
-    include_dirs=[np_include_dir, boost_inc_dir, netcdf_inc_dir,
+    include_dirs=[np_include_dir,
+                  # boost_inc_dir,
+                  netcdf_inc_dir,
                   'bilab/structure/minimization'],
     # library_dirs=[boost_lib_dir],
     # libraries=['boost_python'],
@@ -339,7 +385,8 @@ MMTK_force_field = Extension(
                    ('MACROSCOPIC', None),
                    ('NUMPY', 1),
                    ('WITH_DPMTA', 1)],
-    include_dirs=[np_include_dir, boost_inc_dir,
+    include_dirs=[np_include_dir,
+                  # boost_inc_dir,
                   netcdf_inc_dir,
                   'bilab/structure/minimization',
                   'bilab/structure/minimization/dpmta',
@@ -515,10 +562,13 @@ general_settings['cmdclass'] = {'build_ext': build_ext}
 # extensions
 general_settings['ext_modules'] = [
     distance_wrap, kdtree_lib, bhtsne_wrap,
-    netcdf_wrap, lfdfiles, voroplusplus,
+    netcdf_wrap, lfdfiles, voroplusplus, marching_cubes,
     MMTK_surface, MMTK_minimization, MMTK_trajectory,
     MMTK_universe, MMTK_energy_term, MMTK_force_field
     ]
 #                                   CWMatrix]
+# general_settings['install_requires'] = [
+#    'matplotlib>1.4.0',
+#    'numpy>1.9.0']
 setup(**general_settings)
 # setup(**cfg_to_args())

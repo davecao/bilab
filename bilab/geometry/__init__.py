@@ -20,3 +20,5 @@ from .dtw import *
 
 from . import voro
 # from .voro import compute_voronoi, compute_2d_voronoi
+
+from . import isosurface

@@ -8,20 +8,24 @@ __version__ = "0.1"
 __copyright__ = """
     Feel free to do whatever you like with this code.
     """
+
 import os
 import sys
 import uuid
 import time
 import numpy as np
-from signal import signal, SIGPIPE, SIG_DFL
-from optparse import OptionParser, make_option
+from signal import (signal, SIGPIPE, SIG_DFL)
+from optparse import (OptionParser, make_option)
 
 try:
     import matplotlib
+    matplotlib.use("Agg")  # Terminate the vexing rocket icon on dock using Agg
     import matplotlib.pyplot as plt
     from matplotlib.pyplot import *
     matplotlib_version = matplotlib.__version__
-except ImportError:
+    matplotlib_backend = matplotlib.pyplot.get_backend()
+except ImportError as exc:
+    print("Error: {}".format(exc))
     raise ImportError('Matplotlib is a required package')
 
 try:
@@ -33,17 +37,19 @@ except ImportError:
         from ete2 import Tree, TreeStyle
     except ImportError:
         raise ImportError('ete2/3 is a required package')
+    else:
+        pass
 else:
     pass
 
 import bilab
 from bilab.utilities.logger import Console
 
-
 # reset
 signal(SIGPIPE, SIG_DFL)
 # global
 LOGGER = None
+
 
 def parse_cmd(argv):
     """
@@ -99,9 +105,9 @@ def parse_cmd(argv):
                     help="save a tree in newick format.\n"
                          "   1 : flexible with internal node names.\n"
                          " 100 : topology only"),
-#        make_option("--outfmt", dest='outfmt', default='txt',
-#                    help="output format: xml or txt. default is txt."
-#                         "Currently text output is only support."),
+        # make_option("--outfmt", dest='outfmt', default='txt',
+        #            help="output format: xml or txt. default is txt."
+        #            "Currently text output is only support."),
 
         make_option("--log", dest='logfilename', default='unamed',
                     help="The name of a log file. "

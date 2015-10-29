@@ -80,6 +80,7 @@ else:
 
     callable = callable
 
+
 def _copy_array_if_base_present(a):
     """
     Copies the array if its base points to a parent array.
@@ -118,9 +119,11 @@ def _convert_to_double(X):
         X = X.copy()
     return X
 
+
 def _convert_to_double_p(X):
     X = _convert_to_double(X)
     return X.ctypes.data_as(ctypes.POINTER(ctypes.c_double))
+
 
 def _validate_vector(u, dtype=None):
     # XXX Is order='c' really necessary?
@@ -130,6 +133,7 @@ def _validate_vector(u, dtype=None):
     if u.ndim > 1:
         raise ValueError("Input vector should be 1-D.")
     return u
+
 
 def _mean_and_std(X, axis=0, with_mean=True, with_std=True):
     """Compute mean and std deviation for centering, scaling.
@@ -151,6 +155,7 @@ def _mean_and_std(X, axis=0, with_mean=True, with_std=True):
 
     return mean_, std_
 
+
 def _handle_zeros_in_scale(scale):
     ''' Makes sure that whenever scale is zero, we handle it correctly.
     This happens in most scalers when we have constant features.'''
@@ -164,9 +169,11 @@ def _handle_zeros_in_scale(scale):
         scale[~np.isfinite(scale)] = 1.0
     return scale
 
+
 def _scale(X, axis=0, with_mean=True, with_std=True, copy=True):
     X = np.asarray(X)
-    mean_, std_ = _mean_and_std(X, axis, with_mean=with_mean, with_std=with_std)
+    mean_, std_ = _mean_and_std(X, axis, with_mean=with_mean,
+                                with_std=with_std)
     if copy:
         X = X.copy()
     # Xr is a view on the original array that enables easy use of
@@ -205,38 +212,47 @@ def _scale(X, axis=0, with_mean=True, with_std=True, copy=True):
                 Xr -= mean_2
     return X
 
-def _bhtsne_call_wrap(samples, no_dims=2, perplexity=30.0, theta=0.5, randseed=-1, sampling=100, scale=False, verbose=False):
+
+def _bhtsne_call_wrap(samples, no_dims=2, perplexity=30.0, theta=0.5,
+                      randseed=-1, sampling=100, scale=False, verbose=False):
     N = samples.shape[0]
     D = samples.shape[1]
 
-    Y = np.zeros((N, no_dims), dtype=np.double)
-    tsne = _bhtsne_wrap.bhtsne(samples, Y, N, D, no_dims, perplexity, 
+    # Y = np.zeros((N, no_dims), dtype=np.double)
+    # tsne = _bhtsne_wrap.bhtsne(samples, Y, N, D, no_dims, perplexity,
+    #                           theta, randseed, scale, verbose)
+    tsne = _bhtsne_wrap.bhtsne(samples, N, D, no_dims, perplexity,
                                theta, randseed, scale, verbose)
+    # print(tsne)
+    Y = tsne.run()
     Y_scale = _scale(Y)
     Y = np.cosh(Y_scale)
     return Y
 
-def bhtsne(samples, no_dims=1, perplexity=30.0, theta=0.5, randseed=-1, sampling=100, scale=False, verbose=False):
-    Y = _bhtsne_call_wrap(samples, no_dims=no_dims, perplexity=perplexity, 
-                          theta=theta, randseed=randseed, 
+
+def bhtsne(samples, no_dims=1, perplexity=30.0, theta=0.5, randseed=-1,
+           sampling=100, scale=False, verbose=False):
+    Y = _bhtsne_call_wrap(samples, no_dims=no_dims, perplexity=perplexity,
+                          theta=theta, randseed=randseed,
                           sampling=sampling, verbose=False)
 
     for i in xrange(sampling):
         if verbose:
             sys.stdout.write("Sampling at iter {}/{}\r".format(i+1, sampling))
             sys.stdout.flush()
-        
-        res = _bhtsne_call_wrap(samples, no_dims=no_dims, perplexity=perplexity, 
-                          theta=theta, randseed=randseed, 
-                          sampling=sampling, verbose=False)
-        Y = np.column_stack((Y,res))
+
+        res = _bhtsne_call_wrap(samples, no_dims=no_dims,
+                                perplexity=perplexity,
+                                theta=theta, randseed=randseed,
+                                sampling=sampling, verbose=False)
+        Y = np.column_stack((Y, res))
     # find the maximum and minimum in rows
     col_min = np.amin(Y, axis=1)
     col_max = np.amax(Y, axis=1)
     # get their summation
     sum_col_del = col_max + col_min
     # Remove the max and min
-    sum_cols = np.sum(Y,axis=1) - sum_col_del
+    sum_cols = np.sum(Y, axis=1) - sum_col_del
 
     # Compute the average on row
     NumofSampplingDimensions = Y.shape[1] - 2
