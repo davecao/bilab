@@ -506,8 +506,11 @@ class container : public container_base, public radius_mono {
  * the particle radii. */
 class container_poly : public container_base, public radius_poly {
   public:
-    container_poly(double ax_,double bx_,double ay_,double by_,double az_,double bz_,
-        int nx_,int ny_,int nz_,bool xperiodic_,bool yperiodic_,bool zperiodic_,int init_mem);
+    container_poly(double ax_,double bx_,double ay_,
+                   double by_,double az_,double bz_,
+                   int nx_,int ny_,int nz_,
+                   bool xperiodic_,bool yperiodic_,bool zperiodic_,
+                   int init_mem);
     void clear();
     void put(int n,double x,double y,double z,double r);
     void put(particle_order &vo,int n,double x,double y,double z,double r);

@@ -15,6 +15,7 @@
 #include "vpp.h"
 #include "src/voro++.hh"
 #include <stdio.h>
+#include <string>
 
 using namespace voro;
 using namespace std;
@@ -167,9 +168,9 @@ void** cell_get_faces(void* cell_) {
 
 void draw_pov(void* container_poly_, char *fp){
   container_poly* con = (container_poly*)container_poly_;
-  printf("Draw particles and cells in pov");
-  con->draw_particles_pov(fp);
-  con->draw_cells_pov(fp);
+  printf("Draw particles and cells in pov format\n");
+  con->draw_particles_pov((string(fp) + "_p.pov").c_str());
+  con->draw_cells_pov((string(fp) + "_v.pov").c_str());
 }
 
 

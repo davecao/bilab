@@ -157,7 +157,6 @@ Output format is a list of cells as follows:
     raise VoronoiPlusPlusError("number of cells found was not equal to the number of particles.")
   # write to file if out is given
   if out is not None:
-    print(fmt)
     if fmt == "pov":
       draw_pov(container, out)
     elif fmt == "gnuplot":
