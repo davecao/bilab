@@ -20,6 +20,54 @@
 using namespace voro;
 using namespace std;
 
+// Create a wall class that, whenever called, will replace the Voronoi cell
+// with a prescribed shape, in this case a dodecahedron
+// Virtual function is not supported?
+class wall_initial_shape : public wall {
+public:
+  wall_initial_shape() {
+    
+    // Create a dodecahedron
+    v.init(-2,2,-2,2,-2,2);
+    v.plane(0,Phi,1);v.plane(0,-Phi,1);v.plane(0,Phi,-1);
+    v.plane(0,-Phi,-1);v.plane(1,0,Phi);v.plane(-1,0,Phi);
+    v.plane(1,0,-Phi);v.plane(-1,0,-Phi);v.plane(Phi,1,0);
+    v.plane(-Phi,1,0);v.plane(Phi,-1,0);v.plane(-Phi,-1,0);
+  };
+  bool point_inside(double x,double y,double z) {return true;}
+  bool cut_cell(voro::voronoicell &c,double x,double y,double z) {
+    // Set the cell to be equal to the dodecahedron
+    c=v;
+    return true;
+  }
+  bool cut_cell(voro::voronoicell_neighbor &c,double x,double y,double z) {
+    // Set the cell to be equal to the dodecahedron
+    c=v;
+    return true;
+  }
+private:
+  voro::voronoicell v;
+};
+
+
+void* irregular_voronoi(double ax_, double bx_, 
+                        double ay_, double by_,
+                        double az_, double bz_, 
+                        int nx_, int ny_, int nz_,
+                        bool px_, bool py_, bool pz_){
+  // Create a container with the geometry given above. This is bigger
+  // than the particle packing itself.
+  //container con(x_min,x_max,y_min,y_max,z_min,z_max,
+  //              n_x,n_y,n_z,
+  //                       false,false,false,8);
+  container con(ax_, bx_, ay_, by_, az_, bz_, nx_, ny_, nz_, 
+                px_, py_, pz_, 8);
+  // Create the "initial shape" wall class and add it to the container
+  wall_initial_shape(wis);
+  con.add_wall(wis);
+  return &con;
+}
+
 void* container_poly_create(double ax_, double bx_, 
                             double ay_, double by_,
                             double az_, double bz_, 

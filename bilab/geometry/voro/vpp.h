@@ -17,7 +17,11 @@
 #ifndef __VPP_H__
 #define __VPP_H__ 1
 
+#include "src/voro++.hh"
 #include <vector>
+
+// Golden ratio constants
+const double Phi=0.5*(1+sqrt(5.0));
 
 void* container_poly_create(double ax_, double bx_, 
                             double ay_, double by_,
@@ -56,6 +60,12 @@ void draw_pov(void* container_poly_, char *fp);
 void draw_gnu(void* container_poly_, char *fp);
 
 void dispose_all(void* container_poly_, void** vorocells, int n_);
+
+void* irregular_voronoi(double ax_, double bx_, 
+                        double ay_, double by_,
+                        double az_, double bz_, 
+                        int nx_, int ny_, int nz_,
+                        bool px_, bool py_, bool pz_);
 
 #endif
 

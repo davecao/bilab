@@ -1,4 +1,4 @@
-# distutils: language = c++
+#distutils: language = c++
 #
 # voroplusplus.pyx : pyvoro cython interface to voro++
 #
@@ -12,6 +12,8 @@
 # contact: <joe.jordan@imperial.ac.uk> or <tehwalrus@h2j9k.org>
 #
 
+#Import necessary modules
+from libcpp cimport bool
 from libcpp.vector cimport vector
 from cython.operator cimport dereference as deref
 
@@ -32,7 +34,11 @@ cdef extern from "vpp.h":
   void draw_pov(void* container_poly_, char *fp)
   void draw_gnu(void* container_poly_, char *fp)
   void dispose_all(void* container_poly_, void** vorocells, int n_)
-
+  void* irregular_voronoi(double ax_, double bx_, 
+                          double ay_, double by_,
+                          double az_, double bz_, 
+                          int nx_, int ny_, int nz_,
+                          bool px_, bool py_, bool pz_)
 
 cdef extern from "stdlib.h":
   ctypedef unsigned long size_t
@@ -44,7 +50,6 @@ import math
 
 class VoronoiPlusPlusError(Exception):
   pass
-
 
 def get_constructor(obj):
   """
@@ -216,4 +221,72 @@ Output format is a list of cells as follows:
   free(zs)
   free(rs)
   return py_cells
+
+
+def compute_irregular_voronoi(points, limits, dispersion, radii=[], periodic=[False]*3, 
+fmt='pov', out=None):
+  """
+Input arg formats:
+  points = list of 3-vectors (lists or compatible class instances) of doubles,
+    being the coordinates of the points to voronoi-tesselate.
+  limits = 3-list of 2-lists, specifying the start and end sizes of the box the
+    points are in.
+  dispersion = max distance between two points that might be adjacent (sets
+    voro++ block sizes.)
+  radii (optional) = list of python floats as the sphere radii of the points,
+    for radical (weighted) tessellation.
+  periodic (optional) = 3-list of bools indicating x, y and z periodicity of 
+    the system box.
+  
+Output format is a list of cells as follows:
+  [ # list in same order as original points.
+    {
+      'volume' : 1.0,
+      'vertices' : [[1.0, 2.0, 3.0], ...], # positions of vertices
+      'adjacency' : [[1,3,4, ...], ...], # cell-vertices adjacent to i by index
+      'faces' : [
+        {
+          'vertices' : [7,4,13, ...], # vertex ids in loop order
+          'adjacent_cell' : 34 # *cell* id, negative if a wall
+        }, ...]
+      'original' : point[index] # the original instance from args
+    },
+    ... 
+  ]
+  
+  NOTE: The class from items in input points list is reused for all 3-vector
+  outputs. It must have a constructor which accepts a list of 3 python floats
+  (python's list type does satisfy this requirement.)
+  """
+  cdef int n = len(points), i, j
+  cdef double *xs, *ys, *zs, *rs
+
+  blocks = [
+    max([1, int(math.floor((limits[0][1] - limits[0][0]) / dispersion))]),
+    max([1, int(math.floor((limits[1][1] - limits[1][0]) / dispersion))]),
+    max([1, int(math.floor((limits[2][1] - limits[2][0]) / dispersion))])
+  ]
+  # if no radii provided, we still run the radical routine, but with all the same small radius.
+  if len(radii) != len(points):
+    radii = [dispersion / 10.] * len(points)
+  # build the container object
+  cdef void* container = irregular_voronoi(
+      <double>limits[0][0], <double>limits[0][1], <double>limits[1][0],
+      <double>limits[1][1], <double>limits[2][0], <double>limits[2][1],
+      <int>blocks[0], <int>blocks[1], <int>blocks[2],
+      False, False, False)
+
+  xs = <double*>malloc(sizeof(double) * n)
+  ys = <double*>malloc(sizeof(double) * n)
+  zs = <double*>malloc(sizeof(double) * n)
+  rs = <double*>malloc(sizeof(double) * n)
+  
+  # initialise particle positions:
+  for i from 0 <= i < n:
+    xs[i] = <double>points[i][0]
+    ys[i] = <double>points[i][1]
+    zs[i] = <double>points[i][2]
+    rs[i] = <double>radii[i]
+
+  # Loop over all particles in the container and compute each Voronoi cell
 
