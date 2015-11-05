@@ -20,7 +20,7 @@ from .atom import Atom
 from .bond import Bond, evalBonds
 from .selection import Selection
 # from .functions import isReserved
-from .hierview import HierView
+# from .hierview import HierView
 from . import flags
 
 __all__ = ['AtomGroup']
