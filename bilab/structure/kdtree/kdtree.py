@@ -239,7 +239,6 @@ class KDTree(object):
                 self._pbcdict = _dict
                 self._pdbkeys = list(_dict)
 
-
     def getIndices(self):
         """Return array of indices for points or pairs, depending on the type
         of the most recent search."""

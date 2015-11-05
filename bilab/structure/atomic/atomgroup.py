@@ -9,6 +9,8 @@ import numpy as np
 from bilab import LOGGER, PY2K
 from bilab.structure.kdtree import KDTree
 from bilab.utilities import checkCoords, rangeString
+from bilab.chemicals import ElementData
+
 
 from .atomic import Atomic
 from .fields import ATOMIC_FIELDS, READONLY
@@ -967,6 +969,52 @@ class AtomGroup(Atomic):
                                  'number of coordinate sets')
         else:
             raise TypeError('labels must be a list')
+
+    def foundCovalentBonds(self):
+        """ Create bond pairs """
+        """
+        find covalent bonds since the connet info in pdb sometimes is not
+        reliable.
+        """
+        if self._n_atoms == 0:
+            return self
+        # if self._kdtree is None:
+        coords = self._getCoords()
+        if len(coords) <= 1:
+            # Only one atom exists
+            return self
+
+        kdtree = KDTree(coords, unitcell=None, none=list)
+        LEEWAY = 1.1
+        MAXCOLVALENT = 2.6
+        covalent_bonds_inx = {}
+        for atom in self.__iter__():
+            at_Coords = atom._getCoords()
+            ele = ElementData.get(atom.getName()[0].lower())
+            covalent_radius = ele.getCovalentRadius()[0]/100
+            # r_ext = (covalent_r + 2) * PointsPerAngstrom * LEEWAY
+            r_ext = (covalent_radius + MAXCOLVALENT) * LEEWAY
+
+            for j, distance in zip(*kdtree(r_ext, at_Coords)):
+                n1 = self.__getitem__(j)
+                ele1 = ElementData.get(n1.getName()[0].lower())
+                covalent_r1 = ele1.getCovalentRadius()[0]/100
+                if distance == 0.0:
+                    continue
+                if distance < (covalent_radius + covalent_r1) * LEEWAY:
+                    # covalent_bonds[tuple(sorted([atom, n1]))] = 0
+                    i = atom.getIndex()
+                    # inx2 = n1.getIndex()
+                    p = tuple(sorted([i, j]))
+                    try:
+                        covalent_bonds_inx[p] += 1
+                    except KeyError:
+                        covalent_bonds_inx[p] = 1
+                    # append(p)
+        # return covalent_bonds, covalent_bonds_inx
+        # return covalent_bonds_inx
+        self.setBonds(covalent_bonds_inx.keys())
+        return self
 
     def setBonds(self, bonds):
         """Set covalent bonds between atoms.  *bonds* must be a list or an

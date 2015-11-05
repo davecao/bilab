@@ -152,8 +152,9 @@ def iterNeighbors(atoms, radius, atoms2=None, unitcell=None):
             try:
                 uc = atoms.getUnitcell()[:3]
             except AttributeError:
-                raise TypeError('atoms must be an Atomic or Frame instance or '
-                                'a coordinate array')
+                raise TypeError(
+                    'atoms must be an Atomic or Frame instance or '
+                    'a coordinate array')
             else:
                 coords = atoms._getCoords()
                 ag = atoms.getAtoms()
@@ -215,8 +216,9 @@ def iterNeighbors(atoms, radius, atoms2=None, unitcell=None):
             try:
                 ndim, shape = atoms2.ndim, atoms2.shape
             except AttributeError:
-                raise TypeError('atoms2 must be an Atomic or Frame instance or '
-                                'a coordinate array')
+                raise TypeError(
+                    'atoms2 must be an Atomic or Frame instance or '
+                    'a coordinate array')
             else:
                 if ndim > 2:
                     raise ValueError('number of dimensions of second '

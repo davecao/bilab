@@ -969,26 +969,29 @@ class Select(object):
         for key in kwargs.keys():
             if not key.isalnum():
                 raise TypeError('{0} is not a valid keyword argument, '
-                                  'keywords must be all alpha numeric '
-                                  'characters'.format(repr(key)))
+                                'keywords must be all alpha numeric '
+                                'characters'.format(repr(key)))
             if isReserved(key):
                 loc = selstr.find(key)
                 if loc > -1:
-                    raise SelectionError(selstr, loc, '{0} is a reserved '
-                                'word and cannot be used as a keyword argument'
-                                .format(repr(key)))
+                    raise SelectionError(
+                      selstr, loc,
+                      '{0} is a reserved word and cannot be used as '
+                      'a keyword argument'.format(repr(key)))
 
         self._n_atoms = atoms.numAtoms()
         self._selstr = selstr
         self._kwargs = kwargs
 
-        if DEBUG: print('getBoolArray', selstr)
+        if DEBUG:
+            print('getBoolArray', selstr)
 
         self._evalAtoms(atoms)
 
         selstr = selstr.strip()
-        if (len(selstr.split()) == 1 and selstr.isalnum() and
-            selstr not in MACROS):
+        if (len(selstr.split()) == 1 and
+              selstr.isalnum() and
+                selstr not in MACROS):
             if selstr == 'none':
                 return zeros(atoms.numAtoms(), bool)
             elif selstr == 'all':
@@ -1150,8 +1153,9 @@ class Select(object):
                 return token, False
 
             if token == 'none':
-                return zeros(self._n_atoms if subset is None else len(subset),
-                              bool), False
+                return zeros(
+                  self._n_atoms if subset is None else len(subset),
+                  bool), False
             elif token == 'all':
                 return ones(self._n_atoms if subset is None else len(subset),
                             bool), False
