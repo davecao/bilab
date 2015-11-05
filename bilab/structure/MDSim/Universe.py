@@ -37,8 +37,8 @@ class Universe(object):
         MAXCOLVALENT = self._MAXCOLVALENT
         ag = self._ag
         # covalent_bonds = {}
-        covalent_bonds_inx = []
-        append = covalent_bonds_inx.append
+        covalent_bonds_inx = {}
+        # append = covalent_bonds_inx.append
         for atom in ag:
             ele = ElementData.get(atom.getName()[0].lower())
             covalent_radius = ele.getCovalentRadius()[0]/100
@@ -57,6 +57,10 @@ class Universe(object):
                     inx1 = atom.getIndex()
                     inx2 = n1.getIndex()
                     p = sorted([inx1, inx2])
-                    append(p)
+                    try:
+                        covalent_bonds_inx[p] += 1
+                    except KeyError:
+                        covalent_bonds_inx[p] = 1
+                    # append(p)
         # return covalent_bonds, covalent_bonds_inx
         return covalent_bonds_inx
