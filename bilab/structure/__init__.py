@@ -2,28 +2,30 @@
 
 __all__ = []
 
-from .kdtree import *
+from bilab.structure.kdtree import *
 
-from .atomic import *
+from bilab.structure.atomic import *
 
-from .header import *
+from bilab.structure.header import *
 
-from .measure import *
+from bilab.structure.measure import *
 
-from .transform import *
+from bilab.structure.transform import *
 
-from .pdbfile import *
+from bilab.structure.pdbfile import *
 
-from .contacts import *
+from bilab.structure.contacts import *
 
-from .surface import *
+from bilab.structure.surface import *
 
-from .density import *
+from bilab.structure.density import *
 
-from .vptree import *
+from bilab.structure.vptree import *
 
-from .Heap import *
+from bilab.structure.Heap import *
 
-from .forcefields import *
+from bilab.structure.forcefields import *
 
-from .minimization import *
+from bilab.structure.minimization import *
+
+from bilab.structure.MDSim import *

@@ -6,9 +6,10 @@ from functools import wraps
 from bilab import PY3K
 from bilab import forcefieldsList
 from bilab.structure.forcefields import AmberParamParser
-from bilab.io.FortranFormat import FortranFormat, FortranLine
+# from bilab.io.FortranFormat import (FortranFormat, FortranLine)
 
 __all__ = ['ForceField', 'AmberForceField']
+
 
 def abstractmethod(method):
     # decorator borrowed from Mozilla mxr

@@ -19,12 +19,14 @@ from .flags import FIELDS as FLAG_FIELDS
 from .atom import Atom
 from .bond import Bond, evalBonds
 from .selection import Selection
-
+from .functions import isReserved
+from .hierview import HierView
 from . import flags
 
 __all__ = ['AtomGroup']
 
-if PY2K: range = xrange
+if PY2K:
+    range = xrange
 
 
 def checkLabel(label):
@@ -270,7 +272,6 @@ class AtomGroup(Atomic):
                 all(np.all(self._data[key] == other._data[key])
                     for key in self._data))
 
-
     def __iter__(self):
         """Yield atom instances."""
 
@@ -428,7 +429,6 @@ class AtomGroup(Atomic):
             else:
                 self._coords = coords
                 self._n_csets = n_csets = shape[0]
-
 
                 if isinstance(label, list):
                     if len(label) == n_csets:
@@ -1171,7 +1171,8 @@ for fname, field in ATOMIC_FIELDS.items():
                     raise ValueError('array cannot be assigned type '
                                      '{0}'.format(dtype))
             self._data[var] = array
-            if none: self._none(none)
+            if none:
+                self._none(none)
             if flags and self._flags:
                 self._resetFlags(var)
 

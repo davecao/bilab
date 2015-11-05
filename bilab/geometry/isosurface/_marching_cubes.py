@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""
+    This module come from skimage package
+"""
+
 import numpy as np
 
 try:
