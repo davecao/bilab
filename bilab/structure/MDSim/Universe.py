@@ -47,12 +47,12 @@ class Universe(object):
             neighs = findNeighbors(atom, r_ext, ag)
             for n in neighs:
                 n1 = n[1]
+                distance = n[2]
                 ele1 = ElementData.get(n1.getName()[0].lower())
                 covalent_r1 = ele1.getCovalentRadius()[0]/100
-                if n1 == atom:
+                if distance == 0.0:
                     continue
-                if euclidean(atom.getCoords(), n1.getCoords()) <\
-                        (covalent_radius + covalent_r1) * LEEWAY:
+                if distance < (covalent_radius + covalent_r1) * LEEWAY:
                     # covalent_bonds[tuple(sorted([atom, n1]))] = 0
                     append[tuple(atom.getIndex(), n1.getIndex())]
         # return covalent_bonds, covalent_bonds_inx
