@@ -19,7 +19,7 @@ from .flags import FIELDS as FLAG_FIELDS
 from .atom import Atom
 from .bond import Bond, evalBonds
 from .selection import Selection
-from .functions import isReserved
+# from .functions import isReserved
 from .hierview import HierView
 from . import flags
 
