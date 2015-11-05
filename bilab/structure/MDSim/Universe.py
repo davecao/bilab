@@ -2,7 +2,7 @@
 
 import sys
 from bilab.chemicals import ElementData
-from bilab.structure.atom import AtomGroup
+from bilab.structure.atomic import AtomGroup
 from bilab.geometry.distance import euclidean
 from bilab.structure.forcefields import ForceField
 from bilab.structure import findNeighbors
