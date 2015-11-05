@@ -56,6 +56,7 @@ class Universe(object):
                     # covalent_bonds[tuple(sorted([atom, n1]))] = 0
                     inx1 = atom.getIndex()
                     inx2 = n1.getIndex()
-                    append[sorted([inx1, inx2])]
+                    p = sorted([inx1, inx2])
+                    append(p)
         # return covalent_bonds, covalent_bonds_inx
         return covalent_bonds_inx
