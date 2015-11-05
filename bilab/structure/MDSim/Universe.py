@@ -26,7 +26,7 @@ class Universe(object):
             print("TypeError: input should be an object of ForceField")
             sys.exit(1)
         bonds = self._foundCovalentBonds()
-        self._ag.setBonds(bonds)
+        self._ag.setBonds(bonds.keys())
 
     def _foundCovalentBonds(self):
         """
