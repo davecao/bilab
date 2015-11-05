@@ -54,6 +54,6 @@ class Universe(object):
                     continue
                 if distance < (covalent_radius + covalent_r1) * LEEWAY:
                     # covalent_bonds[tuple(sorted([atom, n1]))] = 0
-                    append[sorted(atom.getIndex(), n1.getIndex())]
+                    append[sorted([atom.getIndex(), n1.getIndex()])]
         # return covalent_bonds, covalent_bonds_inx
         return covalent_bonds_inx
