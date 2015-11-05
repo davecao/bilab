@@ -56,7 +56,7 @@ class Universe(object):
                     # covalent_bonds[tuple(sorted([atom, n1]))] = 0
                     inx1 = atom.getIndex()
                     inx2 = n1.getIndex()
-                    p = sorted([inx1, inx2])
+                    p = tuple(sorted([inx1, inx2]))
                     try:
                         covalent_bonds_inx[p] += 1
                     except KeyError:
