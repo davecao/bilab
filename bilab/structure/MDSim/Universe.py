@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from bilab.chemicals import ElementData
+# from bilab.chemicals import ElementData
 from bilab.structure.atomic import AtomGroup
-from bilab.geometry.distance import euclidean
 from bilab.structure.forcefields import ForceField
-from bilab.structure import findNeighbors
+# from bilab.structure import findNeighbors
 
 
 class Universe(object):
@@ -17,6 +16,7 @@ class Universe(object):
         self._LEEWAY = 1.1
         if isinstance(ag, AtomGroup):
             self._ag = ag
+            self._ag.foundCovalentBonds()
         else:
             print("TypeError: input should be an object of AtomGroup")
             sys.exit(1)
@@ -25,42 +25,4 @@ class Universe(object):
         else:
             print("TypeError: input should be an object of ForceField")
             sys.exit(1)
-        bonds = self._foundCovalentBonds()
-        self._ag.setBonds(bonds.keys())
-
-    def _foundCovalentBonds(self):
-        """
-        find covalent bonds since the connet info in pdb sometimes is not
-        reliable.
-        """
-        LEEWAY = self._LEEWAY
-        MAXCOLVALENT = self._MAXCOLVALENT
-        ag = self._ag
-        # covalent_bonds = {}
-        covalent_bonds_inx = {}
-        # append = covalent_bonds_inx.append
-        for atom in ag:
-            ele = ElementData.get(atom.getName()[0].lower())
-            covalent_radius = ele.getCovalentRadius()[0]/100
-            # r_ext = (covalent_r + 2) * PointsPerAngstrom * LEEWAY
-            r_ext = (covalent_radius + MAXCOLVALENT) * LEEWAY
-            neighs = findNeighbors(atom, r_ext, ag)
-            for n in neighs:
-                n1 = n[1]
-                distance = n[2]
-                ele1 = ElementData.get(n1.getName()[0].lower())
-                covalent_r1 = ele1.getCovalentRadius()[0]/100
-                if distance == 0.0:
-                    continue
-                if distance < (covalent_radius + covalent_r1) * LEEWAY:
-                    # covalent_bonds[tuple(sorted([atom, n1]))] = 0
-                    inx1 = atom.getIndex()
-                    inx2 = n1.getIndex()
-                    p = tuple(sorted([inx1, inx2]))
-                    try:
-                        covalent_bonds_inx[p] += 1
-                    except KeyError:
-                        covalent_bonds_inx[p] = 1
-                    # append(p)
-        # return covalent_bonds, covalent_bonds_inx
-        return covalent_bonds_inx
+        
