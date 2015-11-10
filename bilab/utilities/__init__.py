@@ -29,3 +29,7 @@ from .nth_element import *
 #__all__.extend(utilities.__all__)
 
 #from .utilities import three2one
+
+from .helpformatter import *
+
+from .profilehooks import *
