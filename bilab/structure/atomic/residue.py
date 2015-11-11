@@ -6,6 +6,7 @@ from .atom import Atom
 
 __all__ = ['Residue']
 
+
 class Residue(AtomSubset):
 
     """Instances of this class point to atoms with same residue numbers (and
@@ -38,9 +39,9 @@ class Residue(AtomSubset):
             chain = ' from Chain {0}'.format(self.getChid())
 
         if n_csets == 1:
-            return ('<Residue: {0} {1}{2}{3} from {4} ({5} atoms)>'
-                    ).format(self.getResname(), self.getResnum(),
-                     self.getIcode() or '', chain, self._ag.getTitle(),
+            return ('<Residue: {0} {1}{2}{3} from {4} ({5} atoms)>').format(
+                    self.getResname(), self.getResnum(),
+                    self.getIcode() or '', chain, self._ag.getTitle(),
                      len(self))
         elif n_csets > 1:
             return ('<Residue: {0} {1}{2}{3} from {4} '

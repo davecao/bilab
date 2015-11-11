@@ -264,7 +264,8 @@ for fname, field in ATOMIC_FIELDS.items():
             raise AttributeError('attribute of the AtomGroup is '
                                  'not set')
         array[self._index] = value
-        if none: self._ag._none(none)
+        if none:
+            self._ag._none(none)
     setData = wrapSetMethod(setData)
     setData.__name__ = setMeth
     setData.__doc__ = field.getDocstr('set', False)

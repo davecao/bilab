@@ -233,3 +233,113 @@ def get_aaprop_distance(aa1, aa2, not_found="NaN"):
         return properties['distance'][aa1inx][aa2inx]
     else:
         return None
+
+AminoAcids_interity = {
+    'ALA': ('N', 'CA', 'C', 'O',
+            'CB'),
+    'ARG': ('N', 'CA', 'C', 'O',
+            'CB', 'CG', 'CD', 'NE', 'CZ','NH1', 'NH2'),
+    'ASN': ('N', 'CA', 'C', 'O',
+            'CB', 'CG', 'ND2'),
+    'ASP': ('N', 'CA', 'C', 'O',
+            'CB', 'CG', 'OD1', 'OD2'),
+    'CYS': ('N', 'CA', 'C', 'O',
+            'CB', 'SG'),
+    'GLN': ('N', 'CA', 'C', 'O',
+            'CB', 'CG', 'CD', 'OE1', 'NE2'),
+    'GLU': ('N', 'CA', 'C', 'O',
+            'CB', 'CG', 'CD', 'OE1', 'OE2'),
+    'GLY': ('N', 'CA', 'C', 'O'),
+    'HIS': ('N', 'CA', 'C', 'O',
+            'CB', 'CG', 'ND1', 'CE1', 'NE2', 'CD2'),
+    'ILE': ('N', 'CA', 'C', 'O',
+            'CB', 'CG1', 'CG2', 'CD1'),
+    'LEU': ('N', 'CA', 'C', 'O',
+            'CB', 'CG', 'CD1', 'CD2'),
+    'LYN': ('N', 'CA', 'C', 'O',
+            'CB', 'CG', 'CD', 'CE', 'NZ'),
+    'LYP': ('N', 'CA', 'C', 'O',
+            'CB', 'CG', 'CD', 'CE', 'NZ'),
+    'LYS': ('N', 'CA', 'C', 'O',
+            'CB', 'CG', 'CD', 'CE', 'NZ'),
+    'MET': ('N', 'CA', 'C', 'O',
+            'CB', 'CG', 'SD', 'CE'),
+    'PHD': ('N', 'CA', 'C', 'O',
+            'CB', 'CG', 'CD1', 'CD2', 'CE1','CE2', 'CZ'),
+    'PHE': ('N', 'CA', 'C', 'O',
+            'CB', 'CG', 'CD1', 'CD2', 'CE1','CE2', 'CZ'),
+    'PRO': ('N', 'CA', 'C', 'O',
+            'CB', 'CG', 'CD'),
+    'SER': ('N', 'CA', 'C', 'O',
+            'CB', 'OG'),
+    'THR': ('N', 'CA', 'C', 'O',
+            'CB', 'OG1', 'CG2'),
+    'TRP': ('N', 'CA', 'C', 'O',
+            'CB', 'CG', 'CD1', 'CD2', 'NE1','CE2', 'CE3', 'CZ3','CH2','CZ2'),
+    'TYR': ('N', 'CA', 'C', 'O',
+            'CB', 'CG', 'CD1', 'CD2', 'CE1','CE2', 'CZ', 'OH'),
+    'VAL': ('N', 'CA', 'C', 'O',
+            'CB', 'CG1', 'CG2')
+}
+
+chi_topology = {
+  'ARG': [ ['N', 'CA', 'CB', 'CG'],
+           ['CA', 'CB', 'CG', 'CD'],
+           ['CB', 'CG', 'CD', 'NE'],
+           ['CG', 'CD', 'NE', 'CZ']],
+  'ASN': [['N', 'CA', 'CB', 'CG'], ['CA', 'CB', 'CG', 'OD1']],
+  'ASP': [['N', 'CA', 'CB', 'CG'], ['CA', 'CB', 'CG', 'OD1']],
+  'CYS': [['N', 'CA', 'CB', 'SG']],
+  'GLN': [ ['N', 'CA', 'CB', 'CG'],
+           ['CA', 'CB', 'CG', 'CD'],
+           ['CB', 'CG', 'CD', 'OE1']],
+  'GLU': [ ['N', 'CA', 'CB', 'CG'],
+           ['CA', 'CB', 'CG', 'CD'],
+           ['CB', 'CG', 'CD', 'OE1']],
+  'HIS': [['N', 'CA', 'CB', 'CG'], ['CA', 'CB', 'CG', 'ND1']],
+  'ILE': [['N', 'CA', 'CB', 'CG1'], ['CA', 'CB', 'CG1', 'CD1']],
+  'LEU': [['N', 'CA', 'CB', 'CG'], ['CA', 'CB', 'CG', 'CD1']],
+  'LYN': [ ['N', 'CA', 'CB', 'CG'],
+           ['CA', 'CB', 'CG', 'CD'],
+           ['CB', 'CG', 'CD', 'CE'],
+           ['CG', 'CD', 'CE', 'NZ']],
+  'LYP': [ ['N', 'CA', 'CB', 'CG'],
+           ['CA', 'CB', 'CG', 'CD'],
+           ['CB', 'CG', 'CD', 'CE'],
+           ['CG', 'CD', 'CE', 'NZ']],
+  'LYS': [ ['N', 'CA', 'CB', 'CG'],
+           ['CA', 'CB', 'CG', 'CD'],
+           ['CB', 'CG', 'CD', 'CE'],
+           ['CG', 'CD', 'CE', 'NZ']],
+  'MET': [ ['N', 'CA', 'CB', 'CG'],
+           ['CA', 'CB', 'CG', 'SD'],
+           ['CB', 'CG', 'SD', 'CE']],
+  'PHD': [['N', 'CA', 'CB', 'CG'], ['CA', 'CB', 'CG', 'OD1']],
+  'PHE': [['N', 'CA', 'CB', 'CG'], ['CA', 'CB', 'CG', 'CD1']],
+  'PRO': [ ['N', 'CA', 'CB', 'CG'],
+           ['CA', 'CB', 'CG', 'CD'],
+           ['CB', 'CG', 'CD', 'N'],
+           ['CG', 'CD', 'N', 'CA']],
+  'SER': [['N', 'CA', 'CB', 'OG']],
+  'THR': [['N', 'CA', 'CB', 'OG1']],
+  'TRP': [['N', 'CA', 'CB', 'CG'], ['CA', 'CB', 'CG', 'CD1']],
+  'TYR': [['N', 'CA', 'CB', 'CG'], ['CA', 'CB', 'CG', 'CD1']],
+  'VAL': [['N', 'CA', 'CB', 'CG1']]}
+
+def get_res_chi_topology(res_type):
+  """
+  Returns the chi topology for a given residue, which is a list of
+  atoms that are affected if one rotates the chi0, chi1... 
+  dihedral angle.
+  """
+  # Some common residue renamings in AMBER and GROMACS
+  if res_type in ["HID", "HIE", "HIP", "HSE"] or "HIS" in res_type:
+    res_type = "HIS"
+  if res_type in ["LYP"]:
+    res_type = "LYS"
+  if res_type in ["CYM", "CYX", "CYN"]:
+    res_type = "CYS"
+  if res_type not in chi_topology:
+    return []
+  else:
+    return chi_topology[res_type]

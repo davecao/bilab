@@ -9,6 +9,7 @@ import os.path
 
 import numpy as np
 
+from bilab.aaprop.aminoacids import AminoAcids_interity
 from bilab.structure.atomic import AtomGroup
 from bilab.structure.atomic import flags
 from bilab.structure.atomic import ATOMIC_FIELDS
@@ -126,9 +127,28 @@ def parsePDB(pdb, **kwargs):
     if not os.path.isfile(pdb):
         raise IOError('{0} is not a valid filename or a valid PDB '
                       'identifier.'.format(pdb))
-
+    check_integrity = kwargs.get('interity', False)
     pdb = openFile(pdb, 'rt')
     result = parsePDBStream(pdb, **kwargs)
+
+    if check_integrity:
+        pdb_hv = result.getHierView()
+        for ch in pdb_hv.iterChains():
+            for res in ch.iterResidues():
+                res_name = res.getResname()
+                atom_names = set([atom.getName() for atom in res])
+                test = set(AminoAcids_interity[res_name])
+                # print(",".join(test))
+                if test == atom_names:
+                    continue
+                else:
+                    notfound = test - atom_names
+                    if notfound:
+                        print("Chain {} - Residue {} {}: missing {}".format(
+                            ch.getChid(),
+                            res_name,
+                            res.getResnum(),
+                            ",".join(notfound)))
     pdb.close()
     return result
 
