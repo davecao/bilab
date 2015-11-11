@@ -173,7 +173,7 @@ def find_neighbor_indices(atoms, probe, k, verbose=False):
                 at.getResname(), at.getChid()))
     return neighbors_ex
 
-@profile
+# @profile
 def calcASA(atoms, probe, n_sphere_point=960, verbose=False):
     """
     Calculate accessible surface areas of the atoms, using the probe
