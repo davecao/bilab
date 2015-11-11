@@ -2,16 +2,38 @@
 import math
 import numpy as np
 
-from bilab.structure.atomic import ATOMIC_FIELDS
-from bilab.geometry.distance import euclidean
+# from bilab import PY3K
+# from bilab.structure.atomic import ATOMIC_FIELDS
+# from bilab.geometry.distance import euclidean
 from bilab.geometry.tess import *
 from bilab.utilities import checkCoords
 from bilab.chemicals import ElementData
-from bilab.structure.contacts import findNeighbors
+# from bilab.structure.contacts import findNeighbors
 from bilab.structure.atomic import AtomGroup
-from timeit import default_timer as timer
+# from timeit import default_timer as timer
+from bilab.utilities import profile
+
+# from numbapro import jit, cuda, autojit, vectorize, float32, int8
+# from joblib import Parallel, delayed
+
 
 __all__ = ['calcASA']
+
+# @vectorize("int8(float32[:], float32[:], float32)", target='gpu')
+#@jit('void(float32[:,:,:], float32[:,:,:], float32, float32[:])', target='gpu')
+def setGPUAccessibility(coords, probe_coords, probe_radius, res):
+        """ set accessibility for a probe"""
+        # dist = euclidean(probe_coords, self.coords)
+
+        vx = coords[0] - probe_coords[0]
+        vy = coords[1] - probe_coords[1]
+        vz = coords[2] - probe_coords[2]
+        dist = vx * vx + vy * vy + vz * vz
+        thre_r2 = probe_radius * probe_radius
+        if dist <= thre_r2:
+            # self.is_accessible = False
+            return 0
+        return 1
 
 
 class Point(object):
@@ -26,7 +48,7 @@ class Point(object):
            is_accessible (bool) : is it accessible by a probe
 
         Kwargs:
-        """
+         """
         super(Point, self).__init__()
         self.x = x
         self.y = y
@@ -36,8 +58,13 @@ class Point(object):
 
     def setAccessibility(self, probe_coords, probe_radius):
         """ set accessibility for a probe"""
-        dist = euclidean(probe_coords, self.coords)
-        if dist <= probe_radius:
+        # dist = euclidean(probe_coords, self.coords)
+        vx = self.x - probe_coords[0]
+        vy = self.y - probe_coords[1]
+        vz = self.z - probe_coords[2]
+        dist = vx * vx + vy * vy + vz * vz
+        thre_r2 = probe_radius * probe_radius
+        if dist <= thre_r2:
             self.is_accessible = False
 
 
@@ -47,24 +74,42 @@ class NumericSurface(object):
     """
     def __init__(self, center, radius, sphere_points):
         # sphere_points = tesselate_by_sprial(n_sphere_point)
-        test_points = np.array(sphere_points) * radius + center
-        self.points = []
+        self.test_points = np.array(sphere_points) * radius + center
+        # self.points = []  # test_points
+        self.numOfpoints = len(sphere_points)
+        self.numOfAccessiblePoints = np.ones(
+                (self.numOfpoints, 1),
+                dtype=np.int8)
         # self.numOfAccessiblePoints = len(sphere_points)
-        if len(self.points):
-            self.points = []
-        for p in test_points:
-            self.points.append(Point(p[0], p[1], p[2]))
+        # if len(self.points):
+        #    self.points = []
+        # for p in self.test_points:
+        #    self.points.append(Point(p[0], p[1], p[2]))
 
     def setAccessibility(self, c, r):
-        for p in self.points:
-            if p.is_accessible:
-                p.setAccessibility(c, r)
+        # res = np.ones((self.numOfpoints,1), dtype=np.int8)
+        test_inx = np.where(self.numOfAccessiblePoints == 1)[0]
+        test_ = self.test_points[test_inx]
+        c_ = np.asarray(c, dtype=np.float32)
+        nc = np.tile(c_, (len(test_), 1))
+        # p = np.asarray(self.points[], dtype=np.float32)
+        # setGPUAccessibility(p, nc, r, res)
+        res = np.where(np.sum((test_ - nc)**2, axis=1) < r*r)[0]
+        # print(res)
+        self.numOfAccessiblePoints[test_inx[res]] = 0
+        # for inx in np.where(res==0)[0]:
+        #    self.points[inx].is_accessible = False
+        #for p in self.points:
+        #    if p.is_accessible:
+        #        p.setAccessibility(c, r)
 
     def getNumOfAccessiblePoint(self):
-        numOfAccessiblePoints = 0
-        for p in self.points:
-            if p.is_accessible:
-                numOfAccessiblePoints += 1
+        # numOfAccessiblePoints = 0
+        # for p in self.points:
+        #    if p.is_accessible:
+        #        numOfAccessiblePoints += 1
+        numOfAccessiblePoints = len(self.numOfAccessiblePoints[
+                                    self.numOfAccessiblePoints == 1])
         return numOfAccessiblePoints
 
 
@@ -128,7 +173,7 @@ def find_neighbor_indices(atoms, probe, k, verbose=False):
                 at.getResname(), at.getChid()))
     return neighbors_ex
 
-
+@profile
 def calcASA(atoms, probe, n_sphere_point=960, verbose=False):
     """
     Calculate accessible surface areas of the atoms, using the probe
@@ -164,6 +209,7 @@ def calcASA(atoms, probe, n_sphere_point=960, verbose=False):
     # test_point = Vector3d()
     # test_point = None
     areas = []
+    append = areas.append
     sphere_points = tesselate_by_sprial(n_sphere_point)
     points_density = len(sphere_points)
     const = 4.0 * math.pi / points_density
@@ -185,7 +231,8 @@ def calcASA(atoms, probe, n_sphere_point=960, verbose=False):
         # count accessible-points
         n_accessible_point = surface.getNumOfAccessiblePoint()
         area = const*n_accessible_point*tot_radius*tot_radius
-        areas.append(area)
+        # areas.append(area)
+        append(area)
         if verbose:
             print(
                 "{} -- Res:{}_{}_{}, atom: {}, const:{}, #access:{}/{},"
