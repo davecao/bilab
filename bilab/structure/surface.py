@@ -209,7 +209,10 @@ def calcASA(atoms, probe, n_sphere_point=960, verbose=False):
     # test_point = Vector3d()
     # test_point = None
     areas = []
+    surfaces = []
     append = areas.append
+    append_surf = surfaces.append
+
     sphere_points = tesselate_by_sprial(n_sphere_point)
     points_density = len(sphere_points)
     const = 4.0 * math.pi / points_density
@@ -233,6 +236,7 @@ def calcASA(atoms, probe, n_sphere_point=960, verbose=False):
         area = const*n_accessible_point*tot_radius*tot_radius
         # areas.append(area)
         append(area)
+        append_surf(surface)
         if verbose:
             print(
                 "{} -- Res:{}_{}_{}, atom: {}, const:{}, #access:{}/{},"
@@ -245,4 +249,5 @@ def calcASA(atoms, probe, n_sphere_point=960, verbose=False):
                     probe, radius, area))
 
     atoms.setData('surface_area', np.array(areas))
+    atoms.setData('surface_points', np.array(surfaces))
     return areas

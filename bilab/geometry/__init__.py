@@ -22,3 +22,6 @@ from . import voro
 # from .voro import compute_voronoi, compute_2d_voronoi
 
 from . import isosurface
+
+# Add umeyama, ransac
+from . import transform
