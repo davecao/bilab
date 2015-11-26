@@ -24,4 +24,4 @@ from . import voro
 from . import isosurface
 
 # Add umeyama, ransac
-from . import transform
+from .transform import *
