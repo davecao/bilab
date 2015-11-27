@@ -6,7 +6,7 @@ import numpy as np
 from bilab import LOGGER
 from bilab.structure.atomic import AtomPointer
 from bilab.utilities import importLA
-
+from bilab.geometry.transform import UmeyamaTransformation
 from bilab.structure.measure import calcCenter
 
 linalg = importLA()
@@ -89,7 +89,7 @@ class Transformation(object):
         return applyTransformation(self, atoms)
 
 
-def calcTransformation(mobile, target, weights=None):
+def calcTransformation(mobile, target, algo="umeyama", weights=None, scaling=True):
     """Returns a :class:`Transformation` instance which, when applied to the
     atoms in *mobile*, minimizes the weighted RMSD between *mobile* and
     *target*.  *mobile* and *target* may be NumPy coordinate arrays, or
@@ -126,11 +126,28 @@ def calcTransformation(mobile, target, weights=None):
         elif weights.shape != (mob.shape[0], 1):
             raise ValueError('weights must have shape (n_atoms, 1)')
 
-    return Transformation(*getTransformation(mob, tar, weights))
+    return Transformation(*getTransformation(mob, tar, algo="umeyama",
+                                             weights=weights,
+                                             scaling=scaling))
 
 
-def getTransformation(mob, tar, weights=None):
+def getTransformation(mob, tar, algo="umeyama", weights=None, scaling=True):
+    """ algo:
+        1. kabasch (SVD):
+        2. Umeyama (Least square):
+    """
+    if algo == "kabasch":
+        return _getKabaschTransformation(mob, tar, weights=weights)
+    elif algo == "umeyama":
+        return _getUmeyamaTransfromation(mob, tar, with_scaling=scaling)
 
+
+def _getUmeyamaTransfromation(mob, tar, with_scaling=True):
+    Q = UmeyamaTransformation(mob, tar, with_scaling=with_scaling)
+    return Q[0:2, 0:2], Q[:, 3]
+
+
+def _getKabaschTransformation(mob, tar, weights=None):
     if weights is None:
         mob_com = mob.mean(0)
         tar_com = tar.mean(0)

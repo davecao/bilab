@@ -32,7 +32,7 @@ def SVDaffineTransformation(src, dst, ax=0):
 def UmeyamaTransformation(src, dst, with_scaling=True):
     # n x d: n samples with d-dimensions
     # Reference: Eigen/Core/src/Umeyama.H
-    if src.shape == dst.shape:
+    if src.shape != dst.shape:
         print("The size of matrice of src and dst should be same.")
         sys.exit(1)
     ax = 0
@@ -47,15 +47,15 @@ def UmeyamaTransformation(src, dst, with_scaling=True):
     dst_centerized = dst - dst_mean
 
     # variance
-    src_variance = np.sum(src_centerized**2)
+    src_variance = np.sum(src_centerized**2, axis=1)
     src_variance = src_variance.mean(ax)
 
     # matrix Equation (38)
-    sigma = 1/n * np.dot(dst_centerized, src_centerized.T)
+    sigma = 1/n * np.dot(dst_centerized.T, src_centerized)
 
     # SVD
     U, d, Vt = np.linalg.svd(sigma)
-    # Prepare result: d is 2,3 generally
+    # Prepare result: dim is 2,3 generally
     Qmatrix = np.eye(dim+1)
 
     # reorgnize the diag S in Equation (39)
