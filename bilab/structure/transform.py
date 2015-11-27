@@ -126,7 +126,7 @@ def calcTransformation(mobile, target, algo="umeyama", weights=None, scaling=Tru
         elif weights.shape != (mob.shape[0], 1):
             raise ValueError('weights must have shape (n_atoms, 1)')
 
-    return Transformation(*getTransformation(mob, tar, algo="umeyama",
+    return Transformation(*getTransformation(mob, tar, algo=algo,
                                              weights=weights,
                                              scaling=scaling))
 
@@ -144,7 +144,7 @@ def getTransformation(mob, tar, algo="umeyama", weights=None, scaling=True):
 
 def _getUmeyamaTransfromation(mob, tar, with_scaling=True):
     Q = UmeyamaTransformation(mob, tar, with_scaling=with_scaling)
-    return Q[0:2, 0:2], Q[:, 3]
+    return Q[0:3, 0:3], Q[0:3, 3]
 
 
 def _getKabaschTransformation(mob, tar, weights=None):
