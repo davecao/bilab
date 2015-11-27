@@ -39,7 +39,7 @@ def UmeyamaTransformation(src, dst, with_scaling=True):
     dx = 1
     dim = src.shape[dx]
     n = src.shape[ax]
-    one_over_n = 1/n
+    one_over_n = 1.0 / n
     # get mean
     src_mean = src.mean(ax)
     dst_mean = dst.mean(ax)
