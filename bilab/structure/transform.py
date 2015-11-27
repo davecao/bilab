@@ -144,7 +144,7 @@ def getTransformation(mob, tar, algo="umeyama", weights=None, scaling=True):
 
 def _getUmeyamaTransfromation(mob, tar, with_scaling=True):
     Q = UmeyamaTransformation(mob, tar, with_scaling=with_scaling)
-    return Q[0:2, 0:2], Q[:, 3]
+    return Q[0:3, 0:3], Q[:, 4]
 
 
 def _getKabaschTransformation(mob, tar, weights=None):
