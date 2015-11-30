@@ -5,3 +5,5 @@ __all__ = []
 from .AbstractSolver import *
 
 from .qp import *
+
+from ._basinhopping import basinhopping
