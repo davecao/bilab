@@ -173,6 +173,7 @@ def find_neighbor_indices(atoms, probe, k, verbose=False):
                 at.getResname(), at.getChid()))
     return neighbors_ex
 
+
 # @profile
 def calcASA(atoms, probe, n_sphere_point=960, verbose=False):
     """

@@ -14,12 +14,12 @@ def PsiBlast_pssm_score(handle):
       Parse pssm ascii output
         order='ARNDCQEGHILKMFPSTWYV' output from psiblast
     """
-    order='ARNDCQEGHILKMFPSTWYV'
+    order = 'ARNDCQEGHILKMFPSTWYV'
     pssm_scores = []
     pssm_obs_percent = []
-    #information per position,
+    # information per position,
     info_per_pos = []
-    #relative weight of gapless real matches to pseudocounts
+    # relative weight of gapless real matches to pseudocounts
     relative_weight_gapless_pseudocounts = []
     aa_in_pos = {}
     parameters = {}

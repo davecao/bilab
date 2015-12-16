@@ -2,6 +2,7 @@
 
 __all__ = ["Kernel"]
 
+
 class ClassRegistry(type):
     """ Register all subclasses """
     def __init__(cls, name, bases, nmspc):
@@ -9,7 +10,8 @@ class ClassRegistry(type):
         if not hasattr(cls, 'registry'):
             cls.registry = set()
         cls.registry.add(cls)
-        cls.registry -= set(bases) #Remove base classes
+        cls.registry -= set(bases)  # Remove base classes
+
     # Meta methods, called on class objects:
     def __iter__(cls):
         return iter(cls.registry)

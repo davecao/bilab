@@ -8,13 +8,14 @@ from bilab.sequence import Sequence, Alphabet
 
 __all__ = ['Profile']
 
+
 class Profile(object):
     """Generating a profile from multiple sequence alignment
 
     """
     def __init__(self, sequenceList, alphabet=None):
         super(Profile, self).__init__()
-        self.sequenceList = sequenceList # Array of bilab.sequence.Sequence
+        self.sequenceList = sequenceList  # Array of bilab.sequence.Sequence
         # Check obj in sequenceList ?
         self.alphabet = alphabet
         self.gap = '-'
@@ -94,7 +95,7 @@ class Profile(object):
         # if divisor is zero, 
         # disable RuntimeWarining: invalid value encountered in divide
         old_seterr = np.geterr()
-        np.seterr(divide='ignore',invalid='ignore')
+        np.seterr(divide='ignore', invalid='ignore')
         fre_aa = np.nan_to_num(counts/np.asmatrix(aa_sum).T).flatten().tolist()
         np.seterr(**old_seterr)
         return fre_aa

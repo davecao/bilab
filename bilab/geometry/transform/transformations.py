@@ -120,7 +120,8 @@ def ransac(src, dst, n, num_iter, threshold, min_inliers):
         num_iter - the number of iterations
         max_iter - maximum number of iterations
         min_iter - minimum number of iterations
-        threshold:
+        threshold - a threshold value for determining when a data point fits
+                    a model
     """
 
     max_inliers = 0

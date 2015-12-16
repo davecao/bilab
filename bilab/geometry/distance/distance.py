@@ -69,8 +69,8 @@ from __future__ import division, print_function, absolute_import
 import warnings
 import numpy as np
 
-#from scipy.lib.six import callable, string_types
-#from scipy.lib.six import xrange
+# from scipy.lib.six import callable, string_types
+# from scipy.lib.six import xrange
 
 from bilab.geometry import _distance_wrap
 from numpy.linalg import norm
@@ -149,6 +149,7 @@ else:
             return type(self).__next__(self)
 
     callable = callable
+
 
 def _copy_array_if_base_present(a):
     """

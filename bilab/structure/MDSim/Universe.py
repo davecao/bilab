@@ -11,13 +11,15 @@ from bilab import reduce_newobj
 
 class Universe(object):
 
-    __slots__ = ['_masses', '_bonds', '_angles', 'dihedrals', 'impropers']
+    __slots__ = [
+        '_masses', '_bonds',
+        '_angles', '_dihedrals',
+        '_impropers', '_charges']
 
     """docstring for Universe"""
     def __init__(self, ag, forcefield):
         super(Universe, self).__init__()
-        # self._MAXCOLVALENT = 2.6
-        # self._LEEWAY = 1.1
+
         if isinstance(ag, AtomGroup):
             self._ag = ag
             self._ag.foundCovalentBonds()
@@ -30,6 +32,13 @@ class Universe(object):
         else:
             print("TypeError: input should be an object of ForceField")
             sys.exit(1)
+        self._masses = []
+        self._bonds = []
+        self._angles = []
+        self._dihedrals = []
+        self._impropers = []
+        self._charges = []
+
         self._evaluator = {}
         self._atom_properties = {}
         self._objects = []
@@ -41,8 +50,9 @@ class Universe(object):
             'masses': self._masses,
             'bonds': self._bonds,
             'angles': self._angles,
-            'dihedrals': self.dihedrals,
-            'impropers': self.impropers
+            'dihedrals': self._dihedrals,
+            'impropers': self._impropers,
+            'charges': self._charges
         }
 
     @property
@@ -55,13 +65,22 @@ class Universe(object):
         self._ag.setData('Mass', np.array(masses))
 
     @property
-    def _setAngles(self):
-        pass
+    def angles(self):
+        """ getter """
+        return self._angles
 
     @property
-    def _setCharges(self):
-        """ Set charges defined in forcefield """
-        return self.__setCharges
+    def dihedrals(self):
+        return self._dihedrals
+
+    @property
+    def impropers(self):
+        return self._impropers
+
+    @property
+    def charges(self):
+        """ get charges defined in forcefield """
+        return self._charges
 
     @property
     def __deepcopy__(self, memo):
@@ -104,3 +123,55 @@ class Universe(object):
         state = self.__getstate__()
 
         return reduce_newobj, (type(self),)+args, state, None, None
+
+    def __add__(self, other):
+        if isinstance(other, AtomGroup):
+            self.ag += other
+        elif isinstance(other, Universe):
+            self.ag += other.ag
+        else:
+            raise TypeError('unsupported operand type(s) for +: {0} and '
+                            '{1}'.format(repr(type(self).__name__),
+                                         repr(type(other).__name__)))
+
+    def description(self):
+        """
+        Description of the Universe
+
+        lammps:
+        LAMMPS Description
+
+                2004  atoms
+                1365  bonds
+                 786  angles
+                 207  dihedrals
+                  12  impropers
+                  14  atom types
+                  18  bond types
+                  31  angle types
+                  21  dihedral types
+                   2  improper types
+
+         36.840194 64.211560 xlo xhi
+         41.013691 68.385058 ylo yhi
+         29.768095 57.139462 zlo zhi
+         """
+        desp = """
+LAMMPS Description
+        {}  atoms
+        {}  bonds
+        {}  angles
+        {}  dihedrals
+        {}  impropers
+        {}  atom types
+        {}  bond types
+        {}  angle types
+        {}  dihedral types
+        {}  improper types
+
+ {} {} xlo xhi
+ {} {} ylo yhi
+ {} {} zlo zhi
+""".format(len(self.ag), len(self._bonds), len(self._angles),
+           len(self._dihedrals), len(self._impropers),
+           )

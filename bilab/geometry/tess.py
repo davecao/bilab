@@ -5,7 +5,7 @@
 # You may do anything you want with it, provided this notice is kept intact.
 #
 
-#_undocumented = 1
+# _undocumented = 1
 """
 tesselate(num_points)
 
@@ -21,9 +21,11 @@ from math import sqrt, atan2, pi, cos, sin
 
 __all__ = ['tesselate', 'tesselate_by_sprial']
 
+
 def _normalize(x, y, z):
     length = sqrt(x*x + y*y + z*z)
     return (x/length, y/length, z/length)
+
 
 def tess_triangle(pts, npts, r, pt_dict):
     v0 = pts[0]
@@ -47,13 +49,14 @@ def tess_triangle(pts, npts, r, pt_dict):
         tess_triangle((new_pt0, new_pt1, new_pt2), n4, r, pt_dict)
         tess_triangle((new_pt1, pts[2], new_pt2), n4, r, pt_dict)
 
+
 def tesselate(num_points):
     north = (0.0, 0.0, 1.0)
     south = (0.0, 0.0, -1.0)
-    noon  = (1.0, 0.0, 0.0)
+    noon = (1.0, 0.0, 0.0)
     night = (-1.0, 0.0, 0.0)
-    dawn  = (0.0, 1.0, 0.0)
-    dusk  = (0.0, -1.0, 0.0)
+    dawn = (0.0, 1.0, 0.0)
+    dusk = (0.0, -1.0, 0.0)
     npts = int((num_points - 2)/4)
 
     pt_dict = {}
@@ -71,6 +74,7 @@ def tesselate(num_points):
     tess_triangle((south, dusk, noon), npts, r, pt_dict)
     tess_triangle((south, noon, dawn), npts, r, pt_dict)
     return r
+
 
 def tesselate_by_sprial(num_points):
     """

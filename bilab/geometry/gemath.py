@@ -2,14 +2,15 @@
 import math
 import numpy as np
 
-__all__ = [ 'unit', 
-            'degree', 
-            'mean', 
-            'normal_vector_from_matrix', 
-            'projection_vector' ]
+__all__ = ['unit',
+           'degree',
+           'mean',
+           'normal_vector_from_matrix',
+           'projection_vector']
+
 
 def unit(vec):
-    """ unitify a given vector 
+    """ unitify a given vector
 
     .. ipython:: python
 
@@ -26,6 +27,7 @@ def unit(vec):
     """
     return np.asarray(vec) / np.linalg.norm(vec)
 
+
 def degree(vec1, vec2):
     """
     Calculate angle between two vectors
@@ -38,9 +40,9 @@ def degree(vec1, vec2):
 
     Args:
 
-        **vec1** (array or list) : a n-dimensional vector  
+        **vec1** (array or list) : a n-dimensional vector
 
-        **vec2** (array or list) : a n-dimensional vector  
+        **vec2** (array or list) : a n-dimensional vector
 
     Returns:
         return an acute angle between two given vectors
@@ -50,21 +52,22 @@ def degree(vec1, vec2):
     v2 = np.array(vec2, dtype=np.float64, copy=True).squeeze()
 
     if v1.shape != v2.shape:
-        raise ValueError("Two input vectors are not in the same shape " \
+        raise ValueError(
+            "Two input vectors are not in the same shape "
             " v1:{}, v2:{}".format(v1.shape, v2.shape))
 
     unit_vec1 = unit(v1)
     unit_vec2 = unit(v2)
 
     # The first version:  following is not work as the two parallel vectors
-    #angle_rad = numpy.arccos(numpy.dot(vec1, vec2) /
+    # angle_rad = numpy.arccos(numpy.dot(vec1, vec2) /
     #    (numpy.linalg.norm(vec1) * numpy.linalg.norm(vec2)))
-    #angle_deg = angle_rad * 180 / numpy.pi
+    # angle_deg = angle_rad * 180 / numpy.pi
 
     # The revised version:
-    #angle_rad = numpy.arccos(numpy.dot(unit_vec1, unit_vec2))
-    #angle_deg = angle_rad * 180 / numpy.pi
-    #if numpy.isnan(angle):
+    # angle_rad = numpy.arccos(numpy.dot(unit_vec1, unit_vec2))
+    # angle_deg = angle_rad * 180 / numpy.pi
+    # if numpy.isnan(angle):
     #    if (unit_vec1 == unit_vec2).all():
     #        return 0.0
     #    else
@@ -72,7 +75,8 @@ def degree(vec1, vec2):
     # The second revised with clip
     angle_rad = np.arccos(np.clip(np.dot(unit_vec1, unit_vec2), -1, 1))
     angle_deg = angle_rad * 180 / np.pi
-    return  180 - angle_deg if angle_deg > 90 else angle_deg
+    return 180 - angle_deg if angle_deg > 90 else angle_deg
+
 
 def mean(data, raw=True):
     """ Calculate the mean of a vector/ matrix
@@ -98,6 +102,7 @@ def mean(data, raw=True):
         return d.mean()
     return d.mean(0)
 
+
 def normal_vector_from_matrix(matrix, eps=1e-8):
     """
     Calculate the normal vector from point matrix through svd decomposition
@@ -110,7 +115,9 @@ def normal_vector_from_matrix(matrix, eps=1e-8):
 
     """
     if not isinstance(matrix, (np.ndarray, np.generic)) or matrix.ndim != 2:
-        raise ValueError("{}:Inappropriate argument value, it should be a 2d numpy array".format('normal_vector_from_matrix'))
+        raise ValueError(
+            "{}:Inappropriate argument value, it should be a 2d numpy array"
+            .format('normal_vector_from_matrix'))
 
     M = np.matrix(matrix, dtype=np.float64, copy=True)
 
@@ -130,6 +137,7 @@ def normal_vector_from_matrix(matrix, eps=1e-8):
 
     return normal
 
+
 def projection_vector(vec_u, vec_v):
     """
     Project the vector 'u' to the vector 'v'
@@ -138,7 +146,7 @@ def projection_vector(vec_u, vec_v):
                          norm(V)      norm(V)
     .. math::
         Prj(u to v) = \\frac{dot(u,v)}{norm(v)}\\times\\frac{v}{norm(v)}
-    
+
     Args:
         vec_u (array or list, 1x3): vector U
         vec_v (array or list, 1x3): vector V
@@ -153,5 +161,28 @@ def projection_vector(vec_u, vec_v):
     magnitude_v = np.linalg.norm(v)
     norm_v = v / magnitude_v
     dot_uv = np.dot(u, v)
-    
+
     return (dot_uv / magnitude_v * norm_v).tolist()
+
+
+def dihedral_angle(p1, p2, p3, p4):
+    """
+        Calculate the angle between four given points.
+                      dot(n1, n2)
+        cos(phi) = - -------------
+                        |n1| |n2|
+        p1             p4
+          \ v1         /
+           \          /  v3
+           p2 ------ p3
+                v2
+    """
+    v1 = p2 - p1
+    v2 = p3 - p2
+    v3 = p4 - p3
+
+    n1 = np.cross(v1, v2)
+    n2 = np.cross(v2, v3)
+
+    d = degree(n1, n2)
+    return d

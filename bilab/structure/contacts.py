@@ -9,6 +9,7 @@ from bilab.utilities import rangeString
 
 __all__ = ['Contacts', 'iterNeighbors', 'findNeighbors']
 
+
 class Contacts(object):
 
     """A class for contact identification.

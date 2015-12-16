@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from functools import  wraps
+from functools import wraps
 
-__all__ = ['AbstractModel','Model']
+__all__ = ['AbstractModel', 'Model']
 
 # decorator borrowed from Mozilla mxr
 def abstractmethod(method):

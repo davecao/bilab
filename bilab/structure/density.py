@@ -4,13 +4,15 @@ from bilab.structure.measure import buildDistMatrix
 
 __all__ = ['density1d']
 
-def density1d(mol, cutoff=10.0, save2file=False, selection='protein and name CA'):
+
+def density1d(mol, cutoff=10.0, save2file=False,
+              selection='protein and name CA'):
     """
     Args:
         mol (class)        : bilab.structure.AtomGroup
-        cutoff (float)     : cutoff of distance for a residue 
+        cutoff (float)     : cutoff of distance for a residue
                              to generate a neighbor list
-        selection (string) : the atom name for selection, 
+        selection (string) : the atom name for selection,
                             default is CA of a residue.
 
     Returns:
@@ -22,7 +24,7 @@ def density1d(mol, cutoff=10.0, save2file=False, selection='protein and name CA'
     hv = atoms.getHierView()
     chains = list(hv)
     # iterate over residues
-    #for i, residue in enumerate(hv.iterResidues()):
+    # for i, residue in enumerate(hv.iterResidues()):
     #    print residue
     result = {}
     mol_title = 'UNNAMED'

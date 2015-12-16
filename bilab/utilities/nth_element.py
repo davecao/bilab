@@ -74,17 +74,20 @@ def partition(vector, left, right, pivotIndex, comp):
     else:
         storeIndex = left
     for i in range(left, right):
-        #if vector[i] < pivotValue:
+        # if vector[i] < pivotValue:
         if comp(vector[i], pivotValue):
             vector[storeIndex], vector[i] = vector[i], vector[storeIndex]
             storeIndex += 1
     # Move pivot to its final place
-    vector[right], vector[storeIndex] = vector[storeIndex], vector[right]  
+    vector[right], vector[storeIndex] = vector[storeIndex], vector[right]
     return storeIndex
- 
+
+
 def _select(vector, left, nth, right, comp):
-    "Returns the n-th smallest, (nth >= 0), element of vector within vector[left:right+1] inclusive."
-    if (right - left)==1:
+    """ Returns the n-th smallest, (nth >= 0), element of vector
+        within vector[left:right+1] inclusive.
+    """
+    if (right - left) == 1:
         """ only two element, nth element without left element """
         return
 

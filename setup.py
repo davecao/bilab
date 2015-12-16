@@ -537,10 +537,14 @@ def cfg_to_args(path='setup.cfg'):
                 datafiles = []
                 for line in in_cfg_value:
                     file_str = line.split('=')[0].strip()
+                    files = glob(file_str)
+                    dfile = ""
+                    if os.path.dirname(files[0]):
+                        dfile = os.path.dirname(files[0])
                     # datafiles.extend(glob(file_str))
                     datafiles.append(
-                        ('share'+os.sep+'bilab'+os.sep+file_str[:-1],
-                            glob(file_str)))
+                        ('share'+os.sep+'bilab'+os.sep+dfile,
+                         files))
                 print datafiles
                 # kwargs['data_files'] = [
                 #   ('share/bilab',[line.split('=')[0].strip()

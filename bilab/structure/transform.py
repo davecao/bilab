@@ -89,7 +89,8 @@ class Transformation(object):
         return applyTransformation(self, atoms)
 
 
-def calcTransformation(mobile, target, algo="umeyama", weights=None, scaling=True):
+def calcTransformation(mobile, target, algo="umeyama",
+                       weights=None, scaling=True):
     """Returns a :class:`Transformation` instance which, when applied to the
     atoms in *mobile*, minimizes the weighted RMSD between *mobile* and
     *target*.  *mobile* and *target* may be NumPy coordinate arrays, or

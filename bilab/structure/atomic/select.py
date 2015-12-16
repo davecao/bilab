@@ -6,7 +6,7 @@ It offers a fast and powerful atom selection class, :class:`.Select`.
 Selection features, grammar, and keywords are similar to those of VMD.
 Small differences, that is described below, should not affect most practical
 uses of atom selections.  With added flexibility of Python, the selection
-engine can also be used to identify intermolecular contacts. 
+engine can also be used to identify intermolecular contacts.
 
 First, we import classes and parse a protein-DNA-ligand
 complex structure:
@@ -1131,14 +1131,15 @@ class Select(object):
             torf, err = self._eval(sel, loc, tokens)
         else:
             torf, err = self._and2(sel, loc, tokens)
-        if err: raise err
+        if err:
+            raise err
         return torf
-
 
     def _eval(self, sel, loc, tokens, subset=None):
 
         debug(sel, loc, '_eval', tokens)
-        if NUMB: return
+        if NUMB:
+            return
         #if isinstance(tokens, ndarray):
         #    return tokens
 
@@ -1226,7 +1227,8 @@ class Select(object):
 
         debug(sel, loc, '_or', tokens)
         tokens = tokens[0]
-        if NUMB: return
+        if NUMB:
+            return
 
         flags = []
         torfs = []
@@ -1265,7 +1267,8 @@ class Select(object):
             torf = torfs.pop(0)
             while torfs:
                 ss = where(torf == 0)[0]
-                if len(ss) == 0: return torf
+                if len(ss) == 0:
+                    return torf
                 torf[ss] = torfs.pop(0)[ss]
 
         if flags:
@@ -1324,13 +1327,15 @@ class Select(object):
         debug(sel, loc, '_and', tokens)
         tokens = tokens[0]
         torf, err = self._and2(sel, loc, tokens)
-        if err: raise err
+        if err:
+            raise err
         return torf
 
     def _and2(self, sel, loc, tokens, subset=None):
 
         debug(sel, loc, '_and2', tokens)
-        if NUMB: return
+        if NUMB:
+            return
 
         if tokens[0] == 'and' or tokens[-1] == 'and':
             return None, SelectionError(sel, loc, '{0} operator must be '
