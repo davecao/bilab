@@ -225,6 +225,34 @@ class DBRef(object):
 _START_COORDINATE_SECTION = set(['ATOM  ', 'MODEL ', 'HETATM'])
 
 
+class UnitCell(object):
+    """
+    The CRYST1 record presents the unit cell parameters, space group,
+    and Z value.
+    """
+    __slots__ = ['a', 'b', 'c',
+                 'alpha', 'beta', 'gamma',
+                 'sGroup', 'z']
+
+    def __init__(self):
+        """ non X-ray crystallpgraphy as default """
+        self.a = 1.0
+        self.b = 1.0
+        self.c = 1.0
+        self.alpha = 90.0
+        self.beta = 90.0
+        self.gamma = 90.0
+        self.sGroup = "P 1"
+        self.z = 1
+
+    def __str__(self):
+        return self.sGroup
+
+    def __repr__(self):
+        return '<UnitCell: (a,b,c)={0},{1},{2},(alpha, beta, gamma)>'.format(
+            self.a, self.b, self.c, self.alpha, self.beta, self.gamma)
+
+
 def cleanString(string, nows=False):
     """*nows* is no white space."""
 
@@ -278,6 +306,7 @@ def parsePDBHeader(pdb, *keys):
     REMARK 4     version           PDB file version
     REMARK 350   biomoltrans       biomolecular transformation lines
                                    (unprocessed)
+    CRYST1       unitcell          see :class:`UnitCell`
     ============ ================= ============================================
 
     Header records that are not parsed are: OBSLTE, CAVEAT, SOURCE, KEYWDS,
@@ -812,6 +841,40 @@ def _getNumModels(lines):
         except:
             pass
 
+
+def _getUnitCell(lines):
+    # parse CRYST1
+    # COLUMNS       DATA  TYPE    FIELD          DEFINITION
+    # -------------------------------------------------------------
+    #  1 -  6       Record name   "CRYST1"
+    #  7 - 15       Real(9.3)     a              a (Angstroms).
+    # 16 - 24       Real(9.3)     b              b (Angstroms).
+    # 25 - 33       Real(9.3)     c              c (Angstroms).
+    # 34 - 40       Real(7.2)     alpha          alpha (degrees).
+    # 41 - 47       Real(7.2)     beta           beta (degrees).
+    # 48 - 54       Real(7.2)     gamma          gamma (degrees).
+    # 56 - 66       LString       sGroup         Space  group.
+    # 67 - 70       Integer       z              Z value.
+
+    i, line = lines['CRYST1'][0]
+    # CRYST1_LINE = (
+    #    '{0:6s}'
+    #    '{1:9.3f}{2:9.3f}{3:9.3f}'
+    #    '{4:7.2f}{5:7.2f}{6:7.2f}'
+    #    '{7:11s}{8:4s}\n')
+    unit_cell = UnitCell()
+    if line:
+        unit_cell.a = float(line[6:14].strip())
+        unit_cell.b = float(line[15:23].strip())
+        unit_cell.c = float(line[24:32].strip())
+        unit_cell.alpha = float(line[33:39].strip())
+        unit_cell.beta = float(line[40:46].strip())
+        unit_cell.gamma = float(line[47:53].strip())
+        unit_cell.sGroup = line[55:65].strip()
+        unit_cell.z = int(line[66:69].strip())
+    return unit_cell
+
+
 # Make sure that lambda functions defined below won't raise exceptions
 _PDB_HEADER_MAP = {
     'helix': _getHelix,
@@ -845,6 +908,7 @@ _PDB_HEADER_MAP = {
                    ) if lines['MDLTYP'] else None,
     'n_models': _getNumModels,
     'space_group': _getSpaceGroup,
+    'unitcell': _getUnitCell
 }
 
 mapHelix = {
