@@ -69,7 +69,6 @@ class Universe(object):
         """
         take settings from forcefield
         """
-        
         return self._angles
 
     @property
