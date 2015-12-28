@@ -16,8 +16,7 @@ num_points should be 2**(2*N) + 2, where N > 1.
 The C code in MMTK_surfacemodule.c does the same thing faster, so this
 code should normally be used only by people who can't compile C code.
 """
-import math
-from math import sqrt, atan2, pi, cos, sin
+from math import sqrt, pi, cos, sin
 
 __all__ = ['tesselate', 'tesselate_by_sprial']
 
@@ -40,7 +39,7 @@ def tess_triangle(pts, npts, r, pt_dict):
                 # another triangle, except for top level points
         for p in (pts[0], new_pt0, new_pt1, new_pt2):
             key = '%.6f,%.6f,%.6f' % p
-            if not pt_dict.has_key(key):
+            if key not in pt_dict:
                 pt_dict[key] = p
                 r.append(p)
     else:

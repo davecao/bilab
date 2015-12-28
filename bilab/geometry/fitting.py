@@ -3,10 +3,12 @@
 import numpy as np
 import logging
 
-from bilab.concurrent import ThreadPool, ThreadTask, \
-                             ThreadWorker, CallBackResults
-logging.basicConfig(level=logging.DEBUG,
-    format='[%(levelname)s] (%(threadName)-10s) %(funcName)s %(message)s',)
+from bilab.concurrent import ThreadPool, ThreadTask, ThreadWorker,\
+                             CallBackResults
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='[%(levelname)s] (%(threadName)-10s) %(funcName)s %(message)s')
+
 
 def global_eval(x, W):
     # P = I -W*W^T projection matrix
@@ -15,13 +17,13 @@ def global_eval(x, W):
     W = np.asmatrix(W)
     P = np.identity(3) - W.T*W
 
-    #pprint.pprint(W)
+    # pprint.pprint(W)
     # S: 3x3
-    S = np.matrix([ [         0,    -1 * W[0,2],     W[0,1] ],
-                       [     W[0,2],          0, -1 * W[0,0]],
-                       [-1 * W[0,1],     W[0,0],           0]])
+    S = np.matrix([[0, -1 * W[0, 2], W[0, 1]],
+                   [W[0, 2], 0, -1 * W[0, 0]],
+                   [-1*W[0, 1], W[0, 0], 0]])
     # 3x3
-    A = np.zeros((3,3))
+    A = np.zeros((3, 3))
     # 3x1
     B = np.zeros(3).T
     # number of samples: N X 3
@@ -35,7 +37,7 @@ def global_eval(x, W):
 
     # 1xN
     sqrlength = np.sum(np.square(Y), 0)
-    #print("There are %d atoms" % n)
+    # print("There are %d atoms" % n)
     for i in range(n):
         A = A + np.outer(Y[:, i], Y[:, i].T)
         B = B + sqrlength[:, i] * Y[:, i].T
@@ -48,33 +50,34 @@ def global_eval(x, W):
     denominator = np.trace(Ahat * A)
 
     PC = (Ahat * B.T) / denominator
-    #print 'value: {}'.format(denominator)
+    # print 'value: {}'.format(denominator)
     # sqrlength: 1xn, ave_sqrlength: 1x1, PC:1x3 Y:3xn
     term = sqrlength - ave_sqrlength - 2 * PC.T * Y
     error = np.sum(np.square(term)) / n
     # PC->3xN
-    diff = np.repeat(PC, n, axis = 1) - Y
+    diff = np.repeat(PC, n, axis=1) - Y
     r_sqr = np.sum(np.sum(np.square(diff), 0)) / n
     return (error, PC, r_sqr, W)
 
 
-def fit_multi(data, imax, jmax, num_threads=12, CheckInterval=0.5, verbose=False):
+def fit_multi(data, imax, jmax, num_threads=12,
+              CheckInterval=0.5, verbose=False):
     """
         Multiple threaded fitting
     """
     minError = np.inf
     w_direct = np.zeros(3)
     c_center = np.zeros(3)
-    r_sqr    = 0
-    half_pi  = np.pi / 2
-    two_pi   = 2 * np.pi
+    r_sqr = 0
+    half_pi = np.pi / 2
+    two_pi = 2 * np.pi
 
     cbk = CallBackResults(10)
-    cbk.curr_w   = w_direct
+    cbk.curr_w = w_direct
     cbk.minError = minError
     cbk.w_direct = w_direct
     cbk.c_center = c_center
-    cbk.r_sqr    = r_sqr
+    cbk.r_sqr = r_sqr
 
     def th_callback(data, res=cbk):
         try:
@@ -87,17 +90,12 @@ def fit_multi(data, imax, jmax, num_threads=12, CheckInterval=0.5, verbose=False
                 res.r_sqr = curr_rsqr
             c_d = np.asarray(res.curr_w).flatten().tolist()
             w_d = np.asarray(res.w_direct).flatten().tolist()
-#            print "r_sqr:{:.3f} error:{} curr_w:{} w_direct:{}"\
-#                .format(r_sqr, error,
-#                    ",".join(['{:.3f} '.format(x) for x in c_d]),
-#                    ",".join(['{:.3f} '.format(z) for z in w_d ])
-#                    )
         finally:
             res.lock.release()
 
-    thread_pool = ThreadPool(num_threads, 
-                            CheckInterval = CheckInterval, 
-                            verbose=verbose)
+    thread_pool = ThreadPool(num_threads,
+                             CheckInterval=CheckInterval,
+                             verbose=verbose)
 
     for j in range(jmax):
         phi = half_pi * j / jmax
@@ -115,7 +113,7 @@ def fit_multi(data, imax, jmax, num_threads=12, CheckInterval=0.5, verbose=False
             taskid = "task_{}_{}".format(j, i)
             cbk.curr_w = curr_w
             thread_pool.add_task(taskid, global_eval, data, curr_w,
-                     callback = th_callback)
+                                 callback=th_callback)
     thread_pool.wait_completion()
     thread_pool.shutdown()
 
@@ -124,6 +122,7 @@ def fit_multi(data, imax, jmax, num_threads=12, CheckInterval=0.5, verbose=False
             float(cbk.r_sqr),
             float(cbk.minError))
 
+
 def fit_single(data, imax, jmax, verbose=False):
     """
         Single threaded fitting
@@ -131,9 +130,9 @@ def fit_single(data, imax, jmax, verbose=False):
     minError = np.inf
     w_direct = np.zeros(3)
     c_center = np.zeros(3)
-    r_sqr    = 0
+    r_sqr = 0
     half_pi = np.pi / 2
-    two_pi  = 2 * np.pi
+    two_pi = 2 * np.pi
 
     for j in range(jmax):
         phi = half_pi * j / jmax
@@ -144,9 +143,9 @@ def fit_single(data, imax, jmax, verbose=False):
             theta = two_pi * i / imax
             cos_theta = np.cos(theta)
             sin_theta = np.sin(theta)
-            curr_w = np.matrix([cos_theta * sin_phi,
-                                   sin_theta * sin_phi,
-                                   cos_phi])
+            curr_w = np.matrix([cos_theta*sin_phi,
+                                sin_theta*sin_phi,
+                                cos_phi])
             error, curr_c, curr_rsqr, w = global_eval(data, curr_w)
 
             if error < minError:
@@ -157,18 +156,15 @@ def fit_single(data, imax, jmax, verbose=False):
             if verbose:
                 c_d = np.asarray(curr_w).flatten().tolist()
                 w_d = np.asarray(w_direct).flatten().tolist()
-#                print "phi:{:.3f} theta:{:.3f} r_sqr:{:.3f} error:{} curr_w:{} w_direct:{}"\
-#                .format(phi,theta, r_sqr, error,
-#                    ",".join(['{:.3f} '.format(x) for x in c_d]),
-#                    ",".join(['{:.3f} '.format(z) for z in w_d ])
-#                    )
+
     return (w_direct, c_center, float(r_sqr), float(minError))
 
+
 def cylinder_fitting(points, imax=64, jmax=64,
-                    description=None,
-                    verbose=False,
-                    num_threads = 1,
-                    CheckInterval = 0.5):
+                     description=None,
+                     verbose=False,
+                     num_threads=1,
+                     CheckInterval=0.5):
     """
     Fitting a cylinder to a set of points:
 
@@ -217,9 +213,9 @@ def cylinder_fitting(points, imax=64, jmax=64,
     sample = data_mat - data_mean
     w_direct = np.zeros(3)
     c_center = np.zeros(3)
-    r_sqr    = 0
+    r_sqr = 0
     half_pi = np.pi / 2
-    two_pi  = 2 * np.pi
+    two_pi = 2 * np.pi
 
 #    if verbose:
 #        print "phi  theta  r2 error {}x{}".format(imax,jmax)
@@ -228,11 +224,11 @@ def cylinder_fitting(points, imax=64, jmax=64,
         w_direct, c_center, r_sqr, minError = \
             fit_single(sample, imax, jmax, verbose=verbose)
     else:
-        w_direct, c_center, r_sqr, minError = \
-        fit_multi(sample, imax, jmax, 
-                num_threads=num_threads, 
-                CheckInterval = CheckInterval,
-                verbose=verbose)
+        w_direct, c_center, r_sqr, minError = fit_multi(
+            sample, imax, jmax,
+            num_threads=num_threads,
+            CheckInterval=CheckInterval,
+            verbose=verbose)
 
     c_data = c_center + data_mean.T
 
