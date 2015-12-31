@@ -2,8 +2,6 @@
 
 import os
 import re
-import math
-import pprint
 
 from types import *
 from bisect import bisect_left
@@ -97,8 +95,8 @@ class AAindex1Parser(object):
     """
     def __init__(self):
         """ initialize """
-        self._data_location = bilab.data + os.sep + 'aaindex' +\
-                                os.sep + 'aaindex1'
+        self._data_location = bilab.data + os.sep + 'aaindex' + os.sep +\
+                              'aaindex1'
         self._parsername = 'AAindex1Parser'
         self._data = self.__dictRecord(self._data_location)
         self._scale_name_ind = [x['H'] for x in self._data]
@@ -268,4 +266,3 @@ class AAindex(object):
     def __getattr__(self, attr):
         """ get delegation to the object """
         return getattr(self._parser, attr)
-

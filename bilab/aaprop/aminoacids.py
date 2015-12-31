@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import math
-
 from types import *
 
 __all__ = ['properties', 'get_aaprop_distance']
@@ -238,7 +236,7 @@ AminoAcids_interity = {
     'ALA': ('N', 'CA', 'C', 'O',
             'CB'),
     'ARG': ('N', 'CA', 'C', 'O',
-            'CB', 'CG', 'CD', 'NE', 'CZ','NH1', 'NH2'),
+            'CB', 'CG', 'CD', 'NE', 'CZ', 'NH1', 'NH2'),
     'ASN': ('N', 'CA', 'C', 'O',
             'CB', 'CG', 'ND2'),
     'ASP': ('N', 'CA', 'C', 'O',
@@ -265,9 +263,9 @@ AminoAcids_interity = {
     'MET': ('N', 'CA', 'C', 'O',
             'CB', 'CG', 'SD', 'CE'),
     'PHD': ('N', 'CA', 'C', 'O',
-            'CB', 'CG', 'CD1', 'CD2', 'CE1','CE2', 'CZ'),
+            'CB', 'CG', 'CD1', 'CD2', 'CE1', 'CE2', 'CZ'),
     'PHE': ('N', 'CA', 'C', 'O',
-            'CB', 'CG', 'CD1', 'CD2', 'CE1','CE2', 'CZ'),
+            'CB', 'CG', 'CD1', 'CD2', 'CE1', 'CE2', 'CZ'),
     'PRO': ('N', 'CA', 'C', 'O',
             'CB', 'CG', 'CD'),
     'SER': ('N', 'CA', 'C', 'O',
@@ -275,71 +273,72 @@ AminoAcids_interity = {
     'THR': ('N', 'CA', 'C', 'O',
             'CB', 'OG1', 'CG2'),
     'TRP': ('N', 'CA', 'C', 'O',
-            'CB', 'CG', 'CD1', 'CD2', 'NE1','CE2', 'CE3', 'CZ3','CH2','CZ2'),
+            'CB', 'CG', 'CD1', 'CD2', 'NE1', 'CE2', 'CE3',
+            'CZ3', 'CH2', 'CZ2'),
     'TYR': ('N', 'CA', 'C', 'O',
-            'CB', 'CG', 'CD1', 'CD2', 'CE1','CE2', 'CZ', 'OH'),
+            'CB', 'CG', 'CD1', 'CD2', 'CE1', 'CE2', 'CZ', 'OH'),
     'VAL': ('N', 'CA', 'C', 'O',
             'CB', 'CG1', 'CG2')
 }
 
 chi_topology = {
-  'ARG': [ ['N', 'CA', 'CB', 'CG'],
-           ['CA', 'CB', 'CG', 'CD'],
-           ['CB', 'CG', 'CD', 'NE'],
-           ['CG', 'CD', 'NE', 'CZ']],
+  'ARG': [['N', 'CA', 'CB', 'CG'],
+          ['CA', 'CB', 'CG', 'CD'],
+          ['CB', 'CG', 'CD', 'NE'],
+          ['CG', 'CD', 'NE', 'CZ']],
   'ASN': [['N', 'CA', 'CB', 'CG'], ['CA', 'CB', 'CG', 'OD1']],
   'ASP': [['N', 'CA', 'CB', 'CG'], ['CA', 'CB', 'CG', 'OD1']],
   'CYS': [['N', 'CA', 'CB', 'SG']],
-  'GLN': [ ['N', 'CA', 'CB', 'CG'],
-           ['CA', 'CB', 'CG', 'CD'],
-           ['CB', 'CG', 'CD', 'OE1']],
-  'GLU': [ ['N', 'CA', 'CB', 'CG'],
-           ['CA', 'CB', 'CG', 'CD'],
-           ['CB', 'CG', 'CD', 'OE1']],
+  'GLN': [['N', 'CA', 'CB', 'CG'],
+          ['CA', 'CB', 'CG', 'CD'],
+          ['CB', 'CG', 'CD', 'OE1']],
+  'GLU': [['N', 'CA', 'CB', 'CG'],
+          ['CA', 'CB', 'CG', 'CD'],
+          ['CB', 'CG', 'CD', 'OE1']],
   'HIS': [['N', 'CA', 'CB', 'CG'], ['CA', 'CB', 'CG', 'ND1']],
   'ILE': [['N', 'CA', 'CB', 'CG1'], ['CA', 'CB', 'CG1', 'CD1']],
   'LEU': [['N', 'CA', 'CB', 'CG'], ['CA', 'CB', 'CG', 'CD1']],
-  'LYN': [ ['N', 'CA', 'CB', 'CG'],
-           ['CA', 'CB', 'CG', 'CD'],
-           ['CB', 'CG', 'CD', 'CE'],
-           ['CG', 'CD', 'CE', 'NZ']],
-  'LYP': [ ['N', 'CA', 'CB', 'CG'],
-           ['CA', 'CB', 'CG', 'CD'],
-           ['CB', 'CG', 'CD', 'CE'],
-           ['CG', 'CD', 'CE', 'NZ']],
-  'LYS': [ ['N', 'CA', 'CB', 'CG'],
-           ['CA', 'CB', 'CG', 'CD'],
-           ['CB', 'CG', 'CD', 'CE'],
-           ['CG', 'CD', 'CE', 'NZ']],
-  'MET': [ ['N', 'CA', 'CB', 'CG'],
-           ['CA', 'CB', 'CG', 'SD'],
-           ['CB', 'CG', 'SD', 'CE']],
+  'LYN': [['N', 'CA', 'CB', 'CG'],
+          ['CA', 'CB', 'CG', 'CD'],
+          ['CB', 'CG', 'CD', 'CE'],
+          ['CG', 'CD', 'CE', 'NZ']],
+  'LYP': [['N', 'CA', 'CB', 'CG'],
+          ['CA', 'CB', 'CG', 'CD'],
+          ['CB', 'CG', 'CD', 'CE'],
+          ['CG', 'CD', 'CE', 'NZ']],
+  'LYS': [['N', 'CA', 'CB', 'CG'],
+          ['CA', 'CB', 'CG', 'CD'],
+          ['CB', 'CG', 'CD', 'CE'],
+          ['CG', 'CD', 'CE', 'NZ']],
+  'MET': [['N', 'CA', 'CB', 'CG'],
+          ['CA', 'CB', 'CG', 'SD'],
+          ['CB', 'CG', 'SD', 'CE']],
   'PHD': [['N', 'CA', 'CB', 'CG'], ['CA', 'CB', 'CG', 'OD1']],
   'PHE': [['N', 'CA', 'CB', 'CG'], ['CA', 'CB', 'CG', 'CD1']],
-  'PRO': [ ['N', 'CA', 'CB', 'CG'],
-           ['CA', 'CB', 'CG', 'CD'],
-           ['CB', 'CG', 'CD', 'N'],
-           ['CG', 'CD', 'N', 'CA']],
+  'PRO': [['N', 'CA', 'CB', 'CG'],
+          ['CA', 'CB', 'CG', 'CD'],
+          ['CB', 'CG', 'CD', 'N'],
+          ['CG', 'CD', 'N', 'CA']],
   'SER': [['N', 'CA', 'CB', 'OG']],
   'THR': [['N', 'CA', 'CB', 'OG1']],
   'TRP': [['N', 'CA', 'CB', 'CG'], ['CA', 'CB', 'CG', 'CD1']],
   'TYR': [['N', 'CA', 'CB', 'CG'], ['CA', 'CB', 'CG', 'CD1']],
   'VAL': [['N', 'CA', 'CB', 'CG1']]}
 
+
 def get_res_chi_topology(res_type):
-  """
-  Returns the chi topology for a given residue, which is a list of
-  atoms that are affected if one rotates the chi0, chi1... 
-  dihedral angle.
-  """
-  # Some common residue renamings in AMBER and GROMACS
-  if res_type in ["HID", "HIE", "HIP", "HSE"] or "HIS" in res_type:
-    res_type = "HIS"
-  if res_type in ["LYP"]:
-    res_type = "LYS"
-  if res_type in ["CYM", "CYX", "CYN"]:
-    res_type = "CYS"
-  if res_type not in chi_topology:
+    """
+    Returns the chi topology for a given residue, which is a list of
+    atoms that are affected if one rotates the chi0, chi1...
+    dihedral angle.
+    """
+    # Some common residue renamings in AMBER and GROMACS
+    if res_type in ["HID", "HIE", "HIP", "HSE"] or "HIS" in res_type:
+        res_type = "HIS"
+    if res_type in ["LYP"]:
+        res_type = "LYS"
+    if res_type in ["CYM", "CYX", "CYN"]:
+        res_type = "CYS"
+    if res_type in chi_topology:
+        return chi_topology[res_type]
     return []
-  else:
-    return chi_topology[res_type]

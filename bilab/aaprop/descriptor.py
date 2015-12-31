@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+import sys
+import numpy as np
+
+from types import *
+from bilab.utilities import translator
+from bilab.aaprop.aminoacids import properties
 
 __author__ = "Wei Cao"
 __copyright__ = "Copyright 2014, Bioinformation Engineering Laboratory"
@@ -8,12 +14,6 @@ __contact__ = "davecao@bi.a.u-tokyo.ac.jp"
 __date__ = "2014/08/28"
 __status__ = "Dev"
 
-import sys
-import numpy as np
-
-from types import *
-from bilab.utilities import translator
-from bilab.aaprop.aminoacids import properties
 
 __all__ = [
            'AutoCorrelatedDescriptor',
