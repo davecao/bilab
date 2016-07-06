@@ -164,7 +164,7 @@ class Atom(AtomPointer):
                 self._ag._data[label][self._index] = data
             except KeyError:
                 raise AttributeError('data with label {0} must be set for'
-                                       ' AtomGroup first'.format(repr(label)))
+                                     ' AtomGroup first'.format(repr(label)))
 
     def getFlag(self, label):
         """Return atom flag."""
@@ -178,11 +178,11 @@ class Atom(AtomPointer):
 
         if label in flags.PLANTERS:
             raise AttributeError('flag {0} cannot be changed by user'
-                                    .format(repr(label)))
+                                 .format(repr(label)))
         flags = self._ag._getFlags(label)
         if flags is None:
             raise AttributeError('flags with label {0} must be set for '
-                                    'AtomGroup first'.format(repr(label)))
+                                 'AtomGroup first'.format(repr(label)))
         flags[self._index] = value
 
     def getSelstr(self):
@@ -244,6 +244,7 @@ for fname, field in ATOMIC_FIELDS.items():
     getMeth = 'get' + meth
     setMeth = 'set' + meth
     # Define public method for retrieving a copy of data array
+
     def getData(self, meth=field.meth_pl, call=field.call):
         data = getattr(self._ag, '_get' + meth)()
         if data is not None:

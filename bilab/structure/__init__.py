@@ -31,3 +31,5 @@ from bilab.structure.minimization import *
 from bilab.structure.MDSim import *
 
 from bilab.structure.memorient import fit_to_membrane
+
+from bilab.structure.topology import Topology, AmberTopology

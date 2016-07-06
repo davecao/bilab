@@ -3,7 +3,7 @@
 # @Author: davecao
 # @Date:   2015-12-16 16:45:54
 # @Last Modified by:   davecao
-# @Last Modified time: 2015-12-31 19:13:23
+# @Last Modified time: 2016-01-02 19:29:46
 # -------------------------------------------------------
 #  Refer to the implementation of basinhopping in scipy
 # Reference:
@@ -326,31 +326,43 @@ class Metropolis(object):
     def accept_reject(self, energy_new, energy_old):
         # exp(deltaE/kbT)
         # w = min(1.0, np.exp(-(energy_new - energy_old) * self.beta))
-        # rand = np.random.rand()
+        rand = np.random.rand()
 
         # ? exp(-E/E_diff) ?
         # Warniing: exp might be overflow if E/E_diff became very small
         # E = energy_new
         # E_diff = energy_new - energy_old
-        E_diff = np.exp(-energy_new/self.temperature)
-        w = False
-        if E_diff < self.E_diff:
+        # boltzmann_f = 1.0 / (self.E_diff*self.temperature)
+        boltzmann_f = 1.0 / self.E_diff
+        # boltzmann_f = 1.0 / self.temperature
+        # w = min(1.0, np.exp(-(energy_new - energy_old)*boltzmann_f))
+        w = np.exp(-(energy_new - energy_old)*boltzmann_f)
+        # accepted = (energy_new - energy_old) < self.E_diff
+        accepted = w >= rand
+        if accepted:
+            print("Accepted: Enew - {:5.3f} deltaE - {:5.3f} w - {:5.3f} rand - {:5.3f} Ediff - {:5.3f}".format(
+                  energy_new, energy_new - energy_old, w, rand, self.E_diff))
             # Accept new minimum
             # alpha1 < 1 decrease thresholding
             # beta1 > 1  increase T
             # beta2 > 1  increase T
             self.E_diff *= self.alpha1
-            self.temperature *= self.beta1
-            if energy_new == energy_old:
-                self.temperature *= self.beta2
-            w = True
+            # self.temperature *= self.beta1
+            # if energy_new == energy_old:
+            #    self.temperature *= self.beta2
         else:
             # Reject new minimum
             # alpha2 > 1 increase thresholding
             # beta3 < 1 decrease T
+            print("Rejected: Enew - {:5.3f} deltaE - {:5.3f} w - {:5.3f} rand - {:5.3f} Ediff - {:5.3f}".format(
+                  energy_new, energy_new - energy_old, w, rand, self.E_diff))
             self.E_diff *= self.alpha2
-            self.temperature *= self.beta3
-        return w
+            # self.temperature *= self.beta3
+            if self.E_diff <= 0.0:
+                self.E_diff = 0.5
+            elif self.E_diff > 1:
+                self.E_diff = 1
+        return accepted
 
     def __call__(self, **kwargs):
         """

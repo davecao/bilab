@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from functools import  wraps
+from functools import wraps
 import multiprocessing
 import logging
 from time import sleep
@@ -13,9 +13,11 @@ except ImportError:
 __all__ = ['AbstractThreadPool', 'AbstractLocalThreadPool']
 
 # decorator borrowed from Mozilla mxr
+
 def abstractmethod(method):
     line = method.func_code.co_firstlineno
     filename = method.func_code.co_filename
+
     @wraps(method)
     def not_implemented(*args, **kwargs):
         raise NotImplementedError('Abstract method %s at File "%s", line %s'

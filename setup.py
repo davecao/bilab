@@ -9,14 +9,26 @@ import platform as plat
 
 # from distutils import core, dir_util
 from distutils.core import setup, Extension
+
+## scypy_distutils Script
+#from numpy.distutils.core import setup, Extension
+#from numpy.distutils.command import build_src
+import Cython
+import Cython.Compiler.Main
+from Cython.Build import cythonize
+from Cython.Distutils import build_ext
+
 from distutils.sysconfig import get_config_var
-try:
-    from Cython.Distutils import build_ext
-    from Cython.Build import cythonize
-except ImportError:
-    from distutils.command import build_ext
+#try:
+#    from Cython.Distutils import build_ext
+#    from Cython.Build import cythonize
+#except ImportError:
+#    from distutils.command import build_ext
 # setuptools --> pip install_requires
 # from setuptools import setup, Extension
+
+#build_src.Pyrex = Cython
+#build_src.have_pyrex = True
 
 # from distutils.ccompiler import show_compilers
 
@@ -44,7 +56,7 @@ except ImportError:
     np_include_dir = os.path.join(
                 pylibdir.replace('lib/python', 'local/lib/python'),
                 'numpy', 'core', 'include')
-    print("Unable to import numpy, trying header %s".format(
+    print("Unable to import numpy, trying header \n{}".format(
             np_include_dir))
     # raise ImportError('Numpy is a required package')
 
@@ -193,8 +205,15 @@ netcdf_inc_dir = '/opt/local/include'
 #    print("Could not find Boost_LIBRARY_DIR; terminated!!!")
 #    sys.exit(0)
 
+# could not compiled by distutils
+helanal = Extension(
+    name='bilab.geometry._helanal',
+    sources=[
+        'bilab/geometry/helanal.f95',
+        'bilab/geometry/helanal.pyf'])
+
 voroplusplus = Extension(
-    'bilab.geometry.voro.voroplusplus',
+    name='bilab.geometry.voro.voroplusplus',
     include_dirs=['bilab/geometry/voro/src'],
     sources=[
         'bilab/geometry/voro/voroplusplus.pyx',
@@ -218,7 +237,7 @@ elif plat.system() == "Linux":
         extra_link_args=['-fopenmp'])
 
 distance_wrap = Extension(
-    'bilab.geometry._distance_wrap',
+    name='bilab.geometry._distance_wrap',
     define_macros=[('MAJOR_VERSION', '1'),
                    ('MINOR_VERSION', '0')],
     include_dirs=[np_include_dir],
@@ -226,7 +245,7 @@ distance_wrap = Extension(
     # library_dirs = [''],
     sources=['bilab/geometry/distance/distance_wrap.c'])
 kdtree_lib = Extension(
-    'bilab.structure._CKDTree',
+    name='bilab.structure._CKDTree',
     define_macros=[('MAJOR_VERSION', '1'),
                    ('MINOR_VERSION', '0')],
     include_dirs=[np_include_dir],
@@ -236,7 +255,7 @@ kdtree_lib = Extension(
              'bilab/structure/kdtree/KDTreemodule.c'])
 
 marching_cubes = Extension(
-    "bilab.geometry.isosurface._marching_cubes_cy",
+    name="bilab.geometry.isosurface._marching_cubes_cy",
     include_dirs=[np_include_dir],
     sources=[
         'bilab/geometry/isosurface/_marching_cubes_cy.pyx'
@@ -279,7 +298,7 @@ marching_cubes = Extension(
 
 # Cython version
 bhtsne_wrap = Extension(
-    'bilab.ml.NDR.tSNE._bhtsne_wrap',
+    name='bilab.ml.NDR.tSNE._bhtsne_wrap',
     define_macros=[('MAJOR_VERSION', '1'),
                    ('MINOR_VERSION', '0')],
     include_dirs=[np_include_dir],
@@ -293,7 +312,7 @@ bhtsne_wrap = Extension(
     language="c++")
 
 netcdf_wrap = Extension(
-    'bilab.structure.minimization._NetCDF',
+    name='bilab.structure.minimization._NetCDF',
     define_macros=[('MAJOR_VERSION', '1'),
                    ('MINOR_VERSION', '0'),
                    ('NUMPY', 1)],
@@ -308,7 +327,7 @@ netcdf_wrap = Extension(
     sources=['bilab/structure/minimization/_netcdf.c'])
 
 MMTK_universe = Extension(
-    'bilab.structure.minimization._MMTK_universe',
+    name='bilab.structure.minimization._MMTK_universe',
     define_macros=[('MAJOR_VERSION', '1'),
                    ('MINOR_VERSION', '0'),
                    ('NUMPY', 1)],
@@ -322,7 +341,7 @@ MMTK_universe = Extension(
     sources=['bilab/structure/minimization/MMTK_universe.c'])
 
 MMTK_surface = Extension(
-    'bilab.structure.minimization._MMTK_surface',
+    name='bilab.structure.minimization._MMTK_surface',
     define_macros=[('MAJOR_VERSION', '1'),
                    ('MINOR_VERSION', '0'),
                    ('NUMPY', 1)],
@@ -336,7 +355,7 @@ MMTK_surface = Extension(
     sources=['bilab/structure/minimization/MMTK_surface.c'])
 
 MMTK_trajectory = Extension(
-    'bilab.structure.minimization._MMTK_trajectory',
+    name='bilab.structure.minimization._MMTK_trajectory',
     define_macros=[('MAJOR_VERSION', '1'),
                    ('MINOR_VERSION', '0'),
                    ('NUMPY', 1)],
@@ -350,7 +369,7 @@ MMTK_trajectory = Extension(
     sources=['bilab/structure/minimization/MMTK_trajectory.c'])
 
 MMTK_minimization = Extension(
-    'bilab.structure.minimization._MMTK_minimization',
+    name='bilab.structure.minimization._MMTK_minimization',
     define_macros=[('MAJOR_VERSION', '1'),
                    ('MINOR_VERSION', '0')],
     include_dirs=[np_include_dir,
@@ -363,7 +382,7 @@ MMTK_minimization = Extension(
     sources=['bilab/structure/minimization/MMTK_minimization.c'])
 
 MMTK_energy_term = Extension(
-    'bilab.structure.minimization._MMTK_energy_term',
+    name='bilab.structure.minimization._MMTK_energy_term',
     define_macros=[('MAJOR_VERSION', '1'),
                    ('MINOR_VERSION', '0'),
                    ('NUMPY', 1)],
@@ -377,7 +396,7 @@ MMTK_energy_term = Extension(
     sources=['bilab/structure/minimization/_MMTK_energy_term.c'])
 
 MMTK_force_field = Extension(
-    'bilab.structure.minimization._MMTK_forcefield',
+    name='bilab.structure.minimization._MMTK_forcefield',
     define_macros=[('MAJOR_VERSION', '1'),
                    ('MINOR_VERSION', '0'),
                    ('SERIAL', None),

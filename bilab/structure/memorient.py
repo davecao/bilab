@@ -3,7 +3,7 @@
 # @Author: davecao
 # @Date:   2015-12-08 14:20:11
 # @Last Modified by:   davecao
-# @Last Modified time: 2015-12-25 12:58:27
+# @Last Modified time: 2016-01-02 01:04:51
 
 # In scipy v0.15.1 suggested to use basinhopping other than annealing
 # ------------------
@@ -504,7 +504,7 @@ def print_optResults(opt, meth):
         "global minimum: {} at alpha={:.4f} beta={:.4f} ztrans={:.4f}"
         .format(opt['fun'], x[0], x[1], x[2]))
     print(
-        "Agree: alpha={:.4f} beta={:.4f} ztrans={:.4f}"
+        "Degree: alpha={:.4f} beta={:.4f} ztrans={:.4f}"
         .format(x[0]*180/np.pi, x[1]*180/np.pi, x[2]))
 
 
