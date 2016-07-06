@@ -160,7 +160,11 @@ class Residue(AtomSubset):
     def getPrev(self):
         """Return preceding residue in the atom group."""
 
-        return self._hv._getResidue(self.getResindex()-1)
+        # return self._hv._getResidue(self.getResindex()-1)
+        nextIndex = self.getResindex() - 1
+        if nextIndex < 0:
+            return None
+        return self._hv._getResidue(nextIndex)
 
     def getNext(self):
         """Return following residue in the atom group."""
