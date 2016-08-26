@@ -1,0 +1,50 @@
+!    -*- f90 -*-
+! Note: the context of this file is case sensitive.
+
+python module _helanal ! in 
+    interface  ! in :_helanal
+        module helanal ! in :_helanal:helanal.f95
+            real(kind=8), parameter,optional :: pi=3.14159265359
+            integer, parameter,optional :: sp=kind(1.0)
+            integer, parameter,optional :: dp=kind(1.0d0)
+            subroutine mat2d_print(mat) ! in :_helanal:helanal.f95:helanal
+                real(kind=8) dimension(:,:),intent(in) :: mat
+            end subroutine mat2d_print
+            function outer(a,b) ! in :_helanal:helanal.f95:helanal
+                intent(hide) outer
+                real(kind=8) dimension(:),intent(in) :: a
+                real(kind=8) dimension(:),intent(in) :: b
+                real(kind=8) dimension(size(a),size(b)),intent(hide),depend(a,b) :: outer
+            end function outer
+            function cross(a,b) ! in :_helanal:helanal.f95:helanal
+                real(kind=8) dimension(3),intent(in) :: a
+                real(kind=8) dimension(3),intent(in) :: b
+                real(kind=8) dimension(3) :: cross
+            end function cross
+            subroutine local_helix(p1,p2,p3,p4,direct,origin,twist,height) ! in :_helanal:helanal.f95:helanal
+                real(kind=8) dimension(:),intent(in) :: p1
+                real(kind=8) dimension(:),intent(in) :: p2
+                real(kind=8) dimension(:),intent(in) :: p3
+                real(kind=8) dimension(:),intent(in) :: p4
+                real(kind=8) dimension(:),intent(out) :: direct
+                real(kind=8) dimension(:,:),intent(out) :: origin
+                real(kind=8) intent(out) :: twist
+                real(kind=8) intent(out) :: height
+            end subroutine local_helix
+            subroutine fit_origins_lsq(origins,radc,rmsdc,rmsdl,r2) ! in :_helanal:helanal.f95:helanal
+                real(kind=8) dimension(:,:),intent(in) :: origins
+                real(kind=8) intent(out) :: radc
+                real(kind=8) intent(out) :: rmsdc
+                real(kind=8) intent(out) :: rmsdl
+                real(kind=8) intent(out) :: r2
+            end subroutine fit_origins_lsq
+            subroutine fit(points,bending_angles) ! in :_helanal:helanal.f95:helanal
+                real(kind=8) dimension(:,:),intent(in) :: points
+                real(kind=8) dimension(shape(points,1)),intent(out),depend(points) :: bending_angles
+            end subroutine fit
+        end module helanal
+    end interface 
+end python module _helanal
+
+! This file was auto-generated with f2py (version:2).
+! See http://cens.ioc.ee/projects/f2py2e/
