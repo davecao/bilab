@@ -872,7 +872,10 @@ def _getUnitCell(lines):
         unit_cell.gamma = float(line[47:53].strip())
         unit_cell.sGroup = line[55:65].strip()
         # unit_cell.z = int(line[66:69].strip())
-        unit_cell.z = int(line[66:70].strip())
+        if(line[66:70].strip()):
+            unit_cell.z = int(line[66:70].strip())
+        else:
+            unit_cell.z = None
     return unit_cell
 
 

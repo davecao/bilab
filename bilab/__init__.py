@@ -10,6 +10,7 @@ import sys
 import types
 # import warnings
 import sysconfig
+from datetime import datetime
 
 if sys.version_info[:2] < (2, 7):
     raise Exception('Python version less than 2.7')
@@ -24,7 +25,7 @@ else:
 
 from .utilities import PackageLogger, PackageSettings
 # from .utilities import getPackagePath, joinRepr, tabulate
-
+_TIMESTAMP_FORMAT = '%Y-%m-%d-%H:%M:%S'
 _PY3K = PY3K = sys.version_info[0] > 2
 PY2K = not PY3K
 
@@ -68,6 +69,10 @@ else:
     class_types = (type, types.ClassType),
     text_type = unicode,
     binary_type = str
+
+
+def get_timestamp():
+    return datetime.now().strftime(_TIMESTAMP_FORMAT)
 
 # from . import chemicals
 from .chemicals import *
@@ -113,6 +118,11 @@ from .optimization import *
 from .geometry import *
 # __all__.extend(geometry.__all__)
 # __all__.append('geometry')
+
+from .graph import *
+# __all__.extend(graph.__all__)
+# __all__.append('graph')
+
 
 # from . import structure
 from .structure import *

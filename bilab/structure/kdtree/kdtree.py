@@ -21,6 +21,7 @@ __all__ = ['KDTree']
 _ = array([-1., 0., 1.])
 REPLICATE = array([[x, y, z] for x in _ for y in _ for z in _])
 
+
 class KDTree(object):
 
     """An interface to Thomas Hamelryck's C KDTree module that can handle

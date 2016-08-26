@@ -11,24 +11,24 @@ import platform as plat
 from distutils.core import setup, Extension
 
 ## scypy_distutils Script
-#from numpy.distutils.core import setup, Extension
-#from numpy.distutils.command import build_src
+# from numpy.distutils.core import setup, Extension
+# from numpy.distutils.command import build_src
 import Cython
 import Cython.Compiler.Main
 from Cython.Build import cythonize
 from Cython.Distutils import build_ext
 
 from distutils.sysconfig import get_config_var
-#try:
-#    from Cython.Distutils import build_ext
-#    from Cython.Build import cythonize
-#except ImportError:
-#    from distutils.command import build_ext
-# setuptools --> pip install_requires
-# from setuptools import setup, Extension
+# try:
+#     from Cython.Distutils import build_ext
+#     from Cython.Build import cythonize
+# except ImportError:
+#     from distutils.command import build_ext
+#  setuptools --> pip install_requires
+#  from setuptools import setup, Extension
 
-#build_src.Pyrex = Cython
-#build_src.have_pyrex = True
+# build_src.Pyrex = Cython
+# build_src.have_pyrex = True
 
 # from distutils.ccompiler import show_compilers
 
@@ -259,7 +259,83 @@ marching_cubes = Extension(
     include_dirs=[np_include_dir],
     sources=[
         'bilab/geometry/isosurface/_marching_cubes_cy.pyx'
-        ])
+    ])
+
+gpmetis_wrap = Extension(
+    name="bilab.graph.metis._gpmetis_wrap",
+    define_macros=[('MAJOR_VERSION', '5'),
+                   ('MINOR_VERSION', '1')],
+    include_dirs=['.',
+                  np_include_dir,
+                  'bilab/graph/metis',
+                  'bilab/graph/metis/GKlib',
+                  'bilab/graph/metis/libmetis'
+                  ],
+    sources=[
+        #'bilab/graph/metis/GKlib/conf/check_thread_storage.c',
+        'bilab/graph/metis/GKlib/b64.c',
+        'bilab/graph/metis/GKlib/blas.c',
+        'bilab/graph/metis/GKlib/csr.c',
+        'bilab/graph/metis/GKlib/error.c',
+        'bilab/graph/metis/GKlib/evaluate.c',
+        'bilab/graph/metis/GKlib/fkvkselect.c',
+        'bilab/graph/metis/GKlib/fs.c',
+        'bilab/graph/metis/GKlib/getopt.c',
+        'bilab/graph/metis/GKlib/gkregex.c',
+        'bilab/graph/metis/GKlib/graph.c',
+        'bilab/graph/metis/GKlib/htable.c',
+        'bilab/graph/metis/GKlib/io.c',
+        'bilab/graph/metis/GKlib/itemsets.c',
+        'bilab/graph/metis/GKlib/mcore.c',
+        #'bilab/graph/metis/GKlib/memory.c',
+        'bilab/graph/metis/GKlib/omp.c',
+        'bilab/graph/metis/GKlib/pdb.c',
+        'bilab/graph/metis/GKlib/pqueue.c',
+        'bilab/graph/metis/GKlib/random.c',
+        'bilab/graph/metis/GKlib/rw.c',
+        'bilab/graph/metis/GKlib/seq.c',
+        'bilab/graph/metis/GKlib/sort.c',
+        'bilab/graph/metis/GKlib/string.c',
+        'bilab/graph/metis/GKlib/timers.c',
+        'bilab/graph/metis/GKlib/tokenizer.c',
+        'bilab/graph/metis/GKlib/util.c',
+        #'bilab/graph/metis/libmetis/auxapi.c',
+        'bilab/graph/metis/libmetis/balance.c',
+        'bilab/graph/metis/libmetis/bucketsort.c',
+        'bilab/graph/metis/libmetis/checkgraph.c',
+        'bilab/graph/metis/libmetis/coarsen.c',
+        'bilab/graph/metis/libmetis/compress.c',
+        'bilab/graph/metis/libmetis/contig.c',
+        'bilab/graph/metis/libmetis/debug.c',
+        'bilab/graph/metis/libmetis/fm.c',
+        'bilab/graph/metis/libmetis/fortran.c',
+        'bilab/graph/metis/libmetis/frename.c',
+        'bilab/graph/metis/libmetis/gklib.c',
+        'bilab/graph/metis/libmetis/graph.c',
+        'bilab/graph/metis/libmetis/initpart.c',
+#        'bilab/graph/metis/libmetis/kmetis.c',
+        'bilab/graph/metis/libmetis/kwayfm.c',
+        'bilab/graph/metis/libmetis/kwayrefine.c',
+        'bilab/graph/metis/libmetis/mcutil.c',
+        'bilab/graph/metis/libmetis/mesh.c',
+        'bilab/graph/metis/libmetis/meshpart.c',
+        'bilab/graph/metis/libmetis/minconn.c',
+        'bilab/graph/metis/libmetis/mincover.c',
+        'bilab/graph/metis/libmetis/mmd.c',
+        'bilab/graph/metis/libmetis/ometis.c',
+        'bilab/graph/metis/libmetis/options.c',
+        'bilab/graph/metis/libmetis/parmetis.c',
+#        'bilab/graph/metis/libmetis/pmetis.c',
+        'bilab/graph/metis/libmetis/refine.c',
+        'bilab/graph/metis/libmetis/separator.c',
+        'bilab/graph/metis/libmetis/sfm.c',
+        'bilab/graph/metis/libmetis/srefine.c',
+        'bilab/graph/metis/libmetis/stat.c',
+        'bilab/graph/metis/libmetis/timing.c',
+        'bilab/graph/metis/libmetis/util.c',
+        'bilab/graph/metis/libmetis/wspace.c',
+        'bilab/graph/metis/gpmetis_wrap.pyx'
+    ])
 
 # Isosurface = Extension(
 #    'bilab.geometry._IsoSurface',
@@ -562,7 +638,7 @@ def cfg_to_args(path='setup.cfg'):
                         dfile = os.path.dirname(files[0])
                     # datafiles.extend(glob(file_str))
                     datafiles.append(
-                        ('share'+os.sep+'bilab'+os.sep+dfile,
+                        ('share' + os.sep + 'bilab' + os.sep + dfile,
                          files))
                 print datafiles
                 # kwargs['data_files'] = [
@@ -584,11 +660,11 @@ general_settings.pop('resources')
 general_settings['cmdclass'] = {'build_ext': build_ext}
 # extensions
 general_settings['ext_modules'] = [
-    distance_wrap, kdtree_lib, bhtsne_wrap,
+    distance_wrap, kdtree_lib, bhtsne_wrap, gpmetis_wrap,
     netcdf_wrap, lfdfiles, voroplusplus, marching_cubes,
     MMTK_surface, MMTK_minimization, MMTK_trajectory,
     MMTK_universe, MMTK_energy_term, MMTK_force_field
-    ]
+]
 #                                   CWMatrix]
 # general_settings['install_requires'] = [
 #    'matplotlib>1.4.0',
