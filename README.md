@@ -13,9 +13,9 @@ Download and Installation
 -------------------------
 1. Numpy
 
-	git clone git://github.com/numpy/numpy.git numpy  
-	cd numpy  
-	python setup.py build install  
+		git clone git://github.com/numpy/numpy.git numpy  
+		cd numpy  
+		python setup.py build install  
 
 2. Distutil2 and setuptools
 
