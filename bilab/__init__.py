@@ -1,10 +1,4 @@
 # -*- coding: utf-8 -*-
-
-__author__ = "Wei Cao"
-__contact__ = "davecao@bi.a.u-tokyo.ac.jp"
-__date__ = "2014/08/04"
-__version__ = '1.0.0'
-
 import os
 import sys
 import types
@@ -25,6 +19,12 @@ else:
 
 from .utilities import PackageLogger, PackageSettings
 # from .utilities import getPackagePath, joinRepr, tabulate
+
+__author__ = "Wei Cao"
+__contact__ = "davecao@bi.a.u-tokyo.ac.jp"
+__date__ = "2014/08/04"
+__version__ = '1.0.0'
+
 _TIMESTAMP_FORMAT = '%Y-%m-%d-%H:%M:%S'
 _PY3K = PY3K = sys.version_info[0] > 2
 PY2K = not PY3K

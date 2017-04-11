@@ -4,13 +4,15 @@ import sys
 import os
 import io
 import re
-import distutils.sysconfig as dsc
 import platform as plat
 
+import distutils.sysconfig as dsc
 # from distutils import core, dir_util
-from distutils.core import setup, Extension
+from setuptools import setup, Extension
+# from distutils.core import setup, Extension
+from distutils.sysconfig import get_config_var
 
-## scypy_distutils Script
+## scipy_distutils Script
 # from numpy.distutils.core import setup, Extension
 # from numpy.distutils.command import build_src
 import Cython
@@ -18,7 +20,6 @@ import Cython.Compiler.Main
 from Cython.Build import cythonize
 from Cython.Distutils import build_ext
 
-from distutils.sysconfig import get_config_var
 # try:
 #     from Cython.Distutils import build_ext
 #     from Cython.Build import cythonize
@@ -61,7 +62,7 @@ except ImportError:
     # raise ImportError('Numpy is a required package')
 
 
-class Find_BOOST_PACKAGE(object):
+class FindBoostPackage(object):
     """
     Find the include path and libraries path of Boost library
     """
@@ -125,17 +126,17 @@ class Find_BOOST_PACKAGE(object):
                 #  stage version?
                 self.incDir = pj(self.baseDir)
             if not os.path.isfile(pj(self.incDir, 'boost', 'version.hpp')):
-                print "Searching for correct boost include dir...",
+                print("Searching for correct boost include dir...")
                 potential_dirs = os.listdir(self.incDir)
                 potential_dirs = [d for d in potential_dirs if os.path.isfile(
                                         pj(self.incDir, d, 'boost',
                                             'version.hpp'))]
                 potential_dirs.sort()
                 if 0 == len(potential_dirs):
-                    print "none found."
+                    print("none found.")
                 else:
                     self.incDir = pj(self.incDir, potential_dirs[-1])
-                    print "found: ", self.incDir
+                    print("found: {}".format(self.incDir))
         if self.incDir and (not os.path.isdir(pj(self.incDir, 'boost'))):
             print(
                 "Boost inc dir is not a valid directory: {}".format(
@@ -194,7 +195,7 @@ os.environ['OPT'] = ' '.join(
     _ for _ in get_config_var('OPT').strip().split()
     if _ not in _UNWANTED_OPTS)
 
-fboost = Find_BOOST_PACKAGE()
+fboost = FindBoostPackage()
 fboost.dumpSettings()
 boost_inc_dir = fboost.found_incs
 boost_lib_dir = fboost.found_lib_paths
@@ -524,7 +525,7 @@ def split_multiline(value):
     """Split a multiline string into a list, excluding blank lines."""
     val = value.encode('utf-8')
     return [element for element in
-            (line.strip() for line in val.split('\n'))
+            (line.decode('utf-8').strip() for line in val.split(b'\n'))
             if element]
 
 
@@ -640,7 +641,7 @@ def cfg_to_args(path='setup.cfg'):
                     datafiles.append(
                         ('share' + os.sep + 'bilab' + os.sep + dfile,
                          files))
-                print datafiles
+                print(datafiles)
                 # kwargs['data_files'] = [
                 #   ('share/bilab',[line.split('=')[0].strip()
                 #    for line in in_cfg_value])]
@@ -669,5 +670,7 @@ general_settings['ext_modules'] = [
 # general_settings['install_requires'] = [
 #    'matplotlib>1.4.0',
 #    'numpy>1.9.0']
+for k in general_settings:
+    print k
 setup(**general_settings)
 # setup(**cfg_to_args())

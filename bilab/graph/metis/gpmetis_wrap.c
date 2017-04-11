@@ -2012,6 +2012,7 @@ static const char __pyx_k_adjncy[] = "adjncy";
 static const char __pyx_k_adjwgt[] = "adjwgt";
 static const char __pyx_k_encode[] = "encode";
 static const char __pyx_k_format[] = "format";
+static const char __pyx_k_greedy[] = "greedy";
 static const char __pyx_k_import[] = "__import__";
 static const char __pyx_k_name_2[] = "__name__";
 static const char __pyx_k_nedges[] = "nedges";
@@ -2033,11 +2034,14 @@ static const char __pyx_k_get_edge[] = "get_edge";
 static const char __pyx_k_has_vwgt[] = "has_vwgt";
 static const char __pyx_k_itemsize[] = "itemsize";
 static const char __pyx_k_nparts_c[] = "nparts_c";
+static const char __pyx_k_optNiter[] = "optNiter";
 static const char __pyx_k_xadj_inx[] = "xadj_inx";
 static const char __pyx_k_TypeError[] = "TypeError";
 static const char __pyx_k_enumerate[] = "enumerate";
 static const char __pyx_k_has_edwgt[] = "has_edwgt";
 static const char __pyx_k_part_view[] = "part_view";
+static const char __pyx_k_sep1sided[] = "sep1sided";
+static const char __pyx_k_sep2sided[] = "sep2sided";
 static const char __pyx_k_IndexError[] = "IndexError";
 static const char __pyx_k_Some_error[] = "Some error";
 static const char __pyx_k_ValueError[] = "ValueError";
@@ -2241,6 +2245,7 @@ static PyObject *__pyx_n_s_get_num_neighbors;
 static PyObject *__pyx_n_s_get_num_vertices;
 static PyObject *__pyx_kp_s_got_differing_extents_in_dimensi;
 static PyObject *__pyx_n_s_gpmetis;
+static PyObject *__pyx_n_s_greedy;
 static PyObject *__pyx_n_s_has_edwgt;
 static PyObject *__pyx_n_s_has_vwgt;
 static PyObject *__pyx_n_s_i;
@@ -2277,6 +2282,7 @@ static PyObject *__pyx_n_s_nvtxs;
 static PyObject *__pyx_n_s_obj;
 static PyObject *__pyx_n_s_objval;
 static PyObject *__pyx_n_s_ones;
+static PyObject *__pyx_n_s_optNiter;
 static PyObject *__pyx_n_s_options;
 static PyObject *__pyx_n_s_pack;
 static PyObject *__pyx_n_s_part;
@@ -2291,6 +2297,8 @@ static PyObject *__pyx_n_s_rstrip;
 static PyObject *__pyx_n_s_rtype;
 static PyObject *__pyx_kp_u_s;
 static PyObject *__pyx_n_s_s_2;
+static PyObject *__pyx_n_s_sep1sided;
+static PyObject *__pyx_n_s_sep2sided;
 static PyObject *__pyx_n_s_shape;
 static PyObject *__pyx_n_s_shem;
 static PyObject *__pyx_n_s_size;
@@ -2318,7 +2326,7 @@ static PyObject *__pyx_n_s_vwgt;
 static PyObject *__pyx_n_s_xadj;
 static PyObject *__pyx_n_s_xadj_inx;
 static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_PrintInfo(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_opt); /* proto */
-static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_G, PyObject *__pyx_v_nparts, CYTHON_UNUSED PyObject *__pyx_v_has_vwgt, CYTHON_UNUSED PyObject *__pyx_v_has_edwgt, PyObject *__pyx_v_ptype, PyObject *__pyx_v_ctype, CYTHON_UNUSED PyObject *__pyx_v_rtype, PyObject *__pyx_v_no2hop, PyObject *__pyx_v_dbg_mode); /* proto */
+static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_G, PyObject *__pyx_v_nparts, CYTHON_UNUSED PyObject *__pyx_v_has_vwgt, CYTHON_UNUSED PyObject *__pyx_v_has_edwgt, PyObject *__pyx_v_ptype, PyObject *__pyx_v_ctype, CYTHON_UNUSED PyObject *__pyx_v_rtype, PyObject *__pyx_v_optNiter, PyObject *__pyx_v_no2hop, PyObject *__pyx_v_dbg_mode); /* proto */
 static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
 static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info); /* proto */
 static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array___cinit__(struct __pyx_array_obj *__pyx_v_self, PyObject *__pyx_v_shape, Py_ssize_t __pyx_v_itemsize, PyObject *__pyx_v_format, PyObject *__pyx_v_mode, int __pyx_v_allocate_buffer); /* proto */
@@ -4079,7 +4087,7 @@ static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_PrintInfo(CYTHON_
  * 
  * 
  * def gpmetis(G, nparts=2, has_vwgt=False, has_edwgt=False,             # <<<<<<<<<<<<<<
- *             ptype="kway", ctype="shem", rtype="fm",
+ *             ptype="kway", ctype="shem", rtype="fm", optNiter=10,
  *             no2hop=False, dbg_mode=False):
  */
 
@@ -4094,34 +4102,37 @@ static PyObject *__pyx_pw_5bilab_5graph_5metis_13_gpmetis_wrap_3gpmetis(PyObject
   PyObject *__pyx_v_ptype = 0;
   PyObject *__pyx_v_ctype = 0;
   CYTHON_UNUSED PyObject *__pyx_v_rtype = 0;
+  PyObject *__pyx_v_optNiter = 0;
   PyObject *__pyx_v_no2hop = 0;
   PyObject *__pyx_v_dbg_mode = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("gpmetis (wrapper)", 0);
   {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_G,&__pyx_n_s_nparts,&__pyx_n_s_has_vwgt,&__pyx_n_s_has_edwgt,&__pyx_n_s_ptype,&__pyx_n_s_ctype,&__pyx_n_s_rtype,&__pyx_n_s_no2hop,&__pyx_n_s_dbg_mode,0};
-    PyObject* values[9] = {0,0,0,0,0,0,0,0,0};
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_G,&__pyx_n_s_nparts,&__pyx_n_s_has_vwgt,&__pyx_n_s_has_edwgt,&__pyx_n_s_ptype,&__pyx_n_s_ctype,&__pyx_n_s_rtype,&__pyx_n_s_optNiter,&__pyx_n_s_no2hop,&__pyx_n_s_dbg_mode,0};
+    PyObject* values[10] = {0,0,0,0,0,0,0,0,0,0};
     values[1] = ((PyObject *)__pyx_int_2);
     values[2] = ((PyObject *)Py_False);
     values[3] = ((PyObject *)Py_False);
     values[4] = ((PyObject *)__pyx_n_s_kway);
     values[5] = ((PyObject *)__pyx_n_s_shem);
     values[6] = ((PyObject *)__pyx_n_s_fm);
+    values[7] = ((PyObject *)__pyx_int_10);
 
     /* "bilab/graph/metis/gpmetis_wrap.pyx":124
  * def gpmetis(G, nparts=2, has_vwgt=False, has_edwgt=False,
- *             ptype="kway", ctype="shem", rtype="fm",
+ *             ptype="kway", ctype="shem", rtype="fm", optNiter=10,
  *             no2hop=False, dbg_mode=False):             # <<<<<<<<<<<<<<
  * 
  *     if not isinstance(G, Graph):
  */
-    values[7] = ((PyObject *)Py_False);
     values[8] = ((PyObject *)Py_False);
+    values[9] = ((PyObject *)Py_False);
     if (unlikely(__pyx_kwds)) {
       Py_ssize_t kw_args;
       const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
       switch (pos_args) {
+        case 10: values[9] = PyTuple_GET_ITEM(__pyx_args, 9);
         case  9: values[8] = PyTuple_GET_ITEM(__pyx_args, 8);
         case  8: values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
         case  7: values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
@@ -4171,13 +4182,18 @@ static PyObject *__pyx_pw_5bilab_5graph_5metis_13_gpmetis_wrap_3gpmetis(PyObject
         }
         case  7:
         if (kw_args > 0) {
-          PyObject* value = PyDict_GetItem(__pyx_kwds, __pyx_n_s_no2hop);
+          PyObject* value = PyDict_GetItem(__pyx_kwds, __pyx_n_s_optNiter);
           if (value) { values[7] = value; kw_args--; }
         }
         case  8:
         if (kw_args > 0) {
-          PyObject* value = PyDict_GetItem(__pyx_kwds, __pyx_n_s_dbg_mode);
+          PyObject* value = PyDict_GetItem(__pyx_kwds, __pyx_n_s_no2hop);
           if (value) { values[8] = value; kw_args--; }
+        }
+        case  9:
+        if (kw_args > 0) {
+          PyObject* value = PyDict_GetItem(__pyx_kwds, __pyx_n_s_dbg_mode);
+          if (value) { values[9] = value; kw_args--; }
         }
       }
       if (unlikely(kw_args > 0)) {
@@ -4185,6 +4201,7 @@ static PyObject *__pyx_pw_5bilab_5graph_5metis_13_gpmetis_wrap_3gpmetis(PyObject
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
+        case 10: values[9] = PyTuple_GET_ITEM(__pyx_args, 9);
         case  9: values[8] = PyTuple_GET_ITEM(__pyx_args, 8);
         case  8: values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
         case  7: values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
@@ -4205,24 +4222,25 @@ static PyObject *__pyx_pw_5bilab_5graph_5metis_13_gpmetis_wrap_3gpmetis(PyObject
     __pyx_v_ptype = values[4];
     __pyx_v_ctype = values[5];
     __pyx_v_rtype = values[6];
-    __pyx_v_no2hop = values[7];
-    __pyx_v_dbg_mode = values[8];
+    __pyx_v_optNiter = values[7];
+    __pyx_v_no2hop = values[8];
+    __pyx_v_dbg_mode = values[9];
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("gpmetis", 0, 1, 9, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 122, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("gpmetis", 0, 1, 10, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 122, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("bilab.graph.metis._gpmetis_wrap.gpmetis", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(__pyx_self, __pyx_v_G, __pyx_v_nparts, __pyx_v_has_vwgt, __pyx_v_has_edwgt, __pyx_v_ptype, __pyx_v_ctype, __pyx_v_rtype, __pyx_v_no2hop, __pyx_v_dbg_mode);
+  __pyx_r = __pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(__pyx_self, __pyx_v_G, __pyx_v_nparts, __pyx_v_has_vwgt, __pyx_v_has_edwgt, __pyx_v_ptype, __pyx_v_ctype, __pyx_v_rtype, __pyx_v_optNiter, __pyx_v_no2hop, __pyx_v_dbg_mode);
 
   /* "bilab/graph/metis/gpmetis_wrap.pyx":122
  * 
  * 
  * def gpmetis(G, nparts=2, has_vwgt=False, has_edwgt=False,             # <<<<<<<<<<<<<<
- *             ptype="kway", ctype="shem", rtype="fm",
+ *             ptype="kway", ctype="shem", rtype="fm", optNiter=10,
  *             no2hop=False, dbg_mode=False):
  */
 
@@ -4231,7 +4249,7 @@ static PyObject *__pyx_pw_5bilab_5graph_5metis_13_gpmetis_wrap_3gpmetis(PyObject
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_G, PyObject *__pyx_v_nparts, CYTHON_UNUSED PyObject *__pyx_v_has_vwgt, CYTHON_UNUSED PyObject *__pyx_v_has_edwgt, PyObject *__pyx_v_ptype, PyObject *__pyx_v_ctype, CYTHON_UNUSED PyObject *__pyx_v_rtype, PyObject *__pyx_v_no2hop, PyObject *__pyx_v_dbg_mode) {
+static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_G, PyObject *__pyx_v_nparts, CYTHON_UNUSED PyObject *__pyx_v_has_vwgt, CYTHON_UNUSED PyObject *__pyx_v_has_edwgt, PyObject *__pyx_v_ptype, PyObject *__pyx_v_ctype, CYTHON_UNUSED PyObject *__pyx_v_rtype, PyObject *__pyx_v_optNiter, PyObject *__pyx_v_no2hop, PyObject *__pyx_v_dbg_mode) {
   __pyx_t_5bilab_5graph_5metis_13_gpmetis_wrap_idx_t __pyx_v_nvtxs;
   __pyx_t_5bilab_5graph_5metis_13_gpmetis_wrap_idx_t __pyx_v_nedges;
   __pyx_t_5bilab_5graph_5metis_13_gpmetis_wrap_idx_t __pyx_v_ncon;
@@ -5857,51 +5875,176 @@ static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_U
   /* "bilab/graph/metis/gpmetis_wrap.pyx":355
  *     # rtype_enum.METIS_RTYPE_SEP2SIDED(2) Two-sided node FM refinement.
  *     # rtype_enum.METIS_RTYPE_SEP1SIDED(3) One-sided node FM refinement.
- *     options[METIS_OPTION_RTYPE] = METIS_RTYPE_FM             # <<<<<<<<<<<<<<
+ *     if ptype == 'fm':             # <<<<<<<<<<<<<<
+ *         options[METIS_OPTION_RTYPE] = METIS_RTYPE_FM
+ *     elif ptype == 'greedy':
+ */
+  __pyx_t_3 = (__Pyx_PyString_Equals(__pyx_v_ptype, __pyx_n_s_fm, Py_EQ)); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 355, __pyx_L1_error)
+  if (__pyx_t_3) {
+
+    /* "bilab/graph/metis/gpmetis_wrap.pyx":356
+ *     # rtype_enum.METIS_RTYPE_SEP1SIDED(3) One-sided node FM refinement.
+ *     if ptype == 'fm':
+ *         options[METIS_OPTION_RTYPE] = METIS_RTYPE_FM             # <<<<<<<<<<<<<<
+ *     elif ptype == 'greedy':
+ *         options[METIS_OPTION_RTYPE] = METIS_RTYPE_GREEDY
+ */
+    __pyx_t_4 = __Pyx_PyInt_From_mrtype_et(METIS_RTYPE_FM); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 356, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_7 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_RTYPE); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 356, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_7);
+    if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_options), __pyx_t_7, __pyx_t_4) < 0)) __PYX_ERR(0, 356, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+
+    /* "bilab/graph/metis/gpmetis_wrap.pyx":355
+ *     # rtype_enum.METIS_RTYPE_SEP2SIDED(2) Two-sided node FM refinement.
+ *     # rtype_enum.METIS_RTYPE_SEP1SIDED(3) One-sided node FM refinement.
+ *     if ptype == 'fm':             # <<<<<<<<<<<<<<
+ *         options[METIS_OPTION_RTYPE] = METIS_RTYPE_FM
+ *     elif ptype == 'greedy':
+ */
+    goto __pyx_L31;
+  }
+
+  /* "bilab/graph/metis/gpmetis_wrap.pyx":357
+ *     if ptype == 'fm':
+ *         options[METIS_OPTION_RTYPE] = METIS_RTYPE_FM
+ *     elif ptype == 'greedy':             # <<<<<<<<<<<<<<
+ *         options[METIS_OPTION_RTYPE] = METIS_RTYPE_GREEDY
+ *     elif ptype == 'sep2sided':
+ */
+  __pyx_t_3 = (__Pyx_PyString_Equals(__pyx_v_ptype, __pyx_n_s_greedy, Py_EQ)); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 357, __pyx_L1_error)
+  if (__pyx_t_3) {
+
+    /* "bilab/graph/metis/gpmetis_wrap.pyx":358
+ *         options[METIS_OPTION_RTYPE] = METIS_RTYPE_FM
+ *     elif ptype == 'greedy':
+ *         options[METIS_OPTION_RTYPE] = METIS_RTYPE_GREEDY             # <<<<<<<<<<<<<<
+ *     elif ptype == 'sep2sided':
+ *         options[METIS_OPTION_RTYPE] = METIS_RTYPE_SEP2SIDED
+ */
+    __pyx_t_4 = __Pyx_PyInt_From_mrtype_et(METIS_RTYPE_GREEDY); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 358, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_7 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_RTYPE); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 358, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_7);
+    if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_options), __pyx_t_7, __pyx_t_4) < 0)) __PYX_ERR(0, 358, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+
+    /* "bilab/graph/metis/gpmetis_wrap.pyx":357
+ *     if ptype == 'fm':
+ *         options[METIS_OPTION_RTYPE] = METIS_RTYPE_FM
+ *     elif ptype == 'greedy':             # <<<<<<<<<<<<<<
+ *         options[METIS_OPTION_RTYPE] = METIS_RTYPE_GREEDY
+ *     elif ptype == 'sep2sided':
+ */
+    goto __pyx_L31;
+  }
+
+  /* "bilab/graph/metis/gpmetis_wrap.pyx":359
+ *     elif ptype == 'greedy':
+ *         options[METIS_OPTION_RTYPE] = METIS_RTYPE_GREEDY
+ *     elif ptype == 'sep2sided':             # <<<<<<<<<<<<<<
+ *         options[METIS_OPTION_RTYPE] = METIS_RTYPE_SEP2SIDED
+ *     elif ptype == 'sep1sided':
+ */
+  __pyx_t_3 = (__Pyx_PyString_Equals(__pyx_v_ptype, __pyx_n_s_sep2sided, Py_EQ)); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 359, __pyx_L1_error)
+  if (__pyx_t_3) {
+
+    /* "bilab/graph/metis/gpmetis_wrap.pyx":360
+ *         options[METIS_OPTION_RTYPE] = METIS_RTYPE_GREEDY
+ *     elif ptype == 'sep2sided':
+ *         options[METIS_OPTION_RTYPE] = METIS_RTYPE_SEP2SIDED             # <<<<<<<<<<<<<<
+ *     elif ptype == 'sep1sided':
+ *         options[METIS_OPTION_RTYPE] = METIS_RTYPE_SEP2SIDED
+ */
+    __pyx_t_4 = __Pyx_PyInt_From_mrtype_et(METIS_RTYPE_SEP2SIDED); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 360, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_7 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_RTYPE); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 360, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_7);
+    if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_options), __pyx_t_7, __pyx_t_4) < 0)) __PYX_ERR(0, 360, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+
+    /* "bilab/graph/metis/gpmetis_wrap.pyx":359
+ *     elif ptype == 'greedy':
+ *         options[METIS_OPTION_RTYPE] = METIS_RTYPE_GREEDY
+ *     elif ptype == 'sep2sided':             # <<<<<<<<<<<<<<
+ *         options[METIS_OPTION_RTYPE] = METIS_RTYPE_SEP2SIDED
+ *     elif ptype == 'sep1sided':
+ */
+    goto __pyx_L31;
+  }
+
+  /* "bilab/graph/metis/gpmetis_wrap.pyx":361
+ *     elif ptype == 'sep2sided':
+ *         options[METIS_OPTION_RTYPE] = METIS_RTYPE_SEP2SIDED
+ *     elif ptype == 'sep1sided':             # <<<<<<<<<<<<<<
+ *         options[METIS_OPTION_RTYPE] = METIS_RTYPE_SEP2SIDED
+ * 
+ */
+  __pyx_t_3 = (__Pyx_PyString_Equals(__pyx_v_ptype, __pyx_n_s_sep1sided, Py_EQ)); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 361, __pyx_L1_error)
+  if (__pyx_t_3) {
+
+    /* "bilab/graph/metis/gpmetis_wrap.pyx":362
+ *         options[METIS_OPTION_RTYPE] = METIS_RTYPE_SEP2SIDED
+ *     elif ptype == 'sep1sided':
+ *         options[METIS_OPTION_RTYPE] = METIS_RTYPE_SEP2SIDED             # <<<<<<<<<<<<<<
  * 
  *     # optype_enum.METIS_OPTION_NO2HOP Specifies that the coarsening will not
  */
-  __pyx_t_4 = __Pyx_PyInt_From_mrtype_et(METIS_RTYPE_FM); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 355, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_7 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_RTYPE); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 355, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_7);
-  if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_options), __pyx_t_7, __pyx_t_4) < 0)) __PYX_ERR(0, 355, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __pyx_t_4 = __Pyx_PyInt_From_mrtype_et(METIS_RTYPE_SEP2SIDED); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 362, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_7 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_RTYPE); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 362, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_7);
+    if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_options), __pyx_t_7, __pyx_t_4) < 0)) __PYX_ERR(0, 362, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "bilab/graph/metis/gpmetis_wrap.pyx":365
+    /* "bilab/graph/metis/gpmetis_wrap.pyx":361
+ *     elif ptype == 'sep2sided':
+ *         options[METIS_OPTION_RTYPE] = METIS_RTYPE_SEP2SIDED
+ *     elif ptype == 'sep1sided':             # <<<<<<<<<<<<<<
+ *         options[METIS_OPTION_RTYPE] = METIS_RTYPE_SEP2SIDED
+ * 
+ */
+  }
+  __pyx_L31:;
+
+  /* "bilab/graph/metis/gpmetis_wrap.pyx":372
  *     #         0                   Performs a 2-hop matching.
  *     #         1                   Does not perform a 2-hop matching.
  *     if no2hop:             # <<<<<<<<<<<<<<
  *         options[METIS_OPTION_NO2HOP] = 1
  *     else:
  */
-  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_v_no2hop); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 365, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_v_no2hop); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 372, __pyx_L1_error)
   if (__pyx_t_3) {
 
-    /* "bilab/graph/metis/gpmetis_wrap.pyx":366
+    /* "bilab/graph/metis/gpmetis_wrap.pyx":373
  *     #         1                   Does not perform a 2-hop matching.
  *     if no2hop:
  *         options[METIS_OPTION_NO2HOP] = 1             # <<<<<<<<<<<<<<
  *     else:
  *         options[METIS_OPTION_NO2HOP] = 0
  */
-    __pyx_t_4 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_NO2HOP); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 366, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_NO2HOP); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 373, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_options), __pyx_t_4, __pyx_int_1) < 0)) __PYX_ERR(0, 366, __pyx_L1_error)
+    if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_options), __pyx_t_4, __pyx_int_1) < 0)) __PYX_ERR(0, 373, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-    /* "bilab/graph/metis/gpmetis_wrap.pyx":365
+    /* "bilab/graph/metis/gpmetis_wrap.pyx":372
  *     #         0                   Performs a 2-hop matching.
  *     #         1                   Does not perform a 2-hop matching.
  *     if no2hop:             # <<<<<<<<<<<<<<
  *         options[METIS_OPTION_NO2HOP] = 1
  *     else:
  */
-    goto __pyx_L31;
+    goto __pyx_L32;
   }
 
-  /* "bilab/graph/metis/gpmetis_wrap.pyx":368
+  /* "bilab/graph/metis/gpmetis_wrap.pyx":375
  *         options[METIS_OPTION_NO2HOP] = 1
  *     else:
  *         options[METIS_OPTION_NO2HOP] = 0             # <<<<<<<<<<<<<<
@@ -5909,81 +6052,81 @@ static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_U
  *     # optype_enum.METIS_OPTION_NCUTS  Specifies the number of different
  */
   /*else*/ {
-    __pyx_t_4 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_NO2HOP); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 368, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_NO2HOP); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 375, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_options), __pyx_t_4, __pyx_int_0) < 0)) __PYX_ERR(0, 368, __pyx_L1_error)
+    if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_options), __pyx_t_4, __pyx_int_0) < 0)) __PYX_ERR(0, 375, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   }
-  __pyx_L31:;
+  __pyx_L32:;
 
-  /* "bilab/graph/metis/gpmetis_wrap.pyx":375
+  /* "bilab/graph/metis/gpmetis_wrap.pyx":382
  *     #                             best edgecut or communication volume. Default
  *     #                             is 1.
  *     options[METIS_OPTION_NCUTS] = 1             # <<<<<<<<<<<<<<
  * 
  *     # optype_enum.METIS_OPTION_NITER
  */
-  __pyx_t_4 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_NCUTS); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 375, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_NCUTS); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 382, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_options), __pyx_t_4, __pyx_int_1) < 0)) __PYX_ERR(0, 375, __pyx_L1_error)
+  if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_options), __pyx_t_4, __pyx_int_1) < 0)) __PYX_ERR(0, 382, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "bilab/graph/metis/gpmetis_wrap.pyx":381
+  /* "bilab/graph/metis/gpmetis_wrap.pyx":388
  *     #     refinement algorithms at each stage of the
  *     #     uncoarsening process. Default is 10.
- *     options[METIS_OPTION_NITER] = 10             # <<<<<<<<<<<<<<
+ *     options[METIS_OPTION_NITER] = optNiter             # <<<<<<<<<<<<<<
  * 
  *     # optype_enum.METIS_OPTION_UFACTOR
  */
-  __pyx_t_4 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_NITER); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 381, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_NITER); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 388, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_options), __pyx_t_4, __pyx_int_10) < 0)) __PYX_ERR(0, 381, __pyx_L1_error)
+  if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_options), __pyx_t_4, __pyx_v_optNiter) < 0)) __PYX_ERR(0, 388, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "bilab/graph/metis/gpmetis_wrap.pyx":399
+  /* "bilab/graph/metis/gpmetis_wrap.pyx":406
  *     #  k-way partitioning, the default value is 30
  *     #  (i.e., load imbalance of 1.03).
  *     if options[METIS_OPTION_PTYPE] == METIS_PTYPE_RB:             # <<<<<<<<<<<<<<
  *         options[METIS_OPTION_UFACTOR] = 1
  *     else:
  */
-  __pyx_t_4 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_PTYPE); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 399, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_PTYPE); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 406, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_7 = PyObject_GetItem(((PyObject *)__pyx_v_options), __pyx_t_4); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 399, __pyx_L1_error)
+  __pyx_t_7 = PyObject_GetItem(((PyObject *)__pyx_v_options), __pyx_t_4); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 406, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyInt_From_mptype_et(METIS_PTYPE_RB); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 399, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_From_mptype_et(METIS_PTYPE_RB); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 406, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_22 = PyObject_RichCompare(__pyx_t_7, __pyx_t_4, Py_EQ); __Pyx_XGOTREF(__pyx_t_22); if (unlikely(!__pyx_t_22)) __PYX_ERR(0, 399, __pyx_L1_error)
+  __pyx_t_22 = PyObject_RichCompare(__pyx_t_7, __pyx_t_4, Py_EQ); __Pyx_XGOTREF(__pyx_t_22); if (unlikely(!__pyx_t_22)) __PYX_ERR(0, 406, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_22); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 399, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_22); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 406, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_22); __pyx_t_22 = 0;
   if (__pyx_t_3) {
 
-    /* "bilab/graph/metis/gpmetis_wrap.pyx":400
+    /* "bilab/graph/metis/gpmetis_wrap.pyx":407
  *     #  (i.e., load imbalance of 1.03).
  *     if options[METIS_OPTION_PTYPE] == METIS_PTYPE_RB:
  *         options[METIS_OPTION_UFACTOR] = 1             # <<<<<<<<<<<<<<
  *     else:
  *         options[METIS_OPTION_UFACTOR] = 30
  */
-    __pyx_t_22 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_UFACTOR); if (unlikely(!__pyx_t_22)) __PYX_ERR(0, 400, __pyx_L1_error)
+    __pyx_t_22 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_UFACTOR); if (unlikely(!__pyx_t_22)) __PYX_ERR(0, 407, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_22);
-    if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_options), __pyx_t_22, __pyx_int_1) < 0)) __PYX_ERR(0, 400, __pyx_L1_error)
+    if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_options), __pyx_t_22, __pyx_int_1) < 0)) __PYX_ERR(0, 407, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_22); __pyx_t_22 = 0;
 
-    /* "bilab/graph/metis/gpmetis_wrap.pyx":399
+    /* "bilab/graph/metis/gpmetis_wrap.pyx":406
  *     #  k-way partitioning, the default value is 30
  *     #  (i.e., load imbalance of 1.03).
  *     if options[METIS_OPTION_PTYPE] == METIS_PTYPE_RB:             # <<<<<<<<<<<<<<
  *         options[METIS_OPTION_UFACTOR] = 1
  *     else:
  */
-    goto __pyx_L32;
+    goto __pyx_L33;
   }
 
-  /* "bilab/graph/metis/gpmetis_wrap.pyx":402
+  /* "bilab/graph/metis/gpmetis_wrap.pyx":409
  *         options[METIS_OPTION_UFACTOR] = 1
  *     else:
  *         options[METIS_OPTION_UFACTOR] = 30             # <<<<<<<<<<<<<<
@@ -5991,57 +6134,57 @@ static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_U
  *     # optype_enum.METIS_OPTION_MINCONN
  */
   /*else*/ {
-    __pyx_t_22 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_UFACTOR); if (unlikely(!__pyx_t_22)) __PYX_ERR(0, 402, __pyx_L1_error)
+    __pyx_t_22 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_UFACTOR); if (unlikely(!__pyx_t_22)) __PYX_ERR(0, 409, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_22);
-    if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_options), __pyx_t_22, __pyx_int_30) < 0)) __PYX_ERR(0, 402, __pyx_L1_error)
+    if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_options), __pyx_t_22, __pyx_int_30) < 0)) __PYX_ERR(0, 409, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_22); __pyx_t_22 = 0;
   }
-  __pyx_L32:;
+  __pyx_L33:;
 
-  /* "bilab/graph/metis/gpmetis_wrap.pyx":410
+  /* "bilab/graph/metis/gpmetis_wrap.pyx":417
  *     #       which each partition is a node, and edges
  *     #       connect subdomains with a shared interface.
  *     if options[METIS_OPTION_PTYPE] == METIS_PTYPE_KWAY:             # <<<<<<<<<<<<<<
  *         options[METIS_OPTION_MINCONN] = 1
  *     else:
  */
-  __pyx_t_22 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_PTYPE); if (unlikely(!__pyx_t_22)) __PYX_ERR(0, 410, __pyx_L1_error)
+  __pyx_t_22 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_PTYPE); if (unlikely(!__pyx_t_22)) __PYX_ERR(0, 417, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_22);
-  __pyx_t_4 = PyObject_GetItem(((PyObject *)__pyx_v_options), __pyx_t_22); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 410, __pyx_L1_error)
+  __pyx_t_4 = PyObject_GetItem(((PyObject *)__pyx_v_options), __pyx_t_22); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 417, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_22); __pyx_t_22 = 0;
-  __pyx_t_22 = __Pyx_PyInt_From_mptype_et(METIS_PTYPE_KWAY); if (unlikely(!__pyx_t_22)) __PYX_ERR(0, 410, __pyx_L1_error)
+  __pyx_t_22 = __Pyx_PyInt_From_mptype_et(METIS_PTYPE_KWAY); if (unlikely(!__pyx_t_22)) __PYX_ERR(0, 417, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_22);
-  __pyx_t_7 = PyObject_RichCompare(__pyx_t_4, __pyx_t_22, Py_EQ); __Pyx_XGOTREF(__pyx_t_7); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 410, __pyx_L1_error)
+  __pyx_t_7 = PyObject_RichCompare(__pyx_t_4, __pyx_t_22, Py_EQ); __Pyx_XGOTREF(__pyx_t_7); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 417, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_22); __pyx_t_22 = 0;
-  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_7); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 410, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_7); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 417, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   if (__pyx_t_3) {
 
-    /* "bilab/graph/metis/gpmetis_wrap.pyx":411
+    /* "bilab/graph/metis/gpmetis_wrap.pyx":418
  *     #       connect subdomains with a shared interface.
  *     if options[METIS_OPTION_PTYPE] == METIS_PTYPE_KWAY:
  *         options[METIS_OPTION_MINCONN] = 1             # <<<<<<<<<<<<<<
  *     else:
  *         options[METIS_OPTION_MINCONN] = 0
  */
-    __pyx_t_7 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_MINCONN); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 411, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_MINCONN); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 418, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_options), __pyx_t_7, __pyx_int_1) < 0)) __PYX_ERR(0, 411, __pyx_L1_error)
+    if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_options), __pyx_t_7, __pyx_int_1) < 0)) __PYX_ERR(0, 418, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-    /* "bilab/graph/metis/gpmetis_wrap.pyx":410
+    /* "bilab/graph/metis/gpmetis_wrap.pyx":417
  *     #       which each partition is a node, and edges
  *     #       connect subdomains with a shared interface.
  *     if options[METIS_OPTION_PTYPE] == METIS_PTYPE_KWAY:             # <<<<<<<<<<<<<<
  *         options[METIS_OPTION_MINCONN] = 1
  *     else:
  */
-    goto __pyx_L33;
+    goto __pyx_L34;
   }
 
-  /* "bilab/graph/metis/gpmetis_wrap.pyx":413
+  /* "bilab/graph/metis/gpmetis_wrap.pyx":420
  *         options[METIS_OPTION_MINCONN] = 1
  *     else:
  *         options[METIS_OPTION_MINCONN] = 0             # <<<<<<<<<<<<<<
@@ -6049,73 +6192,73 @@ static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_U
  *     # optype_enum.METIS_OPTION_CONTIG  Specifies that the partitioning routines
  */
   /*else*/ {
-    __pyx_t_7 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_MINCONN); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 413, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_MINCONN); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 420, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_options), __pyx_t_7, __pyx_int_0) < 0)) __PYX_ERR(0, 413, __pyx_L1_error)
+    if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_options), __pyx_t_7, __pyx_int_0) < 0)) __PYX_ERR(0, 420, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   }
-  __pyx_L33:;
+  __pyx_L34:;
 
-  /* "bilab/graph/metis/gpmetis_wrap.pyx":421
+  /* "bilab/graph/metis/gpmetis_wrap.pyx":428
  *     #          0                       Does not force contiguous partitions.
  *     #          1                       Forces contiguous partitions.
  *     options[METIS_OPTION_CONTIG] = 0             # <<<<<<<<<<<<<<
  * 
  *     # optype_enum.METIS_OPTION_SEED
  */
-  __pyx_t_7 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_CONTIG); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 421, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_CONTIG); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 428, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_options), __pyx_t_7, __pyx_int_0) < 0)) __PYX_ERR(0, 421, __pyx_L1_error)
+  if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_options), __pyx_t_7, __pyx_int_0) < 0)) __PYX_ERR(0, 428, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "bilab/graph/metis/gpmetis_wrap.pyx":425
+  /* "bilab/graph/metis/gpmetis_wrap.pyx":432
  *     # optype_enum.METIS_OPTION_SEED
  *     #  Specifies the seed for the random number generator.
  *     options[METIS_OPTION_SEED] = -1             # <<<<<<<<<<<<<<
  * 
  *     # optype_enum.METIS_OPTION_NUMBERING
  */
-  __pyx_t_7 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_SEED); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 425, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_SEED); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 432, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_options), __pyx_t_7, __pyx_int_neg_1) < 0)) __PYX_ERR(0, 425, __pyx_L1_error)
+  if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_options), __pyx_t_7, __pyx_int_neg_1) < 0)) __PYX_ERR(0, 432, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "bilab/graph/metis/gpmetis_wrap.pyx":454
+  /* "bilab/graph/metis/gpmetis_wrap.pyx":461
  *     #                           Displays information related to the
  *     #                                  elimination of connected components.
  *     if dbg_mode:             # <<<<<<<<<<<<<<
  *         options[METIS_OPTION_DBGLVL] = METIS_DBG_INFO
  *     else:
  */
-  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_v_dbg_mode); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 454, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_v_dbg_mode); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 461, __pyx_L1_error)
   if (__pyx_t_3) {
 
-    /* "bilab/graph/metis/gpmetis_wrap.pyx":455
+    /* "bilab/graph/metis/gpmetis_wrap.pyx":462
  *     #                                  elimination of connected components.
  *     if dbg_mode:
  *         options[METIS_OPTION_DBGLVL] = METIS_DBG_INFO             # <<<<<<<<<<<<<<
  *     else:
  *         options[METIS_OPTION_DBGLVL] = 0
  */
-    __pyx_t_7 = __Pyx_PyInt_From_mdbglvl_et(METIS_DBG_INFO); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 455, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyInt_From_mdbglvl_et(METIS_DBG_INFO); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 462, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    __pyx_t_22 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_DBGLVL); if (unlikely(!__pyx_t_22)) __PYX_ERR(0, 455, __pyx_L1_error)
+    __pyx_t_22 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_DBGLVL); if (unlikely(!__pyx_t_22)) __PYX_ERR(0, 462, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_22);
-    if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_options), __pyx_t_22, __pyx_t_7) < 0)) __PYX_ERR(0, 455, __pyx_L1_error)
+    if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_options), __pyx_t_22, __pyx_t_7) < 0)) __PYX_ERR(0, 462, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_22); __pyx_t_22 = 0;
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-    /* "bilab/graph/metis/gpmetis_wrap.pyx":454
+    /* "bilab/graph/metis/gpmetis_wrap.pyx":461
  *     #                           Displays information related to the
  *     #                                  elimination of connected components.
  *     if dbg_mode:             # <<<<<<<<<<<<<<
  *         options[METIS_OPTION_DBGLVL] = METIS_DBG_INFO
  *     else:
  */
-    goto __pyx_L34;
+    goto __pyx_L35;
   }
 
-  /* "bilab/graph/metis/gpmetis_wrap.pyx":457
+  /* "bilab/graph/metis/gpmetis_wrap.pyx":464
  *         options[METIS_OPTION_DBGLVL] = METIS_DBG_INFO
  *     else:
  *         options[METIS_OPTION_DBGLVL] = 0             # <<<<<<<<<<<<<<
@@ -6123,14 +6266,14 @@ static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_U
  *     # if dbg_mode:
  */
   /*else*/ {
-    __pyx_t_7 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_DBGLVL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 457, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_DBGLVL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 464, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_options), __pyx_t_7, __pyx_int_0) < 0)) __PYX_ERR(0, 457, __pyx_L1_error)
+    if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_options), __pyx_t_7, __pyx_int_0) < 0)) __PYX_ERR(0, 464, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   }
-  __pyx_L34:;
+  __pyx_L35:;
 
-  /* "bilab/graph/metis/gpmetis_wrap.pyx":462
+  /* "bilab/graph/metis/gpmetis_wrap.pyx":469
  *     #     PrintInfo(options)
  * 
  *     gk_malloc_init()             # <<<<<<<<<<<<<<
@@ -6139,28 +6282,28 @@ static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_U
  */
   gk_malloc_init();
 
-  /* "bilab/graph/metis/gpmetis_wrap.pyx":463
+  /* "bilab/graph/metis/gpmetis_wrap.pyx":470
  * 
  *     gk_malloc_init()
  *     if options[METIS_OPTION_PTYPE] == METIS_PTYPE_KWAY:             # <<<<<<<<<<<<<<
  *         #status = METIS_PartGraphKway(
  *         #              &nvtxs, &ncon,
  */
-  __pyx_t_7 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_PTYPE); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 463, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_PTYPE); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 470, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_22 = PyObject_GetItem(((PyObject *)__pyx_v_options), __pyx_t_7); if (unlikely(!__pyx_t_22)) __PYX_ERR(0, 463, __pyx_L1_error)
+  __pyx_t_22 = PyObject_GetItem(((PyObject *)__pyx_v_options), __pyx_t_7); if (unlikely(!__pyx_t_22)) __PYX_ERR(0, 470, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_22);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyInt_From_mptype_et(METIS_PTYPE_KWAY); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 463, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyInt_From_mptype_et(METIS_PTYPE_KWAY); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 470, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_4 = PyObject_RichCompare(__pyx_t_22, __pyx_t_7, Py_EQ); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 463, __pyx_L1_error)
+  __pyx_t_4 = PyObject_RichCompare(__pyx_t_22, __pyx_t_7, Py_EQ); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 470, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_22); __pyx_t_22 = 0;
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 463, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 470, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   if (__pyx_t_3) {
 
-    /* "bilab/graph/metis/gpmetis_wrap.pyx":479
+    /* "bilab/graph/metis/gpmetis_wrap.pyx":486
  *                       &nparts_c,
  *                       tpwgts, ubvec,
  *                       &options[0],             # <<<<<<<<<<<<<<
@@ -6169,7 +6312,7 @@ static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_U
  */
     __pyx_t_28 = 0;
 
-    /* "bilab/graph/metis/gpmetis_wrap.pyx":473
+    /* "bilab/graph/metis/gpmetis_wrap.pyx":480
  *         #              &objval,
  *         #              &part[0])
  *         status = METIS_PartGraphKway(             # <<<<<<<<<<<<<<
@@ -6178,38 +6321,38 @@ static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_U
  */
     __pyx_v_status = METIS_PartGraphKway((&__pyx_v_nvtxs), (&__pyx_v_ncon), __pyx_v_xadj, __pyx_v_adjncy, __pyx_v_vwgt, __pyx_v_vsize, __pyx_v_adjwgt, (&__pyx_v_nparts_c), __pyx_v_tpwgts, __pyx_v_ubvec, (&(*__Pyx_BufPtrStrided1d(__pyx_t_5bilab_5graph_5metis_13_gpmetis_wrap_DTYPE_t *, __pyx_pybuffernd_options.rcbuffer->pybuffer.buf, __pyx_t_28, __pyx_pybuffernd_options.diminfo[0].strides))), (&__pyx_v_objval), __pyx_v_part);
 
-    /* "bilab/graph/metis/gpmetis_wrap.pyx":463
+    /* "bilab/graph/metis/gpmetis_wrap.pyx":470
  * 
  *     gk_malloc_init()
  *     if options[METIS_OPTION_PTYPE] == METIS_PTYPE_KWAY:             # <<<<<<<<<<<<<<
  *         #status = METIS_PartGraphKway(
  *         #              &nvtxs, &ncon,
  */
-    goto __pyx_L35;
+    goto __pyx_L36;
   }
 
-  /* "bilab/graph/metis/gpmetis_wrap.pyx":482
+  /* "bilab/graph/metis/gpmetis_wrap.pyx":489
  *                       &objval,
  *                       part)
  *     elif options[METIS_OPTION_PTYPE] == METIS_PTYPE_RB:             # <<<<<<<<<<<<<<
  *         # status = METIS_PartGraphRecursive(
  *         #           &nvtxs, &ncon,
  */
-  __pyx_t_4 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_PTYPE); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 482, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_From_moptions_et(METIS_OPTION_PTYPE); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 489, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_7 = PyObject_GetItem(((PyObject *)__pyx_v_options), __pyx_t_4); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 482, __pyx_L1_error)
+  __pyx_t_7 = PyObject_GetItem(((PyObject *)__pyx_v_options), __pyx_t_4); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 489, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyInt_From_mptype_et(METIS_PTYPE_RB); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 482, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_From_mptype_et(METIS_PTYPE_RB); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 489, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_22 = PyObject_RichCompare(__pyx_t_7, __pyx_t_4, Py_EQ); __Pyx_XGOTREF(__pyx_t_22); if (unlikely(!__pyx_t_22)) __PYX_ERR(0, 482, __pyx_L1_error)
+  __pyx_t_22 = PyObject_RichCompare(__pyx_t_7, __pyx_t_4, Py_EQ); __Pyx_XGOTREF(__pyx_t_22); if (unlikely(!__pyx_t_22)) __PYX_ERR(0, 489, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_22); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 482, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_22); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 489, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_22); __pyx_t_22 = 0;
   if (__pyx_t_3) {
 
-    /* "bilab/graph/metis/gpmetis_wrap.pyx":498
+    /* "bilab/graph/metis/gpmetis_wrap.pyx":505
  *                   &nparts_c,
  *                   tpwgts, ubvec,
  *                   &options[0],             # <<<<<<<<<<<<<<
@@ -6218,7 +6361,7 @@ static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_U
  */
     __pyx_t_29 = 0;
 
-    /* "bilab/graph/metis/gpmetis_wrap.pyx":492
+    /* "bilab/graph/metis/gpmetis_wrap.pyx":499
  *         #           &objval,
  *         #           &part[0])
  *         status = METIS_PartGraphRecursive(             # <<<<<<<<<<<<<<
@@ -6227,7 +6370,7 @@ static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_U
  */
     __pyx_v_status = METIS_PartGraphRecursive((&__pyx_v_nvtxs), (&__pyx_v_ncon), __pyx_v_xadj, __pyx_v_adjncy, __pyx_v_vwgt, __pyx_v_vsize, __pyx_v_adjwgt, (&__pyx_v_nparts_c), __pyx_v_tpwgts, __pyx_v_ubvec, (&(*__Pyx_BufPtrStrided1d(__pyx_t_5bilab_5graph_5metis_13_gpmetis_wrap_DTYPE_t *, __pyx_pybuffernd_options.rcbuffer->pybuffer.buf, __pyx_t_29, __pyx_pybuffernd_options.diminfo[0].strides))), (&__pyx_v_objval), __pyx_v_part);
 
-    /* "bilab/graph/metis/gpmetis_wrap.pyx":482
+    /* "bilab/graph/metis/gpmetis_wrap.pyx":489
  *                       &objval,
  *                       part)
  *     elif options[METIS_OPTION_PTYPE] == METIS_PTYPE_RB:             # <<<<<<<<<<<<<<
@@ -6235,9 +6378,9 @@ static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_U
  *         #           &nvtxs, &ncon,
  */
   }
-  __pyx_L35:;
+  __pyx_L36:;
 
-  /* "bilab/graph/metis/gpmetis_wrap.pyx":502
+  /* "bilab/graph/metis/gpmetis_wrap.pyx":509
  *                   part)
  * 
  *     if not status == METIS_OK:             # <<<<<<<<<<<<<<
@@ -6247,16 +6390,16 @@ static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_U
   __pyx_t_3 = ((!((__pyx_v_status == METIS_OK) != 0)) != 0);
   if (__pyx_t_3) {
 
-    /* "bilab/graph/metis/gpmetis_wrap.pyx":503
+    /* "bilab/graph/metis/gpmetis_wrap.pyx":510
  * 
  *     if not status == METIS_OK:
  *         print("*Metis returned with an error")             # <<<<<<<<<<<<<<
  *         if status == METIS_ERROR_INPUT:
  *             print("The input error occurred")
  */
-    if (__Pyx_PrintOne(0, __pyx_kp_s_Metis_returned_with_an_error) < 0) __PYX_ERR(0, 503, __pyx_L1_error)
+    if (__Pyx_PrintOne(0, __pyx_kp_s_Metis_returned_with_an_error) < 0) __PYX_ERR(0, 510, __pyx_L1_error)
 
-    /* "bilab/graph/metis/gpmetis_wrap.pyx":504
+    /* "bilab/graph/metis/gpmetis_wrap.pyx":511
  *     if not status == METIS_OK:
  *         print("*Metis returned with an error")
  *         if status == METIS_ERROR_INPUT:             # <<<<<<<<<<<<<<
@@ -6266,16 +6409,16 @@ static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_U
     switch (__pyx_v_status) {
       case METIS_ERROR_INPUT:
 
-      /* "bilab/graph/metis/gpmetis_wrap.pyx":505
+      /* "bilab/graph/metis/gpmetis_wrap.pyx":512
  *         print("*Metis returned with an error")
  *         if status == METIS_ERROR_INPUT:
  *             print("The input error occurred")             # <<<<<<<<<<<<<<
  *         elif status == METIS_ERROR_MEMORY:
  *             print("Could not allocate the required memory")
  */
-      if (__Pyx_PrintOne(0, __pyx_kp_s_The_input_error_occurred) < 0) __PYX_ERR(0, 505, __pyx_L1_error)
+      if (__Pyx_PrintOne(0, __pyx_kp_s_The_input_error_occurred) < 0) __PYX_ERR(0, 512, __pyx_L1_error)
 
-      /* "bilab/graph/metis/gpmetis_wrap.pyx":504
+      /* "bilab/graph/metis/gpmetis_wrap.pyx":511
  *     if not status == METIS_OK:
  *         print("*Metis returned with an error")
  *         if status == METIS_ERROR_INPUT:             # <<<<<<<<<<<<<<
@@ -6284,7 +6427,7 @@ static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_U
  */
       break;
 
-      /* "bilab/graph/metis/gpmetis_wrap.pyx":506
+      /* "bilab/graph/metis/gpmetis_wrap.pyx":513
  *         if status == METIS_ERROR_INPUT:
  *             print("The input error occurred")
  *         elif status == METIS_ERROR_MEMORY:             # <<<<<<<<<<<<<<
@@ -6293,16 +6436,16 @@ static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_U
  */
       case METIS_ERROR_MEMORY:
 
-      /* "bilab/graph/metis/gpmetis_wrap.pyx":507
+      /* "bilab/graph/metis/gpmetis_wrap.pyx":514
  *             print("The input error occurred")
  *         elif status == METIS_ERROR_MEMORY:
  *             print("Could not allocate the required memory")             # <<<<<<<<<<<<<<
  *         elif status == METIS_ERROR:
  *             print("Some error")
  */
-      if (__Pyx_PrintOne(0, __pyx_kp_s_Could_not_allocate_the_required) < 0) __PYX_ERR(0, 507, __pyx_L1_error)
+      if (__Pyx_PrintOne(0, __pyx_kp_s_Could_not_allocate_the_required) < 0) __PYX_ERR(0, 514, __pyx_L1_error)
 
-      /* "bilab/graph/metis/gpmetis_wrap.pyx":506
+      /* "bilab/graph/metis/gpmetis_wrap.pyx":513
  *         if status == METIS_ERROR_INPUT:
  *             print("The input error occurred")
  *         elif status == METIS_ERROR_MEMORY:             # <<<<<<<<<<<<<<
@@ -6311,7 +6454,7 @@ static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_U
  */
       break;
 
-      /* "bilab/graph/metis/gpmetis_wrap.pyx":508
+      /* "bilab/graph/metis/gpmetis_wrap.pyx":515
  *         elif status == METIS_ERROR_MEMORY:
  *             print("Could not allocate the required memory")
  *         elif status == METIS_ERROR:             # <<<<<<<<<<<<<<
@@ -6320,16 +6463,16 @@ static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_U
  */
       case METIS_ERROR:
 
-      /* "bilab/graph/metis/gpmetis_wrap.pyx":509
+      /* "bilab/graph/metis/gpmetis_wrap.pyx":516
  *             print("Could not allocate the required memory")
  *         elif status == METIS_ERROR:
  *             print("Some error")             # <<<<<<<<<<<<<<
  * 
  *     # prepare return for groups
  */
-      if (__Pyx_PrintOne(0, __pyx_kp_s_Some_error) < 0) __PYX_ERR(0, 509, __pyx_L1_error)
+      if (__Pyx_PrintOne(0, __pyx_kp_s_Some_error) < 0) __PYX_ERR(0, 516, __pyx_L1_error)
 
-      /* "bilab/graph/metis/gpmetis_wrap.pyx":508
+      /* "bilab/graph/metis/gpmetis_wrap.pyx":515
  *         elif status == METIS_ERROR_MEMORY:
  *             print("Could not allocate the required memory")
  *         elif status == METIS_ERROR:             # <<<<<<<<<<<<<<
@@ -6340,7 +6483,7 @@ static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_U
       default: break;
     }
 
-    /* "bilab/graph/metis/gpmetis_wrap.pyx":502
+    /* "bilab/graph/metis/gpmetis_wrap.pyx":509
  *                   part)
  * 
  *     if not status == METIS_OK:             # <<<<<<<<<<<<<<
@@ -6349,7 +6492,7 @@ static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_U
  */
   }
 
-  /* "bilab/graph/metis/gpmetis_wrap.pyx":514
+  /* "bilab/graph/metis/gpmetis_wrap.pyx":521
  * 
  *     # release memory
  *     free(xadj)             # <<<<<<<<<<<<<<
@@ -6358,7 +6501,7 @@ static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_U
  */
   free(__pyx_v_xadj);
 
-  /* "bilab/graph/metis/gpmetis_wrap.pyx":515
+  /* "bilab/graph/metis/gpmetis_wrap.pyx":522
  *     # release memory
  *     free(xadj)
  *     free(adjncy)             # <<<<<<<<<<<<<<
@@ -6367,7 +6510,7 @@ static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_U
  */
   free(__pyx_v_adjncy);
 
-  /* "bilab/graph/metis/gpmetis_wrap.pyx":516
+  /* "bilab/graph/metis/gpmetis_wrap.pyx":523
  *     free(xadj)
  *     free(adjncy)
  *     free(vwgt)             # <<<<<<<<<<<<<<
@@ -6376,7 +6519,7 @@ static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_U
  */
   free(__pyx_v_vwgt);
 
-  /* "bilab/graph/metis/gpmetis_wrap.pyx":517
+  /* "bilab/graph/metis/gpmetis_wrap.pyx":524
  *     free(adjncy)
  *     free(vwgt)
  *     free(adjwgt)             # <<<<<<<<<<<<<<
@@ -6385,7 +6528,7 @@ static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_U
  */
   free(__pyx_v_adjwgt);
 
-  /* "bilab/graph/metis/gpmetis_wrap.pyx":518
+  /* "bilab/graph/metis/gpmetis_wrap.pyx":525
  *     free(vwgt)
  *     free(adjwgt)
  *     free(vsize)             # <<<<<<<<<<<<<<
@@ -6394,7 +6537,7 @@ static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_U
  */
   free(__pyx_v_vsize);
 
-  /* "bilab/graph/metis/gpmetis_wrap.pyx":519
+  /* "bilab/graph/metis/gpmetis_wrap.pyx":526
  *     free(adjwgt)
  *     free(vsize)
  *     free(tpwgts)             # <<<<<<<<<<<<<<
@@ -6403,7 +6546,7 @@ static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_U
  */
   free(__pyx_v_tpwgts);
 
-  /* "bilab/graph/metis/gpmetis_wrap.pyx":520
+  /* "bilab/graph/metis/gpmetis_wrap.pyx":527
  *     free(vsize)
  *     free(tpwgts)
  *     free(part)             # <<<<<<<<<<<<<<
@@ -6412,7 +6555,7 @@ static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_U
  */
   free(__pyx_v_part);
 
-  /* "bilab/graph/metis/gpmetis_wrap.pyx":523
+  /* "bilab/graph/metis/gpmetis_wrap.pyx":530
  *     # for val, n_inx in sorted_inx:
  *     #     print("{}:{}".format(n_inx, part_view[val[0] - 1]))
  *     gk_malloc_cleanup(0)             # <<<<<<<<<<<<<<
@@ -6421,20 +6564,20 @@ static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_U
  */
   gk_malloc_cleanup(0);
 
-  /* "bilab/graph/metis/gpmetis_wrap.pyx":525
+  /* "bilab/graph/metis/gpmetis_wrap.pyx":532
  *     gk_malloc_cleanup(0)
  * 
  *     return sorted_inx, objval, list(part_view)             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_22 = __Pyx_PyInt_From_int64_t(__pyx_v_objval); if (unlikely(!__pyx_t_22)) __PYX_ERR(0, 525, __pyx_L1_error)
+  __pyx_t_22 = __Pyx_PyInt_From_int64_t(__pyx_v_objval); if (unlikely(!__pyx_t_22)) __PYX_ERR(0, 532, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_22);
-  __pyx_t_4 = __pyx_memoryview_fromslice(__pyx_v_part_view, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_5bilab_5graph_5metis_13_gpmetis_wrap_idx_t, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_5bilab_5graph_5metis_13_gpmetis_wrap_idx_t, 0);; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 525, __pyx_L1_error)
+  __pyx_t_4 = __pyx_memoryview_fromslice(__pyx_v_part_view, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_5bilab_5graph_5metis_13_gpmetis_wrap_idx_t, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_5bilab_5graph_5metis_13_gpmetis_wrap_idx_t, 0);; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 532, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_7 = PySequence_List(__pyx_t_4); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 525, __pyx_L1_error)
+  __pyx_t_7 = PySequence_List(__pyx_t_4); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 532, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = PyTuple_New(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 525, __pyx_L1_error)
+  __pyx_t_4 = PyTuple_New(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 532, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_INCREF(__pyx_v_sorted_inx);
   __Pyx_GIVEREF(__pyx_v_sorted_inx);
@@ -6453,7 +6596,7 @@ static PyObject *__pyx_pf_5bilab_5graph_5metis_13_gpmetis_wrap_2gpmetis(CYTHON_U
  * 
  * 
  * def gpmetis(G, nparts=2, has_vwgt=False, has_edwgt=False,             # <<<<<<<<<<<<<<
- *             ptype="kway", ctype="shem", rtype="fm",
+ *             ptype="kway", ctype="shem", rtype="fm", optNiter=10,
  *             no2hop=False, dbg_mode=False):
  */
 
@@ -21347,6 +21490,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_get_num_vertices, __pyx_k_get_num_vertices, sizeof(__pyx_k_get_num_vertices), 0, 0, 1, 1},
   {&__pyx_kp_s_got_differing_extents_in_dimensi, __pyx_k_got_differing_extents_in_dimensi, sizeof(__pyx_k_got_differing_extents_in_dimensi), 0, 0, 1, 0},
   {&__pyx_n_s_gpmetis, __pyx_k_gpmetis, sizeof(__pyx_k_gpmetis), 0, 0, 1, 1},
+  {&__pyx_n_s_greedy, __pyx_k_greedy, sizeof(__pyx_k_greedy), 0, 0, 1, 1},
   {&__pyx_n_s_has_edwgt, __pyx_k_has_edwgt, sizeof(__pyx_k_has_edwgt), 0, 0, 1, 1},
   {&__pyx_n_s_has_vwgt, __pyx_k_has_vwgt, sizeof(__pyx_k_has_vwgt), 0, 0, 1, 1},
   {&__pyx_n_s_i, __pyx_k_i, sizeof(__pyx_k_i), 0, 0, 1, 1},
@@ -21383,6 +21527,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_obj, __pyx_k_obj, sizeof(__pyx_k_obj), 0, 0, 1, 1},
   {&__pyx_n_s_objval, __pyx_k_objval, sizeof(__pyx_k_objval), 0, 0, 1, 1},
   {&__pyx_n_s_ones, __pyx_k_ones, sizeof(__pyx_k_ones), 0, 0, 1, 1},
+  {&__pyx_n_s_optNiter, __pyx_k_optNiter, sizeof(__pyx_k_optNiter), 0, 0, 1, 1},
   {&__pyx_n_s_options, __pyx_k_options, sizeof(__pyx_k_options), 0, 0, 1, 1},
   {&__pyx_n_s_pack, __pyx_k_pack, sizeof(__pyx_k_pack), 0, 0, 1, 1},
   {&__pyx_n_s_part, __pyx_k_part, sizeof(__pyx_k_part), 0, 0, 1, 1},
@@ -21397,6 +21542,8 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_rtype, __pyx_k_rtype, sizeof(__pyx_k_rtype), 0, 0, 1, 1},
   {&__pyx_kp_u_s, __pyx_k_s, sizeof(__pyx_k_s), 0, 1, 0, 0},
   {&__pyx_n_s_s_2, __pyx_k_s_2, sizeof(__pyx_k_s_2), 0, 0, 1, 1},
+  {&__pyx_n_s_sep1sided, __pyx_k_sep1sided, sizeof(__pyx_k_sep1sided), 0, 0, 1, 1},
+  {&__pyx_n_s_sep2sided, __pyx_k_sep2sided, sizeof(__pyx_k_sep2sided), 0, 0, 1, 1},
   {&__pyx_n_s_shape, __pyx_k_shape, sizeof(__pyx_k_shape), 0, 0, 1, 1},
   {&__pyx_n_s_shem, __pyx_k_shem, sizeof(__pyx_k_shem), 0, 0, 1, 1},
   {&__pyx_n_s_size, __pyx_k_size, sizeof(__pyx_k_size), 0, 0, 1, 1},
@@ -21671,13 +21818,13 @@ static int __Pyx_InitCachedConstants(void) {
  * 
  * 
  * def gpmetis(G, nparts=2, has_vwgt=False, has_edwgt=False,             # <<<<<<<<<<<<<<
- *             ptype="kway", ctype="shem", rtype="fm",
+ *             ptype="kway", ctype="shem", rtype="fm", optNiter=10,
  *             no2hop=False, dbg_mode=False):
  */
-  __pyx_tuple__30 = PyTuple_Pack(39, __pyx_n_s_G, __pyx_n_s_nparts, __pyx_n_s_has_vwgt, __pyx_n_s_has_edwgt, __pyx_n_s_ptype, __pyx_n_s_ctype, __pyx_n_s_rtype, __pyx_n_s_no2hop, __pyx_n_s_dbg_mode, __pyx_n_s_nvtxs, __pyx_n_s_nedges, __pyx_n_s_ncon, __pyx_n_s_xadj, __pyx_n_s_adjncy, __pyx_n_s_vwgt, __pyx_n_s_adjwgt, __pyx_n_s_vsize, __pyx_n_s_tpwgts, __pyx_n_s_ubvec, __pyx_n_s_options, __pyx_n_s_objval, __pyx_n_s_part, __pyx_n_s_part_view, __pyx_n_s_nparts_c, __pyx_n_s_status, __pyx_n_s_i, __pyx_n_s_xadj_inx, __pyx_n_s_j, __pyx_n_s_v, __pyx_n_s_sorted_inx, __pyx_n_s_neighbor_counter, __pyx_n_s_val, __pyx_n_s_n_inx, __pyx_n_s_frm, __pyx_n_s_n, __pyx_n_s_start, __pyx_n_s_num, __pyx_n_s_s_2, __pyx_n_s_k); if (unlikely(!__pyx_tuple__30)) __PYX_ERR(0, 122, __pyx_L1_error)
+  __pyx_tuple__30 = PyTuple_Pack(40, __pyx_n_s_G, __pyx_n_s_nparts, __pyx_n_s_has_vwgt, __pyx_n_s_has_edwgt, __pyx_n_s_ptype, __pyx_n_s_ctype, __pyx_n_s_rtype, __pyx_n_s_optNiter, __pyx_n_s_no2hop, __pyx_n_s_dbg_mode, __pyx_n_s_nvtxs, __pyx_n_s_nedges, __pyx_n_s_ncon, __pyx_n_s_xadj, __pyx_n_s_adjncy, __pyx_n_s_vwgt, __pyx_n_s_adjwgt, __pyx_n_s_vsize, __pyx_n_s_tpwgts, __pyx_n_s_ubvec, __pyx_n_s_options, __pyx_n_s_objval, __pyx_n_s_part, __pyx_n_s_part_view, __pyx_n_s_nparts_c, __pyx_n_s_status, __pyx_n_s_i, __pyx_n_s_xadj_inx, __pyx_n_s_j, __pyx_n_s_v, __pyx_n_s_sorted_inx, __pyx_n_s_neighbor_counter, __pyx_n_s_val, __pyx_n_s_n_inx, __pyx_n_s_frm, __pyx_n_s_n, __pyx_n_s_start, __pyx_n_s_num, __pyx_n_s_s_2, __pyx_n_s_k); if (unlikely(!__pyx_tuple__30)) __PYX_ERR(0, 122, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__30);
   __Pyx_GIVEREF(__pyx_tuple__30);
-  __pyx_codeobj__31 = (PyObject*)__Pyx_PyCode_New(9, 0, 39, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__30, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Users_davecao_apps_bilab_bilab, __pyx_n_s_gpmetis, 122, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__31)) __PYX_ERR(0, 122, __pyx_L1_error)
+  __pyx_codeobj__31 = (PyObject*)__Pyx_PyCode_New(10, 0, 40, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__30, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Users_davecao_apps_bilab_bilab, __pyx_n_s_gpmetis, 122, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__31)) __PYX_ERR(0, 122, __pyx_L1_error)
 
   /* "View.MemoryView":282
  *         return self.name
@@ -22037,7 +22184,7 @@ PyMODINIT_FUNC PyInit__gpmetis_wrap(void)
  * 
  * 
  * def gpmetis(G, nparts=2, has_vwgt=False, has_edwgt=False,             # <<<<<<<<<<<<<<
- *             ptype="kway", ctype="shem", rtype="fm",
+ *             ptype="kway", ctype="shem", rtype="fm", optNiter=10,
  *             no2hop=False, dbg_mode=False):
  */
   __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_5bilab_5graph_5metis_13_gpmetis_wrap_3gpmetis, NULL, __pyx_n_s_bilab_graph_metis__gpmetis_wrap); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 122, __pyx_L1_error)

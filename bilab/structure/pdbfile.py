@@ -456,7 +456,7 @@ def _parsePDBLines(atomgroup, lines, split, model, chain, subset,
                                          'have same number of atoms')
                     LOGGER.warn(
                         'Discarding model {0}, which contains more '
-                        'atoms than first model does.'.format(nmodel+1))
+                        'atoms than first model does.'.format(nmodel + 1))
                     acount = 0
                     nmodel += 1
                     coordinates = np.zeros((n_atoms, 3), dtype=float)
@@ -465,7 +465,7 @@ def _parsePDBLines(atomgroup, lines, split, model, chain, subset,
                 else:
                     raise PDBParseError(
                         'invalid or missing coordinate(s) at '
-                        'line {0}.'.format(i+1))
+                        'line {0}.'.format(i + 1))
             if onlycoords:
                 acount += 1
                 i += 1
@@ -479,7 +479,7 @@ def _parsePDBLines(atomgroup, lines, split, model, chain, subset,
                 except ValueError:
                     LOGGER.warn('Failed to parse serial number in line {0}.'
                                 .format(i))
-                    serials[acount] = serials[acount-1]+1
+                    serials[acount] = serials[acount - 1] + 1
             altlocs[acount] = alt
             atomnames[acount] = atomname
             resnames[acount] = resname
@@ -519,8 +519,7 @@ def _parsePDBLines(atomgroup, lines, split, model, chain, subset,
                     (coordinates, np.zeros((asize, 3), float)))
                 atomnames = np.concatenate((
                     atomnames,
-                    np.zeros(asize, ATOMIC_FIELDS['name'].dtype)
-                    ))
+                    np.zeros(asize, ATOMIC_FIELDS['name'].dtype)))
                 resnames = np.concatenate((
                     resnames,
                     np.zeros(asize, ATOMIC_FIELDS['resname'].dtype)))

@@ -120,7 +120,7 @@ cpdef void PrintInfo(np.ndarray[DTYPE_t, ndim=1] opt):
 
 
 def gpmetis(G, nparts=2, has_vwgt=False, has_edwgt=False,
-            ptype="kway", ctype="shem", rtype="fm",
+            ptype="kway", ctype="shem", rtype="fm", optNiter=10,
             no2hop=False, dbg_mode=False):
 
     if not isinstance(G, Graph):
@@ -352,7 +352,14 @@ def gpmetis(G, nparts=2, has_vwgt=False, has_edwgt=False,
     # rtype_enum.METIS_RTYPE_GREEDY(1)  Greedy-based cut and volume refinement.
     # rtype_enum.METIS_RTYPE_SEP2SIDED(2) Two-sided node FM refinement.
     # rtype_enum.METIS_RTYPE_SEP1SIDED(3) One-sided node FM refinement.
-    options[METIS_OPTION_RTYPE] = METIS_RTYPE_FM
+    if ptype == 'fm':
+        options[METIS_OPTION_RTYPE] = METIS_RTYPE_FM
+    elif ptype == 'greedy':
+        options[METIS_OPTION_RTYPE] = METIS_RTYPE_GREEDY
+    elif ptype == 'sep2sided':
+        options[METIS_OPTION_RTYPE] = METIS_RTYPE_SEP2SIDED
+    elif ptype == 'sep1sided':
+        options[METIS_OPTION_RTYPE] = METIS_RTYPE_SEP2SIDED
 
     # optype_enum.METIS_OPTION_NO2HOP Specifies that the coarsening will not
     #                             perform any 2-hop matchings when the standard
@@ -378,7 +385,7 @@ def gpmetis(G, nparts=2, has_vwgt=False, has_edwgt=False,
     #     Specifies the number of iterations for the
     #     refinement algorithms at each stage of the
     #     uncoarsening process. Default is 10.
-    options[METIS_OPTION_NITER] = 10
+    options[METIS_OPTION_NITER] = optNiter
 
     # optype_enum.METIS_OPTION_UFACTOR
     #  Specifies the maximum allowed load imbalance

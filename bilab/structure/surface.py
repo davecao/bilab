@@ -121,7 +121,7 @@ def getElementVDWRadius(elem_str):
         radius (float64) : the vdw radius of the chemical element
     """
     elem = ElementData.get(elem_str.lower())
-    return elem.getVanDerWaalsRadius()[0]/100
+    return elem.getVanDerWaalsRadius()[0] / 100
 
 
 def find_neighbor_2NLR(atoms):
@@ -234,7 +234,7 @@ def calcASA(atoms, probe, n_sphere_point=960, verbose=False):
             surface.setAccessibility(atom_j_coord, r + probe)
         # count accessible-points
         n_accessible_point = surface.getNumOfAccessiblePoint()
-        area = const*n_accessible_point*tot_radius*tot_radius
+        area = const * n_accessible_point * tot_radius * tot_radius
         # areas.append(area)
         append(area)
         append_surf(surface)

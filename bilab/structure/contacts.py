@@ -65,7 +65,7 @@ class Contacts(object):
     def __repr__(self):
 
         return '<Contacts: {0} (active coordset index: {1})>'.format(
-                                                str(self._atoms), self._acsi)
+                str(self._atoms), self._acsi)
 
     def __str__(self):
 

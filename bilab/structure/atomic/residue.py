@@ -28,7 +28,6 @@ class Residue(AtomSubset):
         AtomSubset.__init__(self, ag, indices, acsi, **kwargs)
         self._hv = hv
 
-
     def __repr__(self):
 
         n_csets = self._ag.numCoordsets()
@@ -40,9 +39,9 @@ class Residue(AtomSubset):
 
         if n_csets == 1:
             return ('<Residue: {0} {1}{2}{3} from {4} ({5} atoms)>').format(
-                    self.getResname(), self.getResnum(),
-                    self.getIcode() or '', chain, self._ag.getTitle(),
-                     len(self))
+                self.getResname(), self.getResnum(),
+                self.getIcode() or '', chain, self._ag.getTitle(),
+                len(self))
         elif n_csets > 1:
             return ('<Residue: {0} {1}{2}{3} from {4} '
                     '({5} atoms; active #{6} of {7} coordsets)>').format(
@@ -51,22 +50,23 @@ class Residue(AtomSubset):
                     n_csets)
         else:
             return ('<Residue: {0} {1}{2}{3} from {4} ({5} atoms; '
-                    'no coordinates)>').format(self.getResname(),
+                    'no coordinates)>').format(
+                    self.getResname(),
                     self.getResnum(), self.getIcode() or '', chain,
                     self._ag.getTitle(), len(self))
 
     def __str__(self):
+        return '{0} {1}{2}'.format(
+            self.getResname(), self.getResnum(),
+            self.getIcode() or '')
 
-        return '{0} {1}{2}'.format(self.getResname(), self.getResnum(),
-                                         self.getIcode() or '')
 
     def getAtom(self, name):
         """Return atom with given *name*, ``None`` if not found.  Assumes that
         atom names in the residue are unique.  If more than one atoms with the
         given *name* exists, the one with the smaller index will be returned.
-        
-        """
 
+        """
         acsi = self.getACSIndex()
         if isinstance(name, str):
             nz = (self.getNames() == name).nonzero()[0]
@@ -150,12 +150,12 @@ class Residue(AtomSubset):
         if chain is None:
             if self._selstr:
                 return 'resnum {0}{1} and ({1})'.format(
-                            self.getResnum(), icode, self._selstr)
+                    self.getResnum(), icode, self._selstr)
             else:
                 return 'resnum {0}{1}'.format(self.getResnum(), icode)
         else:
             return 'resnum {0}{1} and ({2})'.format(
-                                self.getResnum(), icode, chain.getSelstr())
+                self.getResnum(), icode, chain.getSelstr())
 
     def getPrev(self):
         """Return preceding residue in the atom group."""
@@ -169,4 +169,4 @@ class Residue(AtomSubset):
     def getNext(self):
         """Return following residue in the atom group."""
 
-        return self._hv._getResidue(self.getResindex()+1)
+        return self._hv._getResidue(self.getResindex() + 1)

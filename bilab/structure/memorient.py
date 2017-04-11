@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 # @Author: davecao
 # @Date:   2015-12-08 14:20:11
-# @Last Modified by:   davecao
-# @Last Modified time: 2016-01-02 01:04:51
+# @Last Modified by:   Wei Cao
+# @Last Modified time: 2016-09-23 16:10:44
 
 # In scipy v0.15.1 suggested to use basinhopping other than annealing
 # ------------------
@@ -114,7 +114,7 @@ def generate_dum_atoms(best_e, best_c,
     # [-1, 1, -1, 1] * offset =
     #    [xmin-offset, xmax+offset, ymin-offset, ymax+offset]
     xyplane = np.asarray(xyplane)
-    xyplane = xyplane + offval*offset
+    xyplane = xyplane + offval * offset
 
     # generate coords
     # np.ceil(np.sqrt(natoms))
@@ -151,8 +151,8 @@ def generate_dum_atoms(best_e, best_c,
     elements = np.zeros(natoms, dtype=ATOMIC_FIELDS['element'].dtype)
 
     coordinates = np.vstack((
-                    np.repeat(x, num_y)*2,
-                    np.tile(y, num_x)*2,
+                    np.repeat(x, num_y) * 2,
+                    np.tile(y, num_x) * 2,
                     np.ones(natoms))).T
     # set z-slice
     coordinates = np.append(xyplane[[0, 2]], 1) + coordinates
@@ -182,7 +182,7 @@ def generate_dum_atoms(best_e, best_c,
     # set hetero flags
     hetero[:] = True
     # set serials
-    serials[:] = range(1000, natoms+1000)
+    serials[:] = range(1000, natoms + 1000)
     occupancies[:] = 1.0
     bfactors[:] = 0.0
     dum_ag.setCoords(coordinates)
@@ -223,7 +223,7 @@ def get_slice_index(z, slice_start=-24.0, slice_stop=24.0, interval=1.5):
         return 0
     if z >= slice_stop:
         return 33
-    slices = np.arange(slice_start, slice_stop+offset, interval)
+    slices = np.arange(slice_start, slice_stop + offset, interval)
     inx = np.searchsorted(slices, z, side='right')
     return inx
 
@@ -373,8 +373,7 @@ def local_minimizer(fun, x0, args, **kwargs):
     Local minimizer - extend the local minimizer for
                       scipy.optimize.basinhopping
     """
-    opt = scipy.optimize.OptimizeResult(
-            x=x0,
+    opt = scipy.optimize.OptimizeResult(x=x0,
             fun=fun(x0),
             success=True,
             nfev=1)
@@ -684,7 +683,7 @@ def fit_to_membrane(ag,
     # beta = np.arange(0, 2*np.pi, beta_stepsize)
     # zrange = np.arange(zmin, zmax, z_stepsize)
     # PI = np.pi
-    DB_PI = 2*np.pi
+    DB_PI = 2 * np.pi
     x_max = [DB_PI, DB_PI, zmax]
     x_min = [0.0, 0.0, zmin]
     # x_max = [PI, PI, zmax]

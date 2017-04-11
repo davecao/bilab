@@ -48,6 +48,7 @@ class Selection(AtomSubset):
             return ('<Selection: {0} from {1} ({2} atoms; no '
                     'coordinates)>').format(repr(selstr), self._ag.getTitle(),
                                             len(self))
+
     def __getitem__(self, key):
 
         return self._ag[key]
@@ -63,7 +64,6 @@ class Selection(AtomSubset):
 
     def getHierView(self, **kwargs):
         """Return a hierarchical view of the atom selection."""
-
         return HierView(self, **kwargs)
 
     def update(self):

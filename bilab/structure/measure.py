@@ -162,7 +162,7 @@ def getAngle(coords1, coords2, coords3, radian):
     v1 = coords1 - coords2
     v2 = coords3 - coords2
 
-    rad = arccos((v1*v2).sum(-1) / ((v1**2).sum(-1) * (v2**2).sum(-1))**0.5)
+    rad = arccos((v1 * v2).sum(-1) / ((v1**2).sum(-1) * (v2**2).sum(-1))**0.5)
     if radian:
         return rad
     else:

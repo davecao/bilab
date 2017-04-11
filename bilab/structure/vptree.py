@@ -109,22 +109,23 @@ class PriorityQueue(object):
 
     def top(self):
         """
-            return the item with the largest value 
+            return the item with the largest value
         """
         largest_ = self._queue.largest()
         if len(largest_) == 1:
             largest_ = largest_[0]
         return largest_
 
+
 class Node(object):
-    def __init__(self, identifier=None, index=0, level=None, 
-                       value=0.0, name=None, threshold=0.0):
+    def __init__(self, identifier=None, index=0, level=None,
+                 value=0.0, name=None, threshold=0.0):
         super(Node, self).__init__()
         self.__identifier = (str(uuid.uuid1()) if identifier is None else self.__sanitize_id(str(identifier)))
         # index of self._items but pay attention to that self._items
         #  is rearranged while building up the tree
-        self.index = index 
-        # 
+        self.index = index
+        #
         self.value = value
         self.name = name
         self.threshold = threshold
@@ -145,7 +146,7 @@ class Node(object):
                 yield elem
 
     def __str__(self):
-        return "Node:{}, index={}, threshold={}".format(self.__identifier, 
+        return "Node:{}, index={}, threshold={}".format(self.__identifier,
                   self.index, self.threshold)
 
     def __sanitize_id(id):
@@ -154,9 +155,11 @@ class Node(object):
     def is_leaf(self):
         return (self.left is None) and (self.right is None)
 
+
 class Visit:
     def __init__(self, node):
-        self.node = node 
+        self.node = node
+
 
 """ Visitor """
 class NodeVisitor(object):
@@ -177,7 +180,7 @@ class NodeVisitor(object):
             except StopIteration:
                 stack.pop()
         return last_result
-    
+
     def _visit(self, node):
         methname = 'visit_' + type(node).__name__
         meth = getattr(self, methname, None)
@@ -196,35 +199,37 @@ class NodeVisitor(object):
     def generic_visit(self, node):
         raise RuntimeError('No {} method'.format('visit_' + type(node).__name__))
 
+
 class VPTree(object):
-    """ 
+    """
         Implementation of vantage point tree
 
-    reference: 
-         This code was adopted with from Steve Hanov's great tutorial 
+    reference:
+         This code was adopted with from Steve Hanov's great tutorial
          at http://stevehanov.ca/blog/index.php?id=130
-         and 
-         vptree.h is used in t-SNE 
+         and
+         vptree.h is used in t-SNE
     """
 
-    def __init__(self, items, itemComparator=lambda x,y: x<y, 
-                            distance=lambda x, y: np.linalg.norm(x-y),
-                            strategy="random"):
+    def __init__(self, items, itemComparator=lambda x, y: x < y,
+                 distance=lambda x, y: np.linalg.norm(x - y),
+                 strategy="random"):
         """
-        Args: 
+        Args:
             items (list) : a list of objects
-            strategy (function) : used to select a node when building up the tree.
-            itemComparator (function) : 'random' or 'median', 
+            strategy (function) :
+                    used to select a node when building up the tree.
+            itemComparator (function) : 'random' or 'median',
                                     compare two objects in the list.
             distance (function) : compute the distance between two objects.
         """
         super(VPTree, self).__init__()
         self._root = None
         self._tau = 0.0
-        # used in nth_element when building vp tree. 
-        self._itemComparator = itemComparator 
+        # used in nth_element when building vp tree.
+        self._itemComparator = itemComparator
         # used for meauring the distance between any two elements of items
-        self._distance = distance 
+        self._distance = distance
         # used to select a node when building up the tree
         if strategy == 'random':
             self._strategy = lambda l, u: int(np.random.rand() * (u - l - 1)) + l
@@ -236,9 +241,9 @@ class VPTree(object):
 
         # a list of object. and sort items
         self._items = items
-        self._items.sort() 
-        # Start to build a vptree. zero-based 
-        self._root = self.__build_tree(0, len(items)-1, level = 0) 
+        self._items.sort()
+        # Start to build a vptree. zero-based
+        self._root = self.__build_tree(0, len(items) - 1, level=0)
 
     def __eq__(self, other):
         if other is self:
@@ -246,9 +251,9 @@ class VPTree(object):
                 return self.__dict__ == other.__dict__
             return NotImplemented
             # more strictly check
-            #if type(other) is type(self):
+            # if type(other) is type(self):
             #    return self.__dict__ == other.__dict__
-            #return False
+            # return False
         else:
             return NotImplemented
 
@@ -262,47 +267,50 @@ class VPTree(object):
         if upper == lower:
             return None
         # lower index is center of current node
-        node = Node(index=lower,level=level, name=self._items[lower].name, 
+        node = Node(index=lower, level=level, name=self._items[lower].name,
                     value=self._items[lower].value)
         if level is not None:
             next_level = level + 1
 
         if upper - lower > 1:
-            #if we did not arrive at leaf yet
-            #Choose an arbitrary point(vantage point) and move it to the start
-            #i = int(np.random.rand() * (upper - lower - 1)) + lower
+            # if we did not arrive at leaf yet
+            # Choose an arbitrary point(vantage point) and move it to the start
+            # i = int(np.random.rand() * (upper - lower - 1)) + lower
             i = self._strategy(lower, upper)
             # swap: _items[lower], _items[i]
             self._items[i], self._items[lower] = self._items[lower], self._items[i]
             # Partition around the median distance
             median = (upper + lower) >> 1
             # sort elements in two range:
-            #  1. lower+1 and median 
+            #  1. lower+1 and median
             #  2. median and upper
             #  pivot with lower
             # in C++ std::nth_element(_items.begin() + lower + 1,
             #                 _items.begin() + median,
             #                 _items.begin() + upper,
             #                 DistanceComparator(_items[lower]))
-            nth_element(self._items, lower+1, median, upper, comp=self._itemComparator)
+            nth_element(self._items, lower + 1, median, upper,
+                        comp=self._itemComparator)
             # Threshold of the new node will be the distance to the median
-            node.threshold = self._distance(self._items[lower], self._items[median])
+            node.threshold = self._distance(self._items[lower],
+                                            self._items[median])
             # Recursively build tree
-            node.left = self.__build_tree(lower + 1, median, level = next_level)
-            node.right = self.__build_tree(median, upper, level = next_level)
+            node.left = self.__build_tree(lower + 1,
+                                          median, level=next_level)
+            node.right = self.__build_tree(median, upper, level=next_level)
         return node
-    
+
     def __search(self, node, target, k, heapQueue):
-        """ 
+        """
             Helper function that searches the tree
         Args:
             node (class):
             target :
             k :
-            heapQueue(list) : a priority heap queue 
+            heapQueue(list) : a priority heap queue
         """
         if node is None:
-            return 
+            return
 
         # Compute distance between target and current node
         dist = self._distance(self._items[node.index], target)
@@ -324,11 +332,11 @@ class VPTree(object):
         if dist < node.threshold:
             # If the target lies within the radius of ball
             if (dist - self._tau) <= node.threshold:
-                # if there can still be neighbors inside the ball, 
+                # if there can still be neighbors inside the ball,
                 # recursively search left child first
                 self.__search(node.left, target, k, heapQueue)
             if (dist + self._tau) >= node.threshold:
-                # if there can still be neighbors inside the ball, 
+                # if there can still be neighbors inside the ball,
                 # recursively search right child first
                 self.__search(node.right, target, k, heapQueue)
         else:
@@ -348,10 +356,10 @@ class VPTree(object):
             return ","
 
     def __toNewickFormat(self, node, format=1):
-        """ 
-            Return a newick format with internal node name 
         """
-        #if (node.left is None) and (node.right is None) :
+            Return a newick format with internal node name
+        """
+        # if (node.left is None) and (node.right is None) :
         if node.is_leaf():
             return self.__nw_format(node, format)
 
@@ -381,7 +389,7 @@ class VPTree(object):
                 return s
 
     def search(self, target, k, results, distances):
-        """ 
+        """
         Function that uses the tree to find the k nearest neighbors of target
         """
         # Use a priority queue to store intermediate results on
@@ -389,27 +397,28 @@ class VPTree(object):
 
         # Variable that tracks the distance to the farthest point in our results
         self._tau = sys.float_info.max
-        
+
         # Perform the search
         self._search(self._root, target, k, heap)
-        
+
         # Gather final results
-        #results = []
-        #distances = []
-      
+        # results = []
+        # distances = []
+
         while not heap.empty():
             # stored in decreased order
             results.append(self._items[heap.top()[1]])
             distances.append(heap.top())
             heap.popm()
-        
+
         # Results are in reverse order
         # results.reverse()
         # distances.reverse()
 
-    def bfs_traverse(self, callback=lambda l,n:print("Level {}: {}".format(l,n))):
-        """ 
-            Bread first traverse 
+    def bfs_traverse(self,
+                     callback=lambda l, n: print("Level {}: {}".format(l, n))):
+        """
+            Bread first traverse
 
         Kwargs:
             callback (function) : hold two parameters in order,
@@ -418,7 +427,7 @@ class VPTree(object):
 
         """
         list = [self._root]
-        level = 0;
+        level = 0
         while len(list) > 0:
             for n in list:
                 callback(level, n)
@@ -426,9 +435,9 @@ class VPTree(object):
                    [n.right for n in list if n.right]
             level += 1
 
-    def __preOrder(self, callback=lambda n:print(n)):
+    def __preOrder(self, callback=lambda n: print(n)):
         """
-            Pre-order traverse: root, left, right 
+            Pre-order traverse: root, left, right
         """
         stack = []
         current = self._root
@@ -448,16 +457,16 @@ class VPTree(object):
                 current = stack.pop()
             current = current.right
 
-    def __inOrder(self, callback=lambda n:print(n)):
+    def __inOrder(self, callback=lambda n: print(n)):
         """
-            In-order traverse: left, root, right 
+            In-order traverse: left, root, right
         """
         current = self._root
         stack = []
         while True:
             while current is not None:
                 stack.append(current)
-                current = current.left;
+                current = current.left
             if not stack:
                 return
             current = stack.pop()
@@ -471,22 +480,22 @@ class VPTree(object):
                     callback(current)
                 except TypeError:
                     yield current
-            current = current.right 
+            current = current.right
 
-    def __postOrder(self, callback=lambda n:print(n)):
+    def __postOrder(self, callback=lambda n: print(n)):
         """
-            Post-order traverse: left, right, root 
+            Post-order traverse: left, right, root
         """
         stack = []
         current = self._root
         while True:
             while current is not None:
-                stack.append((current,False))
-                current = current.left;
+                stack.append((current, False))
+                current = current.left
             if stack:
                 current, visited = stack.pop()
             else:
-                return 
+                return
             while((current.right is None) or (visited is True)) and stack:
                 try:
                     callback(current)
@@ -500,7 +509,7 @@ class VPTree(object):
                     except TypeError:
                         yield current
                     return
-                stack.append((current,True))
+                stack.append((current, True))
                 current = current.right
 
     def get_descendants_ldpair(self, order='preorder', ld_pair_generator=None):
@@ -508,9 +517,9 @@ class VPTree(object):
         Return a list of ld-pair
         """
         def _pair_generator(node):
-            if (node.left is not None) and (node.right is not None): 
+            if (node.left is not None) and (node.right is not None):
                 return ((node.name, node.hashKey, node.level, node.threshold),
-                    (node.left.name, node.left.hashKey,node.left.level, node.left.threshold),
+                    (node.left.name, node.left.hashKey, node.left.level, node.left.threshold),
                     (node.right.name, node.right.hashKey, node.right.level, node.right.threshold))
             elif (node.left is not None) and (node.right is None):
                 return ((node.name, node.hashKey,node.level, node.threshold),
@@ -532,7 +541,7 @@ class VPTree(object):
         elif order == 'inorder':
             for n in self.__inOrder(callback=None):
                 ld_pairs.append(ld_pair_generator(n))
-        elif oder == 'postorder':
+        elif order == 'postorder':
             for n in self.__postOrder(callback=None):
                 ld_pairs.append(ld_pair_generator(n))
         else:
@@ -540,14 +549,15 @@ class VPTree(object):
             sys.exit(1)
         return ld_pairs
 
-    def dfs_traverse(self, strategy='inorder', callback=lambda n:print(n)):
-        """ 
-            Depth first traverse 
+    def dfs_traverse(self, strategy='inorder', callback=lambda n: print(n)):
+        """
+            Depth first traverse
                 1. Pre-order
                 2. In-order
                 3. Post-order
         Kwargs:
-            strategy (str) : 'preorder','inorder' or 'postorder', default is 'inorder'.
+            strategy (str) : 'preorder','inorder' or 'postorder',
+                             default is 'inorder'.
             callback (function) : hold one parameter, current visiting node.
         """
         if strategy == 'preorder':
@@ -562,7 +572,7 @@ class VPTree(object):
 
     def __CommonSubTree(self, T1, T2, offset=0.):
         """
-            Find the commonality of two sub-trees which trees are represented 
+            Find the commonality of two sub-trees which trees are represented
             by ld-pair, i.e., [(resName, level, values)]
 
         Args:
@@ -570,7 +580,7 @@ class VPTree(object):
             T2: tree2
 
         Return:
-            A list of the common nodes 
+            A list of the common nodes
         """
         if not __checkTypes(T1, (list)):
             print("The first input argument should be a list.")
@@ -578,21 +588,21 @@ class VPTree(object):
         if not __checkTypes(T2, (list)):
             print("The second input argument should be a list.")
             sys.exit(1)
-        #T1 = set(T1)
-        #T2 = set(T2)
-        #common = T1 & T2
+        # T1 = set(T1)
+        # T2 = set(T2)
+        # common = T1 & T2
         common_t1 = []
         common_t2 = []
         for t1_elem in T1:
             for t2_elem in T2:
                 if (t1_elem[1] == t2_elem[1]) and \
                     (t1_elem[2] == t2_elem[2]) and \
-                    (abs(t1_elem[3] == t2_elem[3])<=0.114226):
+                    (abs(t1_elem[3] == t2_elem[3]) <= 0.114226):
                     common_t1.append(t1_elem)
                     common_t2.append(t2_elem)
         return (common_t1, common_t2)
 
-    def __treeEditDistOperationsCosts(self,T1, T2):
+    def __treeEditDistOperationsCosts(self, T1, T2):
         """
             Compute the costs of tree insertion and deletion operations
             based on their common part of nodes
@@ -636,8 +646,8 @@ class VPTree(object):
             print(p)
 
     def save(self, format=1):
-        """ 
-            Save a tree to a specified format 
+        """
+            Save a tree to a specified format
 
         .. table::
             ======  ==============================================
@@ -680,6 +690,5 @@ class VPTree(object):
         ts.show_leaf_name = True
         ts.show_branch_length = True
         ts.show_branch_support = True
-        t.render(treeGraph, w=width, h=height, units=units, dpi=dpi, tree_style=ts)
-
-
+        t.render(treeGraph, w=width, h=height,
+                 units=units, dpi=dpi, tree_style=ts)
