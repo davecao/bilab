@@ -25,7 +25,7 @@ Download and Installation
 3. Boost Library
    For Installation, please refer to the homepage of Boost Library at http://www.boost.org  
 
-	export BOOST_ROOT=/path/to/boost
+		export BOOST_ROOT=/path/to/boost
    
 4. bilab  
 
