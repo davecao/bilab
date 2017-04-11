@@ -22,13 +22,13 @@ Download and Installation
     python setup.py build install  
 
 3. Boost Library
-   For Installation, please refer to the homepage of Boost Library at http://www.boost.org
+   For Installation, please refer to the homepage of Boost Library at http://www.boost.org  
    export BOOST_ROOT=/path/to/boost
    
 4. bilab
-    cd bilab
-    pysetup run build install_dist
-or  specify the installation prefix
+    cd bilab  
+    pysetup run build install_dist  
+or  specify the installation prefix  
     pysetup run build install_dist --prefix=/path/to/install
 
 Test
