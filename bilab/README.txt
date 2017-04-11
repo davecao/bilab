@@ -5,8 +5,9 @@ Prerequisites
 -------------
 
 1. Numpy
-2. Distutils2
+2. distutil and setuptools
 3. C/C++ compiler
+4. Boost C++ Libaray
 
 Download and Installation
 -------------------------
@@ -16,13 +17,11 @@ Download and Installation
     cd numpy
     python setup.py build install
 
-2. Distutil2
-    cd Distutils2-1.0a4
-    python setup.py build install
+2. Boost Library
 
 3. bilab
     cd bilab
-    pysetup run build install_dist
+    python setup.py install
 
 Test
 -----
