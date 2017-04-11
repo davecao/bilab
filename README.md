@@ -5,8 +5,9 @@ Prerequisites
 -------------
 
 1. Numpy
-2. Distutils2
-3. C/C++ compiler
+2. Distutils2 and Setuptools
+3. Boost C++ Library
+4. C/C++ compiler
 
 Download and Installation
 -------------------------
@@ -21,8 +22,9 @@ Download and Installation
     python setup.py build install  
 
 3. Boost Library
-   Please refer to the homepage of Boost Library at http://www.boost.org
-
+   For Installation, please refer to the homepage of Boost Library at http://www.boost.org
+   export BOOST_ROOT=/path/to/boost
+   
 4. bilab
     cd bilab
     pysetup run build install_dist
