@@ -16,11 +16,14 @@ Download and Installation
     cd numpy  
     python setup.py build install  
 
-2. Distutil2  
+2. Distutil2 and setuptools  
     cd Distutils2-1.0a4  
     python setup.py build install  
 
-3. bilab
+3. Boost Library
+   Please refer to http://www.boost.org
+
+4. bilab
     cd bilab
     pysetup run build install_dist
 or  specify the installation prefix
