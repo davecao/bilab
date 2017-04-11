@@ -17,22 +17,29 @@ Download and Installation
     cd numpy  
     python setup.py build install  
 
-2. Distutil2 and setuptools  
-    cd Distutils2-1.0a4  
-    python setup.py build install  
+2. Distutil2 and setuptools
+
+		cd Distutils2-1.0a4
+		python setup.py build install  
 
 3. Boost Library
    For Installation, please refer to the homepage of Boost Library at http://www.boost.org  
-   export BOOST_ROOT=/path/to/boost
+
+	export BOOST_ROOT=/path/to/boost
    
 4. bilab  
-    cd bilab  
-	python setup.py install  
+
+		cd bilab  
+
+		python setup.py install  
+
 or  specify the installation prefix  
+
 	python setup.py build install_dist --prefix=/path/to/install
 
 Test
 -----
+
     ./prInteract.py --pdbdir . --pdbid 9mht --outfmt txt --out 9mht --distance 5.0 --source protein --target nucleic -v  
 
 Output
