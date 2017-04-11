@@ -21,7 +21,7 @@ Download and Installation
     python setup.py build install  
 
 3. Boost Library
-   Please refer to http://www.boost.org
+   Please refer to the homepage of Boost Library at http://www.boost.org
 
 4. bilab
     cd bilab
