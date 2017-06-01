@@ -32,6 +32,7 @@ __all__ = ['parsePDBStream',
 class PDBParseError(Exception):
     pass
 
+
 _parsePQRdoc = """
     :arg title: title of the :class:`.AtomGroup` instance, default is the
         PDB filename or PDB identifier
@@ -152,6 +153,7 @@ def parsePDB(pdb, **kwargs):
     pdb.close()
     return result
 
+
 parsePDB.__doc__ += _parsePDBdoc
 
 
@@ -264,6 +266,7 @@ def parsePDBStream(stream, **kwargs):
     else:
         return hd
 
+
 parsePDBStream.__doc__ += _parsePDBdoc
 
 
@@ -326,6 +329,7 @@ def parsePQR(filename, **kwargs):
         return ag
     else:
         return None
+
 
 parsePQR.__doc__ += _parsePQRdoc
 
@@ -399,7 +403,7 @@ def _parsePDBLines(atomgroup, lines, split, model, chain, subset,
             if lines[i][:5] == 'MODEL':
                 nmodel += 1
                 if model == nmodel:
-                    start = i+1
+                    start = i + 1
                     stop = len(lines)
                     break
         if nmodel != model:
@@ -437,7 +441,7 @@ def _parsePDBLines(atomgroup, lines, split, model, chain, subset,
 
             chid = line[21]
             if only_chains:
-                if not chid in chain:
+                if chid not in chain:
                     i += 1
                     continue
             alt = line[16]
