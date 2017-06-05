@@ -669,6 +669,7 @@ general_settings['ext_modules'] = [
 #                                   CWMatrix]
 general_settings['install_requires'] = [
     'scipy>0.15.0'
+    ]
 #    'matplotlib>1.4.0',
 #    'numpy>1.9.0']
 
