@@ -676,7 +676,8 @@ general_settings['ext_modules'] = [
 # general_settings['install_requires'] = [
 #    'matplotlib>1.4.0',
 #    'numpy>1.9.0']
-#for k in general_settings:
-#    print k
+for k in general_settings:
+    if k == "packages":
+        print general_settings[k]
 setup(**general_settings)
 # setup(**cfg_to_args())
