@@ -670,11 +670,7 @@ general_settings['ext_modules'] = [
 # general_settings['install_requires'] = [
 #    'matplotlib>1.4.0',
 #    'numpy>1.9.0']
-    if sys.version_info[:3] < (2, 7, 13):
-        val = value.decode('ascii', 'ignore')
-        return [element for element in
-                (line.strip() for line in value.split('\n'))
-                if element]
+
 for k in general_settings:
     if k == "packages" and sys.version_info[:3] < (2, 7, 13):
         general_settings[k] = [ p.decode('ascii', 'ignore') for p in general_settings[k]]
