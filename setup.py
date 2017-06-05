@@ -523,12 +523,6 @@ MMTK_force_field = Extension(
 
 def split_multiline(value):
     """Split a multiline string into a list, excluding blank lines."""
-    
-    if sys.version_info[:3] < (2, 7, 13):
-        val = value.decode('ascii', 'ignore')
-        return [element for element in
-                (line.strip() for line in value.split('\n'))
-                if element]
     val = value.encode('utf-8')
     return [element for element in
             (line.decode('utf-8').strip() for line in val.split(b'\n'))
@@ -676,8 +670,14 @@ general_settings['ext_modules'] = [
 # general_settings['install_requires'] = [
 #    'matplotlib>1.4.0',
 #    'numpy>1.9.0']
+    if sys.version_info[:3] < (2, 7, 13):
+        val = value.decode('ascii', 'ignore')
+        return [element for element in
+                (line.strip() for line in value.split('\n'))
+                if element]
 for k in general_settings:
-    if k == "packages":
-        print general_settings[k]
+    if k == "packages" and sys.version_info[:3] < (2, 7, 13):
+        general_settings[k] = [ p.decode('ascii', 'ignore') for p in general_settings[k]]
+        
 setup(**general_settings)
 # setup(**cfg_to_args())
