@@ -39,9 +39,9 @@
 //#include "proto.h"
 
 
-#if defined(COMPILER_GCC)
-extern char* strdup (const char *);
-#endif
+//#if defined(COMPILER_GCC)
+//extern char* strdup (const char *)
+//#endif
 
 #if defined(COMPILER_MSC)
 #if defined(rint)

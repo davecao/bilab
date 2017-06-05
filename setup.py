@@ -667,13 +667,13 @@ general_settings['ext_modules'] = [
     MMTK_universe, MMTK_energy_term, MMTK_force_field
 ]
 #                                   CWMatrix]
-# general_settings['install_requires'] = [
+general_settings['install_requires'] = [
+    'scipy>0.15.0'
 #    'matplotlib>1.4.0',
 #    'numpy>1.9.0']
 
 for k in general_settings:
     if k == "packages" and sys.version_info[:3] < (2, 7, 13):
-        general_settings[k] = [ p.decode('ascii', 'ignore') for p in general_settings[k]]
-        
+        general_settings[k] = [ p.encode('ascii', 'ignore') for p in general_settings[k]]
 setup(**general_settings)
 # setup(**cfg_to_args())

@@ -7,3 +7,5 @@ from bilab.apps.struct2feature import main
 # __all__.extend(struct2feature.__all__)
 
 from bilab.apps.treeCompare import main
+
+from bilab.apps.prInteract import main

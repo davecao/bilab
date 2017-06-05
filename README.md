@@ -11,11 +11,13 @@ Prerequisites
 
 Download and Installation
 -------------------------
-1. Numpy
+1. Numpy and Scipy
 
 		git clone git://github.com/numpy/numpy.git numpy  
 		cd numpy  
 		python setup.py build install  
+
+see Scipy's Installation guide at https://www.scipy.org/install.html
 
 2. Distutil2 and setuptools
 
