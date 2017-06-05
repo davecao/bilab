@@ -525,7 +525,7 @@ def split_multiline(value):
     """Split a multiline string into a list, excluding blank lines."""
     if sys.version_info[:3] < (2, 7, 13):
         return [element for element in
-                (line.strip() for line in val.split('\n'))
+                (line.strip() for line in value.split('\n'))
                 if element]
     val = value.encode('utf-8')
     return [element for element in
