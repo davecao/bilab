@@ -15,7 +15,7 @@ Download and Installation
 
 		git clone git://github.com/numpy/numpy.git numpy  
 		cd numpy  
-		python setup.py build install  
+		python setup.py build install  install_data
 
 see Scipy's Installation guide at https://www.scipy.org/install.html
 
