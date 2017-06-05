@@ -42,7 +42,7 @@ or  specify the installation prefix
 Test
 -----
 
-    ./prInteract.py --pdbdir . --pdbid 9mht --outfmt txt --out 9mht --distance 5.0 --source protein --target nucleic -v  
+    python -m bilab.apps.prInteract --pdb 9mht.pdb --outfmt txt --out 9mht --distance 5.0 --source protein --target nucleic -v  
 
 Output
 --------------
