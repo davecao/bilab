@@ -21,7 +21,7 @@ Download and Installation
 
 3. bilab
     cd bilab
-    python setup.py install
+    python setup.py install install_data
 
 Test
 -----

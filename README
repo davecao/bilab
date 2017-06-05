@@ -33,7 +33,7 @@ see Scipy's Installation guide at https://www.scipy.org/install.html
 
 		cd bilab  
 
-		python setup.py install  
+		python setup.py install install_data 
 
 or  specify the installation prefix  
 
