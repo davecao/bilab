@@ -161,8 +161,9 @@ cdef uint32_t crc_reflect_c(uint32_t data, size_t data_len):
     return ret
 
 cdef uint32_t crc_update_c(unsigned int crc, unsigned char *buf, size_t buf_len):
-    # could not access the last '\0' in buf
-    # 
+    # Note
+    # python could not access the last '\0' in buf?
+
     cdef unsigned int idx = 0
     cdef unsigned int counter = 0
     
