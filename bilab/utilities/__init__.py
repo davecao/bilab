@@ -33,3 +33,5 @@ from .nth_element import *
 from .helpformatter import *
 
 from .profilehooks import *
+
+from crc32 import *

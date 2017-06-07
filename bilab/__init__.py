@@ -42,6 +42,10 @@ SETTINGS.load()
 #     Point to different locations
 #  using sysconfig.get_path("data") instead
 #             -- /usr/local
+# if using egg, have to install data
+#  i.e., python setup.py install_data
+#    -- /usr/local/lib/python2.7/dist-packages/bilab-1.0.0-py2.7-linux-x86_64.egg/
+#      bilab/data/
 data = "{}{}{}{}{}".format(
             sysconfig.get_path('data'),
             os.sep, 'share', os.sep, 'bilab', os.sep, 'data')

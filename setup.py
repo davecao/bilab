@@ -222,6 +222,13 @@ voroplusplus = Extension(
         'bilab/geometry/voro/src/voro++.cc'],
     language="c++")
 
+crc32 = Extension(
+    name='bilab.utilities.crc32',
+    include_dirs=[np_include_dir],
+    sources=[
+        'bilab/utilities/_crc32.pyx'],
+    language="c")
+
 # clang -fopenmp -I <path to omp.h> -L <LLVM OpenMP library path>
 lfdfiles = ""
 if plat.system() == "Darwin":
@@ -664,7 +671,7 @@ general_settings['ext_modules'] = [
     distance_wrap, kdtree_lib, bhtsne_wrap, gpmetis_wrap,
     netcdf_wrap, lfdfiles, voroplusplus, marching_cubes,
     MMTK_surface, MMTK_minimization, MMTK_trajectory,
-    MMTK_universe, MMTK_energy_term, MMTK_force_field
+    MMTK_universe, MMTK_energy_term, MMTK_force_field,crc32
 ]
 #                                   CWMatrix]
 general_settings['install_requires'] = [
