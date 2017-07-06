@@ -5,7 +5,7 @@ Prerequisites
 -------------
 
 1. Numpy
-2. Distutils2 and Setuptools
+2. Setuptools
 3. Boost C++ Library
 4. C/C++ compiler
 
@@ -14,15 +14,14 @@ Download and Installation
 1. Numpy and Scipy
 
 		git clone git://github.com/numpy/numpy.git numpy  
-		cd numpy  
-		python setup.py build install  install_data
+		python setup.py build install  install_data  
 
 see Scipy's Installation guide at https://www.scipy.org/install.html
 
 2. Distutil2 and setuptools
 
 		cd Distutils2-1.0a4
-		python setup.py build install  
+		python setup.py build install install_data
 
 3. Boost Library
    For Installation, please refer to the homepage of Boost Library at http://www.boost.org  
@@ -32,7 +31,7 @@ see Scipy's Installation guide at https://www.scipy.org/install.html
 4. bilab  
 
 		cd bilab  
-
+ 
 		python setup.py install  
 
 or  specify the installation prefix  

@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+prInteract is an application used to find the interacted atoms pairs in a pdb file
+"""
+
 from __future__ import print_function
 import sys
 import os
@@ -7,7 +11,8 @@ import os
 # import re
 
 from datetime import datetime as dt
-from xml.etree.ElementTree import Element, SubElement, Comment, tostring
+from xml.etree.ElementTree import Element, SubElement
+# from xml.etree.ElementTree import Comment, tostring
 from optparse import OptionParser, make_option
 
 __execute_name__ = "prInteract"
@@ -21,15 +26,14 @@ __copyright__ = """
     """
 
 """
-Installation of bilab package:
+versionInstallation of bilab package:
 
   git clone https://github.com/davecao/bilab.git
 
 Usage:
 
 ./prInteract.py --pdb 9mht.pdb --source protein --target nucleic -v
-    
---target :  not water and hetero
+--versiontarget :  not water and hetero
             hetero and (resname 753 or resname DMS or resname GOL)
 
 Note: if --pdbdir is not specified, it will use the current directory
@@ -59,10 +63,10 @@ class PDBInfo(object):
     """
     Store the header info of the input pdb file
     """
-    
-    def __init__(self, title, pdbid, 
+
+    def __init__(self, title, pdbid,
                  experiment_method,
-                 dep_date = None,
+                 dep_date=None,
                  classification=None,
                  resolution=None,
                  version=None):
@@ -74,59 +78,63 @@ class PDBInfo(object):
         self.classification = classification
         self.resolution = resolution
         self.version = version
-    
+
     def __str__(self):
         return "#{}{}{}#{}{}{}#{}{}{}#{}{}{}#{}{}{}#{}{}".format(
-               "PDBID: ", self.pdbid, os.linesep,
-               "Experiment method: ",self.exp_method, os.linesep,
-               "Deposition date: ",self.deposition_date, os.linesep,
-               "Classification: ",self.classification, os.linesep,
-               "Resolution: ",self.resolution, os.linesep,
-               "Version: ",self.version)
+            "PDBID: ", self.pdbid, os.linesep,
+            "Experiment method: ", self.exp_method, os.linesep,
+            "Deposition date: ", self.deposition_date, os.linesep,
+            "Classification: ", self.classification, os.linesep,
+            "Resolution: ", self.resolution, os.linesep,
+            "Version: ", self.version)
 
 
 class ATOMInfo(object):
-    """ Atom info"""
+    """ Atom info """
     def __init__(self, name, chId,
                  resName,
                  resNum,
                  insertCode="_",
                  atType="residue"):
-        self.atName = name
-        self.chainId = chId
-        self.resName = resName
-        self.resNum = resNum
+        self.at_name = name
+        self.chain_id = chId
+        self.res_name = resName
+        self.res_num = resNum
         # residue or ligand
-        self.atType = atType
-        self.insertCode = insertCode
-    
+        self.at_type = atType
+        self.insert_code = insertCode
+
     def __str__(self):
-        s = None
-        if self.atType == "residue":
-            s = "{}.{}.{}.{}.{}".format(
-                self.resName,
-                self.chainId,
-                self.insertCode,
-                self.resNum,
-                self.atName
+        str_des = None
+        if self.at_type == "residue":
+            str_des = "{}.{}.{}.{}.{}".format(
+                self.res_name,
+                self.chain_id,
+                self.insert_code,
+                self.res_num,
+                self.at_name
             )
-        elif self.atType == "ligand":
-            s = "{}.{}.{}.{}".format(
-                self.resName,
-                self.chainId,
-                self.resNum,
-                self.atName
+        elif self.at_type == "ligand":
+            str_des = "{}.{}.{}.{}".format(
+                self.res_name,
+                self.chain_id,
+                self.res_num,
+                self.at_name
             )
-        return s
-    
+        return str_des
+
     def to_xml(self, node):
-        node.set('type', self.atType)
-        node.set('resName', self.resName)
-        node.set('chId', self.chainId)
-        node.set('resNum', "{}".format(self.resNum))
-        node.set('atName', self.atName)
-        if self.atType == "residue":
-            node.set('InsertCode', self.insertCode)
+        """
+        write to xml format
+        """
+        node.set('type', self.at_type)
+        node.set('resName', self.res_name)
+        node.set('chId', self.chain_id)
+        node.set('resNum', "{}".format(self.res_num))
+        node.set('atName', self.at_name)
+        if self.at_type == "residue":
+            node.set('InsertCode', self.insert_code)
+
 
 class AtomIteraction(object):
     """ store a pair of interacted atoms """
@@ -136,16 +144,17 @@ class AtomIteraction(object):
         self.dist = dist
         self.cov_dist = cov_dist
         self.cov_bond = True if cov_dist >= dist else False
-    
+
     def __str__(self):
         return "{}:{}:{}:{}:{}".format(
-                   self.atom1,
-                   self.atom2,
-                   self.dist,
-                   self.cov_dist,
-                   self.cov_bond)
-    
+            self.atom1,
+            self.atom2,
+            self.dist,
+            self.cov_dist,
+            self.cov_bond)
+
     def to_xml(self, parent):
+        """ write to xml """
         # parent is an SubElement object of xml
         parent.set('distance', "{}".format(self.dist))
         parent.set('covalent_dist', "{}".format(self.cov_dist))
@@ -154,10 +163,11 @@ class AtomIteraction(object):
         self.atom1.to_xml(atom1_elem)
         atom2_elem = SubElement(parent, 'ATOM')
         self.atom2.to_xml(atom2_elem)
-                 
+
+
 class Interactions(PDBInfo):
-    """ Store the interaction pairs at the atomic level"""
-    
+    """ Store the interaction pairs at the atomic level """
+
     def __init__(self, *args, **kwargs):
         """Initialization"""
         self.dist_threshold = kwargs.pop('dist_threshold', None)
@@ -169,39 +179,39 @@ class Interactions(PDBInfo):
     def __str__(self):
         return super(Interactions, self).__str__() + \
                "#Create date: {}".format(self.create_date)
-    
+
     def set_interaction_pair(self, neighbours):
         """ convert neighbours to list """
         append_self = self.interact_list.append
         for at1, at2, distance in neighbours:
-            res1Icode = "_"
+            res1_icode = "_"
             if at1.getIcode():
-                res1Icode = at1.getIcode()
+                res1_icode = at1.getIcode()
             atom1 = ATOMInfo(
-                            at1.getName(),
-                            at1.getChid(),
-                            at1.getResname(),
-                            at1.getResnum(),
-                            insertCode=res1Icode,
-                            atType="residue"
-                            )
+                at1.getName(),
+                at1.getChid(),
+                at1.getResname(),
+                at1.getResnum(),
+                insertCode=res1_icode,
+                atType="residue"
+            )
             atom2 = ATOMInfo(
-                            at2.getName(),
-                            at2.getChid(),
-                            at2.getResname(),
-                            at2.getResnum(),
-                            atType="ligand"
-                            )
+                at2.getName(),
+                at2.getChid(),
+                at2.getResname(),
+                at2.getResnum(),
+                atType="ligand"
+            )
             element1 = at1.getElement()
             element2 = at2.getElement()
             cov_bond_sum = bilab.chemicals.get_covalent_radius(element1) + \
                 bilab.chemicals.get_covalent_radius(element2)
             atom_pair = AtomIteraction(atom1, atom2, distance, cov_bond_sum)
             append_self(atom_pair)
-            
+
     def write(self,
-               outfmt='txt',
-               ofile='out'):
+              outfmt='txt',
+              ofile='out'):
         """ neighbours """
         ofs = None
         if isinstance(ofile, bilab.string_types):
@@ -214,20 +224,20 @@ class Interactions(PDBInfo):
             print("Unkown output format.")
             sys.exit(1)
         ofs.close()
-    
+
     def to_txt(self, ofile='out'):
         """ write the interaction pairs to a text file"""
         h_info = "#---- Generated by {} v{} ----------------".format(
-              __execute_name__, __version__)
+            __execute_name__, __version__)
         print(h_info, end='\n', file=ofile)
         print("{}".format(self), end='\n', file=ofile)
         print("# Note: Column separated by :", end='\n', file=ofile)
         print("# Col1. label started with ATOM", end='\n', file=ofile)
         print("# Col2. residue info. the format is below.", end='\n', file=ofile)
-        print("#       resName.chId.InsertCode.atName - ", end='\n', file=ofile)
+        print("#       resName.chId.InsertCode.at_name - ", end='\n', file=ofile)
         print("#       e.g., ASP.A._.29.CA ", end='\n', file=ofile)
         print("# Col3. ligand info. the format is below.", end='\n', file=ofile)
-        print("#       resName.chId.InsertCode.atName - ", end='\n', file=ofile)
+        print("#       resName.chId.InsertCode.at_name - ", end='\n', file=ofile)
         print("#       e.g., 017.B.201.N1", end='\n', file=ofile)
         print("# Col4. the distance between the two atoms in Col2 and Col3.", end='\n', file=ofile)
         print("# Col5. summation of covalent radii of the two atoms.", end='\n', file=ofile)
@@ -235,8 +245,9 @@ class Interactions(PDBInfo):
         print("#"+"-"*(len(h_info) - 1), end='\n', file=ofile)
         for at_pair in self.interact_list:
             print("ATOM:{}".format(at_pair), end='\n', file=ofile)
-            
+
     def to_xml(self, ofile='out'):
+        """ Write to xml """
         # Generate root element
         root = Element(
             'PDB',
@@ -255,7 +266,7 @@ class Interactions(PDBInfo):
             at_pair.to_xml(interaction)
         ofile.write(bilab.utilities.prettify_xml(root))
 
-    
+
 def parse_cmd(argv):
     """
     Parse command line arguments
@@ -330,15 +341,15 @@ def main(argv):
     pdbid = header['identifier']
     # store pdb info
     inter_atoms_set = Interactions (
-                      header['title'],
-                      pdbid, 
-                      header['experiment'],
-                      dep_date=header['deposition_date'],
-                      classification=header['classification'],
-                      resolution=header['resolution'] if 'resolution' in header else None,
-                      version=header['version'],
-                      dist_threshold=opt.distance
-                      )
+        header['title'],
+        pdbid,
+        header['experiment'],
+        dep_date=header['deposition_date'],
+        classification=header['classification'],
+        resolution=header['resolution'] if 'resolution' in header else None,
+        version=header['version'],
+        dist_threshold=opt.distance
+    )
     # set title of the molecule
     mol.setTitle(pdbid)
 
@@ -354,7 +365,7 @@ def main(argv):
     # find the interacting pairs within the specified distance
     neighbors = bilab.structure.findNeighbors(
         source_atoms, opt.distance, target_atoms)
-    
+
     inter_atoms_set.set_interaction_pair(neighbors)
     if opt.outfilename == "out":
         opt.outfilename += "." + opt.outfmt
@@ -362,10 +373,10 @@ def main(argv):
 
 
 if __name__ == '__main__':
-    cur_version = sys.version_info
-    if not cur_version[:2] == (2, 7):
+    CURR_VERSION = sys.version_info
+    if not CURR_VERSION[:2] == (2, 7):
         print("Python v.{}.{} is not supported".format(
-              cur_version[0], cur_version[1]))
+            CURR_VERSION[0], CURR_VERSION[1]))
         sys.exit(0)
     # import bilab package
     try:

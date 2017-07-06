@@ -19,16 +19,24 @@
 #include "Numeric/arrayobject.h"
 #endif
 #endif
+
 #include "netcdf.h"
 
 #define _NETCDF_MODULE
 #include "Scientific/netcdfmodule.h"
 
+#if PY_MAJOR_VERSION >= 3
+static int netcdf_file_init(PyNetCDFFileObject *self);
+static PyNetCDFVariableObject *
+netcdf_variable_new(PyNetCDFFileObject *file, char *name, int id, int type,
+    		    int ndims, int *dimids, int nattrs);
+#else
 staticforward int
 netcdf_file_init(PyNetCDFFileObject *self);
 staticforward PyNetCDFVariableObject *
 netcdf_variable_new(PyNetCDFFileObject *file, char *name, int id, int type,
 		    int ndims, int *dimids, int nattrs);
+#endif
 
 /* Lock granting access to netCDF routines (netCDF isn't thread-safe) */
 
@@ -610,8 +618,9 @@ check_if_open(PyNetCDFFileObject *file, int mode)
 static void
 PyNetCDFFileObject_dealloc(PyNetCDFFileObject *self)
 {
-  if (self->open)
+  if (self->open){ 
     PyNetCDFFile_Close(self);
+  }
   Py_XDECREF(self->dimensions);
   Py_XDECREF(self->variables);
   Py_XDECREF(self->attributes);

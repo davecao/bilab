@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
 
+"""
 __author__ = "Wei Cao"
 __contact__ = "davecao@bi.a.u-tokyo.ac.jp"
 __date__ = "2015/08/27"
@@ -13,8 +15,8 @@ import os
 import sys
 import uuid
 import time
-import numpy as np
 from signal import (signal, SIGPIPE, SIG_DFL)
+import numpy as np
 from optparse import (OptionParser, make_option)
 
 try:

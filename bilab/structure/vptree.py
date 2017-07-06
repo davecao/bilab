@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-    This module defines :class:`VPTree` 
+    This module defines :class:`VPTree`
     To do list:
-    1. HeapItem 
+    1. HeapItem
     2. DistanceComparator
 """
 from __future__ import print_function
@@ -41,7 +41,7 @@ def __checkTypes(args, **types):
             if isinstance(allowed, (list, tuple)):
                 if len(allowed) > 1:
                     tstr = ', '.join([repr(tp.__name__) for tp in allowed[:-1]]
-                                     ) + ', or ' + repr(allowed[-1].__name__)
+                                    ) + ', or ' + repr(allowed[-1].__name__)
 
                 else:
                     tstr = repr(allowed[0].__name__)
@@ -118,6 +118,7 @@ class PriorityQueue(object):
 
 
 class Node(object):
+    """ Class Node """
     def __init__(self, identifier=None, index=0, level=None,
                  value=0.0, name=None, threshold=0.0):
         super(Node, self).__init__()
@@ -130,11 +131,11 @@ class Node(object):
         self.name = name
         self.threshold = threshold
         self.level = level
-        self.left  = None
+        self.left = None
         self.right = None
 
     def __iter__(self):
-        """ return the iterator that iterates through the elements in the BST 
+        """ return the iterator that iterates through the elements in the BST
         rooted at this node in an inorder sequence SLOWER SLOWER"""
 
         if self.left:
@@ -147,16 +148,18 @@ class Node(object):
 
     def __str__(self):
         return "Node:{}, index={}, threshold={}".format(self.__identifier,
-                  self.index, self.threshold)
+                                                        self.index, self.threshold)
 
-    def __sanitize_id(id):
-        return id.strip().replace(" ", "")
+    def __sanitize_id(self, _id):
+        return _id.strip().replace(" ", "")
 
     def is_leaf(self):
+        """ find the type of current node """
         return (self.left is None) and (self.right is None)
 
 
 class Visit:
+    """ Visitor pattern """
     def __init__(self, node):
         self.node = node
 

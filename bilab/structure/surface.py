@@ -22,7 +22,7 @@ __all__ = ['calcASA']
 # @vectorize("int8(float32[:], float32[:], float32)", target='gpu')
 #@jit('void(float32[:,:,:], float32[:,:,:], float32, float32[:])', target='gpu')
 def setGPUAccessibility(coords, probe_coords, probe_radius, res):
-        """ set accessibility for a probe"""
+        """ set accessibility versionfor a probe"""
         # dist = euclidean(probe_coords, self.coords)
 
         vx = coords[0] - probe_coords[0]
