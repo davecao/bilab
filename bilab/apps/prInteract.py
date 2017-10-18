@@ -33,7 +33,7 @@ versionInstallation of bilab package:
 Usage:
 
 ./prInteract.py --pdb 9mht.pdb --source protein --target nucleic -v
---versiontarget :  not water and hetero
+--target :  not water and hetero
             hetero and (resname 753 or resname DMS or resname GOL)
 
 Note: if --pdbdir is not specified, it will use the current directory
