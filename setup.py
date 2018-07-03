@@ -530,11 +530,13 @@ MMTK_force_field = Extension(
 mmcif_extra_compile_args = ['-ftemplate-backtrace-limit=64','-std=c++11']
 mmcif_extra_link_args = ['-std=c++11']
 if plat.system() == "Darwin":
+    # clang on MacOS
     mmcif_extra_compile_args += ['-stdlib=libc++']
     mmcif_extra_link_args += ['-std=libc++']
 elif plat.system() == "Linux":
-    mmcif_extra_compile_args += ['-stdlib=libstdc++']
-    mmcif_extra_link_args += ['-std=libstdc++']
+    # gcc on Linux
+    mmcif_extra_compile_args += ['-static-libstdc++']
+    mmcif_extra_link_args += ['-static-libstdc++']
 
 mmcif = Extension(
     name="bilab.io._mmcifio",
