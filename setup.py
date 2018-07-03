@@ -527,6 +527,15 @@ MMTK_force_field = Extension(
         'bilab/structure/minimization/dpmta/src/dpmta_distmisc.c'
     ])
 
+mmcif_extra_compile_args = ['-ftemplate-backtrace-limit=64','-std=c++11']
+mmcif_extra_link_args = ['-std=c++11']
+if plat.system() == "Darwin":
+    mmcif_extra_compile_args += ['-stdlib=libc++']
+    mmcif_extra_link_args += ['-std=libc++']
+elif plat.system() == "Linux":
+    mmcif_extra_compile_args += ['-stdlib=libstdc++']
+    mmcif_extra_link_args += ['-std=libstdc++']
+
 mmcif = Extension(
     name="bilab.io._mmcifio",
     define_macros=[('MAJOR_VERSION', '1'),
@@ -540,8 +549,8 @@ mmcif = Extension(
         'bilab/io/cifparser/mmcif/mmcifIO_wrapper.cpp',
         'bilab/io/cifparser/mmcifIO_ext.cpp',
         ],
-    extra_compile_args=['-ftemplate-backtrace-limit=64','-std=c++11', '-stdlib=libc++'],
-    extra_link_args=['-std=c++11', '-stdlib=libc++'],
+    extra_compile_args = mmcif_extra_compile_args,
+    extra_link_args = mmcif_extra_link_args
     language="c++")
 
 def split_multiline(value):
