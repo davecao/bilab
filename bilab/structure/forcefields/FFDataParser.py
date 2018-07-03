@@ -13,9 +13,9 @@ from bilab.structure.forcefields import AmberAtomType, AmberBondParameters, \
             AmberLJParameterSet
 
 # Replace enumrate with i, item in zip(range(len(foo)), foo)
-if PY3K:
-    from itertools import zip
-else:
+if not PY3K:
+#    from itertools import zip
+#else:
     from itertools import izip as zip
 
 __all__ = ['FFParserInterface', 'AmberParamParser']

@@ -205,7 +205,7 @@ class FortranLine:
             if type == "'":
                 self.text = self.text + field[1]
             elif type == 'X':
-                self.text = self.text + field[1]*' '
+                self.text = self.text + field[1] * ' '
             else:
                 # fields that use input data
                 length = field[1]
@@ -214,23 +214,23 @@ class FortranLine:
                 value = data[0]
                 data = data[1:]
                 if type == 'A':
-                    self.text = self.text + (value+length*' ')[:length]
+                    self.text = self.text + (value + length*' ')[:length]
                 else:
                     # numeric fields
                     if value is None:
                         s = ''
                     elif type == 'I':
-                        s = `value`
+                        s = str(value)
                     elif type == 'D':
-                        s = ('%' + `length` + '.' + `fraction` + 'e') % value
+                        s = ('%' + str(length) + '.' + str(fraction) + 'e') % value
                         n = string.find(s, 'e')
                         s = s[:n] + 'D' + s[n+1:]
                     elif type == 'E':
-                        s = ('%' + `length` + '.' + `fraction` + 'e') % value
+                        s = ('%' + str(length) + '.' + str(fraction) + 'e') % value
                     elif type == 'F':
-                        s = ('%' + `length` + '.' + `fraction` + 'f') % value
+                        s = ('%' + str(length) + '.' + str(fraction) + 'f') % value
                     elif type == 'G':
-                        s = ('%' + `length` +'.' + `fraction` + 'g') % value
+                        s = ('%' + str(length) +'.' + str(fraction) + 'g') % value
                     else:
                         raise ValueError('Not yet implemented')
                     s = string.upper(s)
@@ -327,7 +327,7 @@ class FortranFormat:
 if __name__ == '__main__':
     f = FortranFormat("'!!',D10.3,F10.3,G10.3,'!!'")
     l = FortranLine([1.5707963, 3.14159265358, 2.71828], f)
-    print str(l)
+    print(str(l))
     f = FortranFormat("F12.0")
     l = FortranLine('2.1D2', f)
-    print l[0]
+    print(l[0])

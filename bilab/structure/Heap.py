@@ -127,7 +127,11 @@ False
 
 from operator import itemgetter
 from heapq import heapify, heappush, heappop, heapreplace, nlargest, nsmallest
-from itertools import izip
+
+from bilab import PY3K
+
+if not PY3K:
+    from itertools import izip as zip
 
 __all__ = ['Heap']
 
@@ -289,7 +293,7 @@ class Heap(object):
                 return False
             sorted_self = sorted(self._heap, key=itemgetter(0))
             sorted_other = sorted(other._heap, key=itemgetter(0))
-            for (kel1,_,el1), (kel2,_,el2) in izip(sorted_self, sorted_other):
+            for (kel1,_,el1), (kel2,_,el2) in zip(sorted_self, sorted_other):
                 if kel1 != kel2 or el1 != el2:
                     return False
             return True
@@ -325,4 +329,4 @@ class Heap(object):
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
-    print "Doctests finished."
+    print("Doctests finished.")

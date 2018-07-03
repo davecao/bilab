@@ -34,6 +34,7 @@ typedef Py_ssize_t (*charbufferproc)(PyObject *, Py_ssize_t, char **);
 #endif
 #endif
 
+
 /* NetCDFFile object */
 
 typedef struct {
@@ -79,6 +80,50 @@ typedef struct {
 /*
  * C API functions
  */
+#if PY_MAJOR_VERSION >= 3
+/* For backward compatibility only. Obsolete, do not use. */
+#define ANY void
+#ifdef HAVE_PROTOTYPES
+#define Py_PROTO(x) x
+#else
+#define Py_PROTO(x) ()
+#endif
+#ifndef Py_FPROTO
+#define Py_FPROTO(x) Py_PROTO(x)
+#endif
+#define PyString_Type PyBytes_Type
+#define PyString_Check PyBytes_Check
+#define PyStringObject PyBytesObject
+#define PyString_FromString PyBytes_FromString
+#define PyString_FromStringAndSize PyBytes_FromStringAndSize
+#define PyString_AS_STRING PyBytes_AS_STRING
+#define PyString_AsStringAndSize PyBytes_AsStringAndSize
+#define PyString_FromFormat PyBytes_FromFormat
+#define PyString_Concat PyBytes_Concat
+#define PyString_ConcatAndDel PyBytes_ConcatAndDel
+#define PyString_AsString PyBytes_AsString
+#define PyString_GET_SIZE PyBytes_GET_SIZE
+#define PyString_Size PyBytes_Size
+
+#define PyUString_Type PyUnicode_Type
+#define PyUString_Check PyUnicode_Check
+#define PyUStringObject PyUnicodeObject
+#define PyUString_FromString PyUnicode_FromString
+#define PyUString_FromStringAndSize PyUnicode_FromStringAndSize
+#define PyUString_FromFormat PyUnicode_FromFormat
+#define PyUString_Concat PyUnicode_Concat2
+#define PyUString_ConcatAndDel PyUnicode_ConcatAndDel
+#define PyUString_GET_SIZE PyUnicode_GET_SIZE
+#define PyUString_Size PyUnicode_Size
+#define PyUString_InternFromString PyUnicode_InternFromString
+#define PyUString_Format PyUnicode_Format
+
+#define PyBaseString_Check(obj) (PyUnicode_Check(obj))
+
+#define statichere static
+#define staticforward static
+#endif
+
 
 /* Type definitions */
 #define PyNetCDFFile_Type_NUM 0
@@ -225,10 +270,8 @@ staticforward PyTypeObject PyNetCDFVariable_Type;
 static PyNetCDFFile_Open_RET PyNetCDFFile_Open PyNetCDFFile_Open_PROTO;
 static PyNetCDFFile_Close_RET PyNetCDFFile_Close PyNetCDFFile_Close_PROTO;
 static PyNetCDFFile_Sync_RET PyNetCDFFile_Sync PyNetCDFFile_Sync_PROTO;
-static PyNetCDFFile_CreateDimension_RET PyNetCDFFile_CreateDimension \
-  PyNetCDFFile_CreateDimension_PROTO;
-static PyNetCDFFile_CreateVariable_RET PyNetCDFFile_CreateVariable \
-  PyNetCDFFile_CreateVariable_PROTO;
+static PyNetCDFFile_CreateDimension_RET PyNetCDFFile_CreateDimension PyNetCDFFile_CreateDimension_PROTO;
+static PyNetCDFFile_CreateVariable_RET PyNetCDFFile_CreateVariable PyNetCDFFile_CreateVariable_PROTO;
 static PyNetCDFFile_GetVariable_RET PyNetCDFFile_GetVariable \
   PyNetCDFFile_GetVariable_PROTO;
 static PyNetCDFVariable_GetRank_RET PyNetCDFVariable_GetRank \

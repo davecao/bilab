@@ -582,8 +582,14 @@ static PyMethodDef minimization_methods[] = {
 
 /* Initialization function for the module */
 
-DL_EXPORT(void)
+//DL_EXPORT(void)
+//init_MMTK_minimization(void)
+PyMODINIT_FUNC 
+#if PY_MAJOR_VERSION >= 3
+PyInit__MMTK_minimization(void)
+#else
 init_MMTK_minimization(void)
+#endif
 {
   PyObject *m;
 

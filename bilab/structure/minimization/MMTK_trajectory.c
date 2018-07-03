@@ -1837,8 +1837,14 @@ static PyMethodDef module_methods[] = {
 
 /* Module initialization */
 
-DL_EXPORT(void)
+//DL_EXPORT(void)
+//init_MMTK_trajectory(void)
+PyMODINIT_FUNC 
+#if PY_MAJOR_VERSION >= 3
+PyInit__MMTK_trajectory(void)
+#else
 init_MMTK_trajectory(void)
+#endif
 {
   PyObject *module, *dict;
   PyObject *netcdf;
@@ -1849,7 +1855,11 @@ init_MMTK_trajectory(void)
   if (PyType_Ready(&PyTrajectory_Type) < 0)
     return;
 #else
+#if PY_MAJOR_VERSION >= 3
+  Py_TYPE(&PyTrajectory_Type) = &PyType_Type;
+#else
   PyTrajectory_Type.ob_type = &PyType_Type;
+#endif
 #endif
 
   /* Create the module and add the type object */

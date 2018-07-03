@@ -924,8 +924,14 @@ static PyMethodDef universe_module_methods[] = {
 /*
  * Initialization function for the module
  */
-DL_EXPORT(void)
+//DL_EXPORT(void)
+//init_MMTK_universe(void)
+PyMODINIT_FUNC 
+#if PY_MAJOR_VERSION >= 3
+PyInit__MMTK_universe(void)
+#else
 init_MMTK_universe(void)
+#endif
 {
   PyObject *m, *d;
   static void *PyUniverse_API[PyUniverse_API_pointers];
@@ -935,7 +941,12 @@ init_MMTK_universe(void)
   if (PyType_Ready(&PyUniverseSpec_Type) < 0)
     return;
 #else
+#if PY_MAJOR_VERSION >= 3
+  Py_TYPE(&PyUniverseSpec_Type) = &PyType_Type;
+#else
   PyUniverseSpec_Type.ob_type = &PyType_Type;
+#endif
+
 #endif
 
   /* Create the module */

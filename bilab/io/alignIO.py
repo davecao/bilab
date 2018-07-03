@@ -8,7 +8,7 @@ import pprint
 import numpy as np
 
 from functools import wraps
-from types import StringTypes, FileType, ClassType, InstanceType
+
 
 from bilab.sequence import Sequence, Alphabet
 from bilab import PY3K
@@ -18,7 +18,11 @@ from bilab import PY3K
 
 if PY3K:
     # On Python 3, this will be a unicode StringIO
-    from io import StringIO
+    from io import StringIO, IOBase
+    StringTypes = str
+    FileType = IOBase
+    ClassType = type
+    InstanceType = object
 else:
     # On Python 2 this will be a (bytes) string based handle.
     # Note this doesn't work as it is unicode based:
@@ -27,6 +31,7 @@ else:
         from cStringIO import StringIO
     except ImportError:
         from StringIO import StringIO
+    from types import StringTypes, FileType, ClassType, InstanceType
 
 # __all__=["AlignIO", "MultiFastaIO", "ClustalWIO"]
 __all__ = ["AlignIO"]
@@ -34,9 +39,14 @@ __all__ = ["AlignIO"]
 
 def abstractmethod(method):
     # decorator borrowed from Mozilla mxr
-    line = method.func_code.co_firstlineno
-    filename = method.func_code.co_filename
-
+    line = ""
+    filename = ""
+    if PY3K:
+        line = method.__code__.co_firstlineno
+        filename = method.__code__.co_filename
+    else:
+        line = method.func_code.co_firstlineno
+        filename = method.func_code.co_filename
     @wraps(method)
     def not_implemented(*args, **kwargs):
         raise NotImplementedError(
@@ -172,8 +182,10 @@ class IOBase(object):
             # is string
             try:
                 self.handle = open(handle, 'r')
-            except IOError as (errno, strerr):
-                print ("I/O error({0}): {1}".formt(errno, strerr))
+            #except IOError as (errno, strerr):
+            except IOError as e:
+                errno, strerror = e.args
+                print ("I/O error({0}): {1}".format(errno, strerr))
             except:
                 print("Unexpected error:{0}".format(sys.exec_info()[0]))
         else:

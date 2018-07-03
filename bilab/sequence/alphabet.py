@@ -146,7 +146,10 @@ except ImportError:
 PY2 = sys.version_info[0] == 2
 PY3 = sys.version_info[0] == 3
 
-from string import maketrans
+if PY3:
+    maketrans = str.maketrans
+else:
+    from string import maketrans
 #if PY3:
 #    string_types = str,
 #    integer_types = int,

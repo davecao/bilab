@@ -626,7 +626,11 @@ PyNetCDFFileObject_dealloc(PyNetCDFFileObject *self)
   Py_XDECREF(self->attributes);
   Py_XDECREF(self->name);
   Py_XDECREF(self->mode);
+#if PY_MAJOR_VERSION >=3
+  Py_TYPE(self)->tp_free((PyObject*)self);
+#else 
   self->ob_type->tp_free((PyObject*)self);
+#endif
 }
 
 /* Create file object */
@@ -1309,7 +1313,12 @@ PyNetCDFVariableObject_dealloc(PyNetCDFVariableObject *self)
     free(self->name);
   Py_XDECREF(self->file);
   Py_XDECREF(self->attributes);
+  //self->ob_type->tp_free((PyObject*)self);
+#if PY_MAJOR_VERSION >=3
+  Py_TYPE(self)->tp_free((PyObject*)self);
+#else 
   self->ob_type->tp_free((PyObject*)self);
+#endif
 }
 
 /* Create variable object */
@@ -2227,8 +2236,18 @@ static PyMethodDef netcdf_methods[] = {
 
 /* Module initialization */
 
-DL_EXPORT(void)
+//DL_EXPORT(void)
+
+PyMODINIT_FUNC 
+#if PY_MAJOR_VERSION >= 3
+#define MOD_ERROR_VAL NULL
+#define MOD_SUCCESS_VAL(val) val
+PyInit__netcdf(void)
+#else
+#define MOD_ERROR_VAL
+#define MOD_SUCCESS_VAL(val)
 init_netcdf(void)
+#endif
 {
   PyObject *m;
   static void *PyNetCDF_API[PyNetCDF_API_pointers];
@@ -2239,10 +2258,10 @@ init_netcdf(void)
   /* Initialize type objects */
   PyNetCDFFile_Type.tp_new = PyType_GenericNew;
   if (PyType_Ready(&PyNetCDFFile_Type) < 0)
-    return;
+    return MOD_ERROR_VAL;
   PyNetCDFVariable_Type.tp_new = PyType_GenericNew;
   if (PyType_Ready(&PyNetCDFVariable_Type) < 0)
-    return;
+    return MOD_ERROR_VAL;
 
   /* Create netCDF lock */
 #ifdef WITH_THREAD

@@ -49,6 +49,7 @@ SETTINGS.load()
 data = "{}{}{}{}{}".format(
             sysconfig.get_path('data'),
             os.sep, 'share', os.sep, 'bilab', os.sep, 'data')
+
 ff_location = data + os.sep + "data" + os.sep + 'ff' + os.sep
 
 forcefieldsList = {

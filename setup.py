@@ -527,6 +527,22 @@ MMTK_force_field = Extension(
         'bilab/structure/minimization/dpmta/src/dpmta_distmisc.c'
     ])
 
+mmcif = Extension(
+    name="bilab.io._mmcifio",
+    define_macros=[('MAJOR_VERSION', '1'),
+                   ('MINOR_VERSION', '0')],
+    include_dirs=['.',
+                  np_include_dir,
+                  'bilab/io/cifparser/mmcif'
+                  ],
+    sources=[
+        'bilab/io/cifparser/mmcif/utils.cpp',
+        'bilab/io/cifparser/mmcif/mmcifIO_wrapper.cpp',
+        'bilab/io/cifparser/mmcifIO_ext.cpp',
+        ],
+    extra_compile_args=['-ftemplate-backtrace-limit=64','-std=c++11', '-stdlib=libc++'],
+    extra_link_args=['-std=c++11', '-stdlib=libc++'],
+    language="c++")
 
 def split_multiline(value):
     """Split a multiline string into a list, excluding blank lines."""
@@ -668,10 +684,22 @@ general_settings.pop('resources')
 general_settings['cmdclass'] = {'build_ext': build_ext}
 # extensions
 general_settings['ext_modules'] = [
-    distance_wrap, kdtree_lib, bhtsne_wrap, gpmetis_wrap,
-    netcdf_wrap, lfdfiles, voroplusplus, marching_cubes,
-    MMTK_surface, MMTK_minimization, MMTK_trajectory,
-    MMTK_universe, MMTK_energy_term, MMTK_force_field,crc32
+    distance_wrap, 
+    kdtree_lib, 
+    bhtsne_wrap, 
+    gpmetis_wrap,
+    netcdf_wrap, 
+    lfdfiles, 
+    voroplusplus, 
+    marching_cubes,
+    MMTK_surface, 
+    MMTK_minimization, 
+    MMTK_trajectory,
+    MMTK_universe, 
+    MMTK_energy_term, 
+    MMTK_force_field,
+    crc32,
+    mmcif
 ]
 #                                   CWMatrix]
 general_settings['install_requires'] = [

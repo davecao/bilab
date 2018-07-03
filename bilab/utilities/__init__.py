@@ -34,4 +34,4 @@ from .helpformatter import *
 
 from .profilehooks import *
 
-from crc32 import *
+from . import crc32

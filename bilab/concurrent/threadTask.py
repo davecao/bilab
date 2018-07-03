@@ -7,10 +7,19 @@ import math
 
 __all__ = ['Task', 'TaskWithEvent', 'ThreadTask']
 
+from bilab import PY3K
+
 # decorator borrowed from Mozilla mxr
 def abstractmethod(method):
-    line = method.func_code.co_firstlineno
-    filename = method.func_code.co_filename
+    line = ""
+    filename = ""
+    if PY3K:
+        line = method.__code__.co_firstlineno
+        filename = method.__code__.co_filename
+    else:
+        line = method.func_code.co_firstlineno
+        filename = method.func_code.co_filename
+    
     @wraps(method)
     def not_implemented(*args, **kwargs):
         raise NotImplementedError('Abstract method %s at File "%s", line %s'
@@ -155,7 +164,7 @@ class ThreadTask(TaskWithEvent):
             self.exception = e
             error_message = "\n*** {0}\n{1}\n".format(
                 self.name, traceback.format_exc())
-            print error_message
+            print(error_message)
 
         if self.verbose:
             task_end_time = time.time()

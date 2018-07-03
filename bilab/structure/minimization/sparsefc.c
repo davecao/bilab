@@ -447,7 +447,11 @@ accessFunction(PyObject *self, PyObject *args)
   PySparseFCObject *fc = (PySparseFCObject *)self;
   if (!PyArg_ParseTuple(args, ""))
     return NULL;
+#if PY_MAJOR_VERSION >= 3
+  return PyCapsule_New((void *) fc->fc_fn, "PySparseFCObject_fc", NULL);
+#else
   return PyCObject_FromVoidPtr((void *)fc->fc_fn, NULL);
+#endif
 }
 
 static PyObject *

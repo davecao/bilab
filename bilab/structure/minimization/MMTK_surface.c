@@ -9,6 +9,30 @@
 #include <time.h>
 #include "MMTK/core.h"
 
+struct module_state {
+    PyObject *error;
+};
+
+#if PY_MAJOR_VERSION >= 3
+#define GETSTATE(m) ((struct module_state*)PyModule_GetState(m))
+
+static int ext_traverse(PyObject *m, visitproc visit, void *arg) {
+    Py_VISIT(GETSTATE(m)->error);
+    return 0;
+}
+
+static int ext_clear(PyObject *m) {
+    Py_CLEAR(GETSTATE(m)->error);
+    return 0;
+}
+
+#else
+
+#define GETSTATE(m) (&_state)
+static struct module_state _state;
+
+#endif
+
 typedef double TPoint[3];
 typedef struct {
   int index;
@@ -35,7 +59,11 @@ add_point(const TPoint p, TPoint *r, int r_index, PyObject *pt_dict)
     Py_DECREF(p_orig);
   else
   {
+#if PY_MAJOR_VERSION >= 3
+    PyObject *py_one = PyLong_FromLong(1);
+#else
     PyObject *py_one = PyInt_FromLong(1);
+#endif
     PyDict_SetItemString(pt_dict, key, py_one);
     r[r_index][0] = p[0];
     r[r_index][1] = p[1];
@@ -191,7 +219,11 @@ nbor_data_1_atom(PyObject *nbors, int i, PyObject *atom_data,
 	for(j = 0; j < n2; ++j)
 	{
 	  PyObject * py_i2 = PyList_GetItem(alist, (Py_ssize_t)j);
+#if PY_MAJOR_VERSION >= 3
+    int i2 = PyLong_AsLong(py_i2);
+#else
 	  int i2 = PyInt_AsLong(py_i2);
+#endif
 	  if(i2 != i)
 	  {
 	    PyObject *apos = PyList_GetItem(atom_data, (Py_ssize_t)i2);
@@ -435,7 +467,11 @@ FindNeighbors(PyObject *dummy, PyObject *args)
     v = PyDict_GetItemString(boxes, key);
     if(!v)
       PyDict_SetItemString(boxes, key, v = PyList_New((Py_ssize_t)0));
+#if PY_MAJOR_VERSION >= 3
+    PyList_Append(v, tmp = PyLong_FromLong(i));
+#else
     PyList_Append(v, tmp = PyInt_FromLong(i));
+#endif
     Py_DECREF(tmp);
     if(0)
       printf("key %12.12s %3d %6.2f %6.2f %6.2f\n",
@@ -499,7 +535,11 @@ FindNeighbors(PyObject *dummy, PyObject *args)
 	for(j = 0; j < n2; ++j)
 	{
 	  PyObject * py_i2 = PyList_GetItem(alist, (Py_ssize_t)j);
+#if PY_MAJOR_VERSION >= 3
+    int i2 = PyLong_AsLong(py_i2);
+#else
 	  int i2 = PyInt_AsLong(py_i2);
+#endif
 	  if(i2 != i)
 	  {
 	    PyObject *apos = PyList_GetItem(atom_data, (Py_ssize_t)i2);
@@ -603,7 +643,11 @@ FindNeighborsOfAtom(PyObject *dummy, PyObject *args)
         if(i == -1) printf("%3d in list at %s\n", n2, key);
         for(j = 0; j < n2; ++j) {
           PyObject * py_i2 = PyList_GetItem(alist, (Py_ssize_t)j);
+#if PY_MAJOR_VERSION >= 3
+          int i2 = PyLong_AsLong(py_i2);
+#else
           int i2 = PyInt_AsLong(py_i2);
+#endif
           if(i2 != i) {
             PyObject *apos = PyList_GetItem(atom_data, (Py_ssize_t)i2);
             double vaax = PyFloat_AsDouble(PyTuple_GetItem(apos, 
@@ -643,20 +687,57 @@ static PyMethodDef surface_methods[] = {
   {"FindNeighborsOfAtom", FindNeighborsOfAtom, METH_VARARGS},
   {NULL, NULL}    /* sentinel */
 };
-
+#if PY_MAJOR_VERSION >= 3
+  static struct PyModuleDef surface_module_def[] = {
+    PyModuleDef_HEAD_INIT, 
+    "_MMTK_surface",
+    NULL, 
+    sizeof(struct module_state), 
+    surface_methods,
+    NULL, 
+    ext_traverse, 
+    ext_clear, 
+    NULL
+  };
+#define INITERROR return NULL
+  
 /* Initialization function for the module */
-
+/*
 DL_EXPORT(void)
 #ifdef IBMPC
 __declspec(dllexport)
 #endif
 init_MMTK_surface(void)
+*/
+PyMODINIT_FUNC 
+PyInit__MMTK_surface(void)
+  
+#else
+#define INITERROR return
+
+void
+init_MMTK_surface(void)
+#endif
 {
   PyObject *m;
-
+#if PY_MAJOR_VERSION >= 3
   /* Create the module and add the functions */
+  m = PyModule_Create(&surface_module_def);
+#else
   m = Py_InitModule("_MMTK_surface", surface_methods);
+#endif
+  if (m == NULL)
+    INITERROR;
+  //struct module_state *st = GETSTATE(m);
+  //st->error = PyErr_NewException("_MMTK_surface.Error", NULL, NULL);
+  //if (st->error == NULL) {
+  //  Py_DECREF(m);
+  //  INITERROR;
+  //}
   /* Check for errors */
-  if (PyErr_Occurred())
-    Py_FatalError("can't initialize module MMTK_surface");
+//  if (PyErr_Occurred())
+//    Py_FatalError("can't initialize module MMTK_surface");
+#if PY_MAJOR_VERSION >= 3
+    return m;
+#endif
 }

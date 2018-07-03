@@ -26,7 +26,7 @@
  *
  */
 
-void MacroCleanup();
+void MacroCleanup(void);
 void MacroCompute( Mtype, Mtype );
 void MacroInit( int, int, int, Real, int, int, int *, int );
 void MacroPreComp( Vector, Vector, Vector, Real );

@@ -12,11 +12,18 @@ except ImportError:
 
 __all__ = ['AbstractThreadPool', 'AbstractLocalThreadPool']
 
-# decorator borrowed from Mozilla mxr
+from bilab import PY3K
 
 def abstractmethod(method):
-    line = method.func_code.co_firstlineno
-    filename = method.func_code.co_filename
+    # decorator borrowed from Mozilla mxr
+    line = ""
+    filename = ""
+    if PY3K:
+        line = method.__code__.co_firstlineno
+        filename = method.__code__.co_filename
+    else:
+        line = method.func_code.co_firstlineno
+        filename = method.func_code.co_filename
 
     @wraps(method)
     def not_implemented(*args, **kwargs):

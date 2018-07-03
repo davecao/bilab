@@ -6,12 +6,20 @@ import math
 import pprint
 import numpy as np
 
-from string import maketrans
+
 from weakref import WeakValueDictionary
 from types import *
 from bilab.aaprop import AAindex, AAindex1Parser
 from bilab.sequence import Alphabet, generic_alphabet,\
                            protein_alphabet, nucleic_alphabet
+
+PY3 = sys.version_info[0] == 3
+
+if PY3:
+    maketrans = str.maketrans
+else:
+    from string import maketrans
+
 
 """
     This module defines the sequence class,

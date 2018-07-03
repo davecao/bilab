@@ -260,7 +260,11 @@ energyterm_dealloc(PyFFEnergyTermObject *self)
     Py_XDECREF(self->data[i]);
   if (self->scratch != NULL)
     free(self->scratch);
+#if PY_MAJOR_VERSION >= 3
+  Py_TYPE(self)->tp_free((PyObject*)self);
+#else  
   self->ob_type->tp_free((PyObject *)self);
+#endif
 }
 
 /* Add nonbonded term to NonbondedListTerm */
@@ -2000,10 +2004,17 @@ init_MMTK_forcefield(void)
   if (PyType_Ready(&PySparseFC_Type) < 0)
     return;
 #else
+#if PY_MAJOR_VERSION >= 3
+  Py_TYPE(&PyFFEnergyTerm_Type) = &PyType_Type;
+  Py_TYPE(&PyFFEvaluator_Type) = &PyType_Type;
+  Py_TYPE(&PyNonbondedList_Type) = &PyType_Type;
+  Py_TYPE(&PySparseFC_Type) = &PyType_Type;
+#else
   PyFFEnergyTerm_Type.ob_type = &PyType_Type;
   PyFFEvaluator_Type.ob_type = &PyType_Type;
   PyNonbondedList_Type.ob_type = &PyType_Type;
   PySparseFC_Type.ob_type = &PyType_Type;
+#endif
 #endif
 
   d = PyModule_GetDict(m);

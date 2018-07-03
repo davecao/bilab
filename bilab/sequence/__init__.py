@@ -7,11 +7,11 @@ __all__ = []
 #from miscmath import *
 #--
 
-from . import miscmath
-from miscmath import *
+#from . import miscmath
+from .miscmath import *
 
-from . import alphabet
-from alphabet import *
+#from . import alphabet
+from .alphabet import *
 
 #from . import psiblastIO
 from .psiblastIO import *
