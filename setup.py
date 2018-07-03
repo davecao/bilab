@@ -550,7 +550,7 @@ mmcif = Extension(
         'bilab/io/cifparser/mmcifIO_ext.cpp',
         ],
     extra_compile_args = mmcif_extra_compile_args,
-    extra_link_args = mmcif_extra_link_args
+    extra_link_args = mmcif_extra_link_args,
     language="c++")
 
 def split_multiline(value):
