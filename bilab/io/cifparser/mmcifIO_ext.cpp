@@ -73,12 +73,12 @@ PyObject* reader_mmcif_wrapper(PyObject *self, PyObject *args){
       }
       //std::cout<<"\n";
       //std::cout << category_name <<"."<<pItemKey <<"("<<cols-1<<")-" <<PyList_Size(pList) <<"\n";
-      if (category_name == "atom_site") {
-        for(unsigned int l=0; l<PyList_Size(pList); ++l){
-          PyObject *pValue = PyList_GetItem(pList, l);
-          std::cout << PyString_AsString(pValue) << "\n";
-        }
-      }
+      //if (category_name == "atom_site") {
+      //  for(unsigned int l=0; l<PyList_Size(pList); ++l){
+      //    PyObject *pValue = PyList_GetItem(pList, l);
+      //    std::cout << PyString_AsString(pValue) << "\n";
+      //  }
+      //}
       // save to pCategoryDict
       int state = PyDict_SetItem(pCategoryDict, PyString_FromString(pItemKey.c_str()), pList);
       if (state == 0) {
