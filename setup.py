@@ -36,6 +36,8 @@ from Cython.Distutils import build_ext
 from glob import glob
 pj = os.path.join
 
+_PY3K = PY3K = sys.version_info[0] > 2
+
 # from distutils.command.install_data import install_data
 
 try:
@@ -150,7 +152,10 @@ class FindBoostPackage(object):
             return
         print("   boost header path: {}".format(self.incDir))
         # --- Check version requirement --- #
-        ver_file = file(version_header)
+        if PY3K:
+            ver_file = open(version_header)
+        else:
+            ver_file = file(version_header)
         ver_match = re.search(
                     "define\s+?BOOST_VERSION\s+?(\d*)", ver_file.read())
         if not ver_match:
@@ -389,7 +394,7 @@ bhtsne_wrap = Extension(
     # library_dirs=[boost_lib_dir],
     # libraries=['boost_python'],
     extra_compile_args=['-ftemplate-backtrace-limit=64',
-                        '-std=c++11', '-g'],
+                        '-std=c++11'],
     sources=['bilab/ml/NDR/tSNE/_bhtsne_wrap.pyx',
              'bilab/ml/NDR/tSNE/bhtsne.cpp',
              'bilab/ml/NDR/tSNE/sptree.cpp'],
@@ -699,22 +704,24 @@ general_settings['ext_modules'] = [
     kdtree_lib, 
     bhtsne_wrap, 
     gpmetis_wrap,
-    netcdf_wrap, 
     lfdfiles, 
     voroplusplus, 
     marching_cubes,
-    MMTK_surface, 
-    MMTK_minimization, 
-    MMTK_trajectory,
-    MMTK_universe, 
-    MMTK_energy_term, 
-    MMTK_force_field,
-    crc32,
+#    netcdf_wrap, 
+#    MMTK_surface, 
+#    MMTK_minimization, 
+#    MMTK_trajectory,
+#    MMTK_universe, 
+#    MMTK_energy_term, 
+#    MMTK_force_field,
+#    crc32,
     mmcif
 ]
 #                                   CWMatrix]
 general_settings['install_requires'] = [
-    'scipy>0.15.0'
+    'scipy>0.15.0',
+    'numpy',
+    'ete3'
     ]
 #    'matplotlib>1.4.0',
 #    'numpy>1.9.0']

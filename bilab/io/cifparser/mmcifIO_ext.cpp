@@ -7,6 +7,8 @@
 //
 #include "mmcifIO_wrapper.h"
 
+
+
 static 
 PyObject* reader_mmcif_wrapper(PyObject *self, PyObject *args){
   
@@ -122,6 +124,7 @@ static PyMethodDef Py_methods[] = {
 /* -- Initialization -------------------------------------------------------- */
 /* ========================================================================== */
 
+
 #if PY_MAJOR_VERSION >= 3
 
 static struct PyModuleDef moduledef = {
@@ -135,12 +138,12 @@ static struct PyModuleDef moduledef = {
         NULL,
         NULL
 };
+#endif
 
-PyObject *
-PyInit__mmcifio(void)
-
-#else
 PyMODINIT_FUNC
+#if PY_MAJOR_VERSION >= 3
+PyInit__mmcifio(void)
+#else
 init_mmcifio(void)
 #endif
 {
