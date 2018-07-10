@@ -1,32 +1,31 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-prInteract is an application used to find the interacted atoms pairs in a pdb file
+
 """
 
 from __future__ import print_function
 import sys
 import os
-# import errno
-# import re
 
 from datetime import datetime as dt
 from xml.etree.ElementTree import Element, SubElement
-# from xml.etree.ElementTree import Comment, tostring
-from optparse import OptionParser, make_option
+#from optparse import OptionParser, make_option
+import argparse
 
 __execute_name__ = "prInteract"
 __author__ = "Wei Cao"
 __contact__ = "davecao@bi.a.u-tokyo.ac.jp"
 __date__ = "2014/08/04"
 __version__ = "0.1"
-__copyright__ = """
-    Feel free to do whatever you like with this code.
+__copyright__ = """Feel free to do whatever you like with this code.
     Keep this script relative to bilab package
     """
 
 """
-versionInstallation of bilab package:
+`prInteract` is an application used to find the interacted atoms pairs in a pdb file
+
+Installation of bilab package:
 
   git clone https://github.com/davecao/bilab.git
 
@@ -267,58 +266,59 @@ class Interactions(PDBInfo):
         ofile.write(bilab.utilities.prettify_xml(root))
 
 
-def parse_cmd(argv):
-    """
-    Parse command line arguments
-    """
-    option_list = [
-        make_option("--pdb", dest="pdbfile",
-                    help="The input pdb file[REQUIRED]."),
-        make_option("--source", dest="source",
-                    help="The name of a source molecule in the pdb. "
-                    "option: protein, nucleic [REQUIRED]."),
-        make_option("--target", dest="target",
-                    help="The name of target molecule in the pdb."
-                    "protein, nucleic or ligand [REQUIRED]."),
-        make_option("--distance", dest="distance", action='store',
-                    type="float",
-                    default=5.0,
-                    help="The distance threshold for selecting "
-                    "interacting pair [OPTION]. Default is 5.0 angstroms."),
-        make_option("--outfmt", dest='outfmt', default='txt',
-                    help="output format: xml or txt. default is txt."),
-        make_option("--out", dest='outfilename', default='out',
-                    help="output file name. If not specified, the name will"
-                    " be composed of out.fmt"),
-        make_option("-v", "--verbose",
-                    action="store_true", dest="verbose", default=False,
-                    help="print verbose info"),
-    ]
+#def parse_cmd(argv):
+#    """
+#    Parse command line arguments
+#    """
+#    option_list = [
+#        make_option("--pdb", dest="pdbfile",
+#                    help="The input pdb file[REQUIRED]."),
+#        make_option("--source", dest="source",
+#                    help="The name of a source molecule in the pdb. "
+#                    "option: protein, nucleic [REQUIRED]."),
+#        make_option("--target", dest="target",
+#                    help="The name of target molecule in the pdb."
+#                    "protein, nucleic or ligand [REQUIRED]."),
+#        make_option("--distance", dest="distance", action='store',
+#                    type="float",
+#                    default=5.0,
+#                    help="The distance threshold for selecting "
+#                    "interacting pair [OPTION]. Default is 5.0 angstroms."),
+#        make_option("--outfmt", dest='outfmt', default='txt',
+#                    help="output format: xml or txt. default is txt."),
+#        make_option("--out", dest='outfilename', default='out',
+#                    help="output file name. If not specified, the name will"
+#                    " be composed of out.fmt"),
+#        make_option("-v", "--verbose",
+#                    action="store_true", dest="verbose", default=False,
+#                    help="print verbose info"),
+#    ]
+#
+#    usage = 'usage: %prog [options] --pdb PDBFILE' \
+#            '--source protein --target protein/dna/rna'
+#    parser = OptionParser(formatter=IndentedHelpFormatterWithNL(),
+#                          option_list=option_list,
+#                          usage=usage,
+#                          version=__version__)
+#    options, arguments = parser.parse_args(argv)
+#
+#
+#    if not options.pdbfile:
+#        print("Error: do not specifiy the input pdb file")
+#        parser.print_help()
+#        sys.exit(1)
+#
+#    if not options.source:
+#        print("Error: do not specifiy source name")
+#        parser.print_help()
+#        sys.exit(1)
+#
+#    if not options.target:
+#        print("Error: do not specifiy target name")
+#        parser.print_help()
+#        sys.exit(1)
+#    return options
 
-    usage = 'usage: %prog [options] --pdb PDBFILE' \
-            '--source protein --target protein/dna/rna'
-    parser = OptionParser(formatter=IndentedHelpFormatterWithNL(),
-                          option_list=option_list,
-                          usage=usage,
-                          version=__version__)
-    options, arguments = parser.parse_args(argv)
-
-
-    if not options.pdbfile:
-        print("Error: do not specifiy the input pdb file")
-        parser.print_help()
-        sys.exit(1)
-
-    if not options.source:
-        print("Error: do not specifiy source name")
-        parser.print_help()
-        sys.exit(1)
-
-    if not options.target:
-        print("Error: do not specifiy target name")
-        parser.print_help()
-        sys.exit(1)
-    return options
 
 
 def select_atoms(mol, pdbid, select_cmd):
@@ -329,13 +329,77 @@ def select_atoms(mol, pdbid, select_cmd):
         sys.exit(1)
     return selected_atoms
 
+def parse_cli_args():
+    parser = argparse.ArgumentParser(
+        description='parse PDB or mmcif format.',
+        prefix_chars='-+/',
+    )
+    
+    parser.add_argument("--pdb", 
+                        action="store",
+                        dest='pdbfile',
+                        help="The input pdb file[REQUIRED].")
+
+    parser.add_argument("--source", 
+                        action="store",
+                        dest="source",
+                        help="The name of a source molecule in the pdb.")
+
+    parser.add_argument("--target", 
+                        action="store",
+                        dest="target",
+                        help="The name of target molecule in the pdb.")
+            
+    parser.add_argument("--distance",
+                        type="float", 
+                        action='store_const', 
+                        dest="distance",
+                        help="The distance threshold for selecting interacting pair [OPTION]. Default is 5.0 angstroms.")
+                        
+    parser.add_argument("--outfmt", 
+                        dest='outfmt', 
+                        default='txt',
+                        help="output format: xml or txt. default is txt.")
+    
+    parser.add_argument("--out", 
+                        dest='outfilename', 
+                        default='out',
+                        help="output file name. If not specified, the name will be composed of out.fmt")
+
+    parser.add_argument("-v", "--verbose", 
+                        action="store_true", 
+                        dest="verbose",
+                        help="print verbose info")
+    
+    parser.add_argument('--version', action='version',
+                        version='%(prog)s 1.0')
+    
+    options = parser.parse_args()
+    
+    if not options.pdbfile:
+        print("Error: do not specifiy the input pdb file")
+        parser.print_help()
+        sys.exit(1)
+    
+    if not options.source:
+        print("Error: do not specifiy source name")
+        parser.print_help()
+        sys.exit(1)
+    
+    if not options.target:
+        print("Error: do not specifiy target name")
+        parser.print_help()
+        sys.exit(1)
+    
+    return options
+
 
 def main(argv):
     """
     Main entry point
     """
     # parse command line arguments
-    opt = parse_cmd(argv)
+    opt = parse_cli_args(argv)
     # load the pdb file
     mol, header = bilab.structure.parsePDB(opt.pdbfile, header=True)
     pdbid = header['identifier']
