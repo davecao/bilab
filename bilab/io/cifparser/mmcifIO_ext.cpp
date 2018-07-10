@@ -41,7 +41,7 @@ PyObject* reader_mmcif_wrapper(PyObject *self, PyObject *args){
   source_name = doc->source;
   //doc -> show_block_names();
   // Convert to python's dictionary
-  for (unsigned int i = 0; i < doc->getNumBlocks(); i++){
+  for (unsigned int i = 0; i < static_cast<unsigned int>(doc->getNumBlocks()); i++){
     auto block = doc->blocks[i];
     // Example: _atom_site.id:xxxx
     // category name: atom_site
@@ -52,8 +52,8 @@ PyObject* reader_mmcif_wrapper(PyObject *self, PyObject *args){
     
     // get the table
     auto tbl = block->table;
-    int rows = tbl->GetNumTuples();
-    int cols = tbl->GetNumColumns();
+    unsigned int rows = tbl->GetNumTuples();
+    unsigned int cols = tbl->GetNumColumns();
     
     for (unsigned int j = 0; j < rows; j++) {
       // item name : (j, 0) i.e., k=0
@@ -80,7 +80,11 @@ PyObject* reader_mmcif_wrapper(PyObject *self, PyObject *args){
       //  }
       //}
       // save to pCategoryDict
+#if PY_MAJOR_VERSION >= 3
+      int state = PyDict_SetItem(pCategoryDict, PyUnicode_FromString(pItemKey.c_str()), pList);
+#else
       int state = PyDict_SetItem(pCategoryDict, PyString_FromString(pItemKey.c_str()), pList);
+#endif
       if (state == 0) {
         // Release or clear
         Py_DECREF(pList);
@@ -88,7 +92,11 @@ PyObject* reader_mmcif_wrapper(PyObject *self, PyObject *args){
         std::cout<<"Failed to append."<<"\n";
       }
     }// End of category
+#if PY_MAJOR_VERSION >= 3
+    PyDict_SetItem(pDict, PyUnicode_FromString(category_name.c_str()), pCategoryDict);
+#else
     PyDict_SetItem(pDict, PyString_FromString(category_name.c_str()), pCategoryDict);
+#endif
   } // End of blocks
   PyDict_SetItemString(pDict, "source", Py_BuildValue("s", source_name.c_str()));
   

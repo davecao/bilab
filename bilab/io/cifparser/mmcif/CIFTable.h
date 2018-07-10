@@ -455,8 +455,8 @@ namespace bilab {
       
       
       void show_table(){
-        int rows = GetNumTuples();
-        int cols = GetNumColumns();
+        unsigned int rows = static_cast<unsigned int>(GetNumTuples());
+        unsigned int cols = static_cast<unsigned int>(GetNumColumns());
         std::cout << "There are " << rows <<"x"<< cols <<" in the doc" << std::endl;
         for (unsigned int i = 0; i < rows; i++) {
           for (unsigned int j = 0; j < cols; j++) {
