@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-
-"""
 
 from __future__ import print_function
 import sys
@@ -266,61 +263,6 @@ class Interactions(PDBInfo):
         ofile.write(bilab.utilities.prettify_xml(root))
 
 
-#def parse_cmd(argv):
-#    """
-#    Parse command line arguments
-#    """
-#    option_list = [
-#        make_option("--pdb", dest="pdbfile",
-#                    help="The input pdb file[REQUIRED]."),
-#        make_option("--source", dest="source",
-#                    help="The name of a source molecule in the pdb. "
-#                    "option: protein, nucleic [REQUIRED]."),
-#        make_option("--target", dest="target",
-#                    help="The name of target molecule in the pdb."
-#                    "protein, nucleic or ligand [REQUIRED]."),
-#        make_option("--distance", dest="distance", action='store',
-#                    type="float",
-#                    default=5.0,
-#                    help="The distance threshold for selecting "
-#                    "interacting pair [OPTION]. Default is 5.0 angstroms."),
-#        make_option("--outfmt", dest='outfmt', default='txt',
-#                    help="output format: xml or txt. default is txt."),
-#        make_option("--out", dest='outfilename', default='out',
-#                    help="output file name. If not specified, the name will"
-#                    " be composed of out.fmt"),
-#        make_option("-v", "--verbose",
-#                    action="store_true", dest="verbose", default=False,
-#                    help="print verbose info"),
-#    ]
-#
-#    usage = 'usage: %prog [options] --pdb PDBFILE' \
-#            '--source protein --target protein/dna/rna'
-#    parser = OptionParser(formatter=IndentedHelpFormatterWithNL(),
-#                          option_list=option_list,
-#                          usage=usage,
-#                          version=__version__)
-#    options, arguments = parser.parse_args(argv)
-#
-#
-#    if not options.pdbfile:
-#        print("Error: do not specifiy the input pdb file")
-#        parser.print_help()
-#        sys.exit(1)
-#
-#    if not options.source:
-#        print("Error: do not specifiy source name")
-#        parser.print_help()
-#        sys.exit(1)
-#
-#    if not options.target:
-#        print("Error: do not specifiy target name")
-#        parser.print_help()
-#        sys.exit(1)
-#    return options
-
-
-
 def select_atoms(mol, pdbid, select_cmd):
     """ Select atoms by select_cmd from mol """
     selected_atoms = mol.select(select_cmd)
@@ -329,7 +271,7 @@ def select_atoms(mol, pdbid, select_cmd):
         sys.exit(1)
     return selected_atoms
 
-def parse_cli_args():
+def parse_cli_args(argv):
     parser = argparse.ArgumentParser(
         description='parse PDB or mmcif format.',
         prefix_chars='-+/',
@@ -438,7 +380,7 @@ def main(argv):
 
 if __name__ == '__main__':
     CURR_VERSION = sys.version_info
-    if not CURR_VERSION[:2] == (2, 7):
+    if not CURR_VERSION[:2] > (2, 7):
         print("Python v.{}.{} is not supported".format(
             CURR_VERSION[0], CURR_VERSION[1]))
         sys.exit(0)
