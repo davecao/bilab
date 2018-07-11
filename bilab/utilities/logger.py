@@ -42,6 +42,7 @@ class PackageLogger(object):
         self._level = logging.DEBUG
         self._logger = logger = logging.getLogger(name)
         logger.setLevel(self._level)
+        logger.disabled = True
 
 
         for handler in logger.handlers:

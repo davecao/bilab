@@ -31,7 +31,7 @@ PY2K = not PY3K
 
 LOGGER = PackageLogger('bilab')
 SETTINGS = PackageSettings('bilab', logger=LOGGER)
-SETTINGS.load()
+#SETTINGS.load()
 
 # get path of resources, i.e., aaindex1, aadindex2 and aaindex3
 # data = os.path.dirname(os.path.realpath(__file__)) + os.sep + 'data'

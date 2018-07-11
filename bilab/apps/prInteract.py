@@ -55,6 +55,7 @@ Note: if --pdbdir is not specified, it will use the current directory
 """
 
 
+
 class PDBInfo(object):
     """
     Store the header info of the input pdb file
@@ -271,77 +272,11 @@ def select_atoms(mol, pdbid, select_cmd):
         sys.exit(1)
     return selected_atoms
 
-def parse_cli_args(argv):
-    parser = argparse.ArgumentParser(
-        description='parse PDB or mmcif format.',
-        prefix_chars='-+/',
-    )
-    
-    parser.add_argument("--pdb", 
-                        action="store",
-                        dest='pdbfile',
-                        help="The input pdb file[REQUIRED].")
 
-    parser.add_argument("--source", 
-                        action="store",
-                        dest="source",
-                        help="The name of a source molecule in the pdb.")
-
-    parser.add_argument("--target", 
-                        action="store",
-                        dest="target",
-                        help="The name of target molecule in the pdb.")
-            
-    parser.add_argument("--distance",
-                        type="float", 
-                        action='store_const', 
-                        dest="distance",
-                        help="The distance threshold for selecting interacting pair [OPTION]. Default is 5.0 angstroms.")
-                        
-    parser.add_argument("--outfmt", 
-                        dest='outfmt', 
-                        default='txt',
-                        help="output format: xml or txt. default is txt.")
-    
-    parser.add_argument("--out", 
-                        dest='outfilename', 
-                        default='out',
-                        help="output file name. If not specified, the name will be composed of out.fmt")
-
-    parser.add_argument("-v", "--verbose", 
-                        action="store_true", 
-                        dest="verbose",
-                        help="print verbose info")
-    
-    parser.add_argument('--version', action='version',
-                        version='%(prog)s 1.0')
-    
-    options = parser.parse_args()
-    
-    if not options.pdbfile:
-        print("Error: do not specifiy the input pdb file")
-        parser.print_help()
-        sys.exit(1)
-    
-    if not options.source:
-        print("Error: do not specifiy source name")
-        parser.print_help()
-        sys.exit(1)
-    
-    if not options.target:
-        print("Error: do not specifiy target name")
-        parser.print_help()
-        sys.exit(1)
-    
-    return options
-
-
-def main(argv):
+def main(opt):
     """
     Main entry point
     """
-    # parse command line arguments
-    opt = parse_cli_args(argv)
     # load the pdb file
     mol, header = bilab.structure.parsePDB(opt.pdbfile, header=True)
     pdbid = header['identifier']
@@ -387,7 +322,69 @@ if __name__ == '__main__':
     # import bilab package
     try:
         import bilab
-        from bilab.utilities import IndentedHelpFormatterWithNL
     except ImportError:
         raise ImportError("This script needs bilab package")
-    main(sys.argv)
+    
+    # Create cli parser
+    parser = argparse.ArgumentParser(
+        description='parse PDB or mmcif format.',
+        prefix_chars='-+/',
+    )
+    
+    parser.add_argument("--pdb", 
+                        action="store",
+                        dest='pdbfile',
+                        help="The input pdb file[REQUIRED].")
+
+    parser.add_argument("--source", 
+                        action="store",
+                        dest="source",
+                        help="The name of a source molecule in the pdb.")
+
+    parser.add_argument("--target", 
+                        action="store",
+                        dest="target",
+                        help="The name of target molecule in the pdb.")
+            
+    parser.add_argument("--distance",
+                        type=float, 
+                        dest="distance",
+                        default=5.0,
+                        help="The distance threshold for selecting interacting pair [OPTION]. Default is 5.0 angstroms.")
+                        
+    parser.add_argument("--outfmt", 
+                        dest='outfmt', 
+                        default='txt',
+                        help="output format: xml or txt. default is txt.")
+    
+    parser.add_argument("--out", 
+                        dest='outfilename', 
+                        default='out',
+                        help="output file name. If not specified, the name will be composed of out.fmt")
+
+    parser.add_argument("-v", "--verbose", 
+                        action="store_true", 
+                        dest="verbose",
+                        help="print verbose info")
+    
+    parser.add_argument('--version', action='version',
+                        version='%(prog)s 1.0')
+    
+    options = parser.parse_args()
+    
+    if not options.pdbfile:
+        print("Error: do not specifiy the input pdb file")
+        parser.print_help()
+        sys.exit(1)
+    
+    if not options.source:
+        print("Error: do not specifiy source name")
+        parser.print_help()
+        sys.exit(1)
+    
+    if not options.target:
+        print("Error: do not specifiy target name")
+        parser.print_help()
+        sys.exit(1)
+    
+    main(opt)
