@@ -28,7 +28,7 @@ Installation of bilab package:
 
 Usage:
 
-./prInteract.py --pdb 9mht.pdb --source protein --target nucleic -v
+python -m bilab.apps.prInteract --pdb 9mht.pdb --source protein --target nucleic -v
 --target :  not water and hetero
             hetero and (resname 753 or resname DMS or resname GOL)
 
