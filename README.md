@@ -4,10 +4,9 @@ bilab package
 Prerequisites
 -------------
 
-1. Numpy
-2. Setuptools
-3. Boost C++ Library
-4. C/C++ compiler
+1. Setuptools
+2. Boost C++ Library
+3. C/C++ compiler
 
 Download and Installation
 -------------------------
@@ -18,21 +17,16 @@ Download and Installation
 
 see Scipy's Installation guide at https://www.scipy.org/install.html
 
-2. Distutil2 and setuptools
-
-		cd Distutils2-1.0a4
-		python setup.py build install install_data
-
-3. Boost Library
+2. Boost Library
    For Installation, please refer to the homepage of Boost Library at http://www.boost.org  
 
 		export BOOST_ROOT=/path/to/boost
    
 4. bilab  
-
-		cd bilab  
- 
-		python setup.py install  
+        
+        git clone https://github.com/davecao/bilab.git
+        cd bilab  
+        (sudo) python setup.py install install_data  
 
 or  specify the installation prefix  
 

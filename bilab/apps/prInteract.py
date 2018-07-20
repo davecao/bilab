@@ -273,12 +273,12 @@ def select_atoms(mol, pdbid, select_cmd):
     return selected_atoms
 
 
-def main(opt):
+def main(cli_opts):
     """
     Main entry point
     """
     # load the pdb file
-    mol, header = bilab.structure.parsePDB(opt.pdbfile, header=True)
+    mol, header = bilab.structure.parsePDB(cli_opts.pdbfile, header=True)
     pdbid = header['identifier']
     # store pdb info
     inter_atoms_set = Interactions (
@@ -289,14 +289,14 @@ def main(opt):
         classification=header['classification'],
         resolution=header['resolution'] if 'resolution' in header else None,
         version=header['version'],
-        dist_threshold=opt.distance
+        dist_threshold=cli_opts.distance
     )
     # set title of the molecule
     mol.setTitle(pdbid)
 
     # select source
-    source_atoms = select_atoms(mol, pdbid, opt.source)
-    target_atoms = select_atoms(mol, pdbid, opt.target)
+    source_atoms = select_atoms(mol, pdbid, cli_opts.source)
+    target_atoms = select_atoms(mol, pdbid, cli_opts.target)
 
     if opt.verbose:
         print("Atoms in pdb file: {0}".format(mol.numAtoms()))
@@ -305,12 +305,12 @@ def main(opt):
 
     # find the interacting pairs within the specified distance
     neighbors = bilab.structure.findNeighbors(
-        source_atoms, opt.distance, target_atoms)
+        source_atoms, cli_opts.distance, target_atoms)
 
     inter_atoms_set.set_interaction_pair(neighbors)
-    if opt.outfilename == "out":
-        opt.outfilename += "." + opt.outfmt
-    inter_atoms_set.write(outfmt=opt.outfmt, ofile=opt.outfilename)
+    if cli_opts.outfilename == "out":
+        cli_opts.outfilename += "." + opt.outfmt
+    inter_atoms_set.write(outfmt=cli_opts.outfmt, ofile=cli_opts.outfilename)
 
 
 if __name__ == '__main__':
@@ -373,18 +373,18 @@ if __name__ == '__main__':
     options = parser.parse_args()
     
     if not options.pdbfile:
-        print("Error: do not specifiy the input pdb file")
+        print("Error: do not specify an input pdb file")
         parser.print_help()
         sys.exit(1)
     
     if not options.source:
-        print("Error: do not specifiy source name")
+        print("Error: do not specify source name")
         parser.print_help()
         sys.exit(1)
     
     if not options.target:
-        print("Error: do not specifiy target name")
+        print("Error: do not specify target name")
         parser.print_help()
         sys.exit(1)
     
-    main(opt)
+    main(options)

@@ -32,7 +32,7 @@
 
 C++ extensions _mmcifio.so provide a dictionary of mmcif data
 
-For example, '1a0s.cif' contains the following keys:
+For example, '1a0s.cif' contains the following keys:(category name / Item name)
 
 1. atom_site                      
     -- "group_PDB"         : ATOM                              
@@ -153,7 +153,42 @@ For example, '1a0s.cif' contains the following keys:
 56. struct_asym
 57. struct_biol
 58. struct_conf
+    -- "conf_type_id"           : HELIX_P
+    -- "id"                     : HELIX_P1, ...
+    -- "pdbx_PDB_helix_id"      : AA1
+    -- "beg_label_comp_id"      : MET     
+    -- "beg_label_asym_id"      : A
+    -- "beg_label_seq_id"       : 132
+    -- "pdbx_beg_PDB_ins_code"  : ?   
+    -- "end_label_comp_id"      : LYS 
+    -- "end_label_asym_id"      : A 
+    -- "end_label_seq_id"       : 139
+    -- "pdbx_end_PDB_ins_code"  : ?  
+    -- "beg_auth_comp_id"       : MET 
+    -- "beg_auth_asym_id"       : A 
+    -- "beg_auth_seq_id"        : 132
+    -- "end_auth_comp_id"       : LYS 
+    -- "end_auth_asym_id"       : A 
+    -- "end_auth_seq_id"        : 139 
+    -- "pdbx_PDB_helix_class"   : 1   
+                   Right-handed alpha (default)                1
+                   Right-handed omega                          2
+                   Right-handed pi                             3
+                   Right-handed gamma                          4
+                   Right-handed 310                            5
+                   Left-handed alpha                           6
+                   Left-handed omega                           7
+                   Left-handed gamma                           8
+                   27 ribbon/helix                             9
+                   Polyproline                                10
+              
+    -- "details"                : ? 
+    -- "pdbx_PDB_helix_length"  : 8 
+
 59. struct_conf_type
+    -- "id"        : HELIX_P
+    -- "criteria"  : ?
+    -- "reference" : ?
 60. struct_conn
 61. struct_conn_type
 62. struct_keywords
@@ -245,10 +280,346 @@ __version__ = '2018.07.03'
 
 _PDBSubsets = {'ca': 'ca', 'calpha': 'ca', 'bb': 'bb', 'backbone': 'bb'}
 
+_SHEET_TYPES = {'anti-parallel': -1, 'parallel': 1}
 
-def get_pdb_info(data, *keys):
-    pass
-                
+def _getHelix(cif_dict):
+    alphas = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    helix = {}
+    # Item name
+    # -- "conf_type_id"           : HELIX_P
+    # -- "id"                     : HELIX_P1, ...
+    # -- "pdbx_PDB_helix_id"      : AA1
+    # -- "beg_label_comp_id"      : MET     
+    # -- "beg_label_asym_id"      : A
+    # -- "beg_label_seq_id"       : 132
+    # -- "pdbx_beg_PDB_ins_code"  : ?   
+    # -- "end_label_comp_id"      : LYS 
+    # -- "end_label_asym_id"      : A 
+    # -- "end_label_seq_id"       : 139
+    # -- "pdbx_end_PDB_ins_code"  : ?  
+    # -- "beg_auth_comp_id"       : MET 
+    # -- "beg_auth_asym_id"       : A 
+    # -- "beg_auth_seq_id"        : 132
+    # -- "end_auth_comp_id"       : LYS 
+    # -- "end_auth_asym_id"       : A 
+    # -- "end_auth_seq_id"        : 139 
+    # -- "pdbx_PDB_helix_class"   : 1   
+    category_name = "struct_conf"
+    
+    if category_name not in cif_dict:
+        return None
+    dict_ = cif_dict[category_name]
+    
+    total_records = list(set([len(v) for v in dict_.values()]))
+    # check integrity
+    if len(total_records) != 1:
+        print("Failed to parse mmcif for category {}".format(category_name))
+        sys.exit(1)
+
+    for i in range(total_records[0]):
+        try:
+            chid = dict_['beg_auth_asym_id'][i]
+            #       helix class, serial number, identifier 
+            value = (int(dict_['pdbx_PDB_helix_class'][i]), 
+                     int(dict_['id'][i].replace(dict_['conf_type_id'][i], "")),
+                     dict_['pdbx_PDB_helix_id'][i])
+        except:
+            continue
+        initICode = dict_['pdbx_beg_PDB_ins_code'][i]
+        initResnum = int(dict_['beg_auth_seq_id'][i])
+        if initICode != ' ' and initICode != '?':
+            for icode in alphas[alphas.index(initICode):]:
+                helix[(chid, initResnum, icode)] = value
+            initResnum += 1
+        endICode = dict_['pdbx_end_PDB_ins_code'][i]
+        endResnum = int(dict_['end_auth_seq_id'][i])
+        if endICode != ' ' and endICode != '?':
+            for icode in alphas[:alphas.index(endICode)+1]:
+                helix[(chid, endResnum, icode)] = value
+            endResnum -= 1
+        for resnum in range(initResnum, endResnum+1):
+            helix[(chid, resnum, '')] = value
+    return helix
+
+
+def _getSheet(cif_dict):
+    alphas = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    sheet = {}
+    # Sheet: related categories
+    # struct_sheet
+    #   -- "id"             : A
+    #   -- "type"           : ?
+    #   -- "number_strands" : 6
+    #   -- "details"        : ?
+    # struct_sheet_order
+    #   -- "sheet_id"       : A
+    #   -- "range_id_1"     : 1
+    #   -- "range_id_2"     : 2
+    #   -- "offset"         : ?
+    #   -- "sense"          : anti-parallel  (or parallel)
+    # struct_sheet_range
+    #   -- "sheet_id"              :  A
+    #   -- "id"                    :  1
+    #   -- "beg_label_comp_id"     :  HIS
+    #   -- "beg_label_asym_id"     :  C
+    #   -- "beg_label_seq_id"      :  148
+    #   -- "pdbx_beg_PDB_ins_code" :  ?
+    #   -- "end_label_comp_id"     :  ASN
+    #   -- "end_label_asym_id"     :  C
+    #   -- "end_label_seq_id"      :  153
+    #   -- "pdbx_end_PDB_ins_code" :  ?
+    #   -- "beg_auth_comp_id"      :  HIS
+    #   -- "beg_auth_asym_id"      :  A
+    #   -- "beg_auth_seq_id"       :  148
+    #   -- "end_auth_comp_id"      :  ASN
+    #   -- "end_auth_asym_id"      :  A
+    #   -- "end_auth_seq_id"       :  153
+    # pdbx_struct_sheet_hbond
+    #   -- "sheet_id"              :  A
+    #   -- "range_id_1"            :  1
+    #   -- "range_id_2"            :  2
+    #   -- "range_1_label_atom_id" :  O
+    #   -- "range_1_label_comp_id" :  HIS
+    #   -- "range_1_label_asym_id" :  C
+    #   -- "range_1_label_seq_id"  :  148
+    #   -- "range_1_PDB_ins_code"  :  ?
+    #   -- "range_1_auth_atom_id"  :  O
+    #   -- "range_1_auth_comp_id"  :  HIS
+    #   -- "range_1_auth_asym_id"  :  A
+    #   -- "range_1_auth_seq_id"   :  148
+    #   -- "range_2_label_atom_id" :  N
+    #   -- "range_2_label_comp_id" :  ILE
+    #   -- "range_2_label_asym_id" :  C
+    #   -- "range_2_label_seq_id"  :  169
+    #   -- "range_2_PDB_ins_code"  :  ?
+    #   -- "range_2_auth_atom_id"  :  N
+    #   -- "range_2_auth_comp_id"  :  ILE
+    #   -- "range_2_auth_asym_id"  :  A
+    #   -- "range_2_auth_seq_id"   :  169
+    
+    #categories = ['struct_sheet','struct_sheet_order', 'struct_sheet_range', 'pdbx_struct_sheet_hbond']
+    #categories_mask = [
+    #    True if categories[k] in cif_dict else False for k in enumerate(categories)
+    #]
+    category_name = "struct_sheet_range"
+    category_second = "struct_sheet_order"   # sense
+    category_third = "struct_sheet"          # number_strands
+    
+    # sheet number_strands
+    n_strands_info = {}
+    if category_third in cif_dict:
+        ss = cif_dict[category_third]
+        for i in range(len(ss['id'])):
+            n_strands_info[ss['id'][i]] = ss['number_strands'][i]
+        sheet["number_strands"] = n_strands_info
+    # struct_sheet_order
+    sheet_order_info = {}
+    if category_second in cif_dict:
+        ss = cif_dict[category_second]
+        for i in range(len(ss['sheet_id'])):
+            sId = ss['sheet_id'][i]
+            rId1 = ss['range_id_1'][i]
+            rId2 = ss['range_id_2'][i]
+            sense_str = ss['sense'][i]
+            # sense: anti-parallel(-1), parallel(1), first strand (0)
+            sense_type = 0
+            if sense_str in _SHEET_TYPES:
+                sense_type = _SHEET_TYPES[sense_str] 
+            sheet_order_info[(sId, rId1, rId2)] = sense_type
+        sheet["sheet_order"] = sheet_order_info
+            
+    sheet_range_dict = cif_dict[category_name]
+    
+    total_records = set([len(v) for v in sheet_range_dict.values()])
+    #total_records_2 = set([len(v) for v in sheet_order_info.values()])
+    
+    # check integrity
+    if len(total_records) != 1:
+        print("Failed to parse mmcif for category {} and {}".format(category_name, category_second))
+        sys.exit(1)
+    sheet_range_info = {}
+    for i in range(len(sheet_range_dict['sheet_id'])):
+        try:
+            chid = sheet_range_dict['beg_auth_asym_id'][i]
+            # To extract sense
+            # sheet_id is found or not in dict_2['sheet_id']
+            sheet_id = sheet_range_dict['sheet_id'][i]
+            # range1_id is found or not in dict_2['range_id_2']
+            id_ = sheet_range_dict['id'][i]
+            #       strand number(start at 1), sheet_id    
+            value = (int(id_), sheet_id)
+        except:
+            continue
+
+        initICode = sheet_range_dict['pdbx_beg_PDB_ins_code'][i]
+        initResnum = int(sheet_range_dict['beg_auth_seq_id'][i])
+        if initICode != ' ' and initICode != '?':
+            for icode in alphas[alphas.index(initICode):]:
+                sheet_range_info[(chid, initResnum, icode)] = value
+            initResnum += 1
+        endICode = sheet_range_dict['pdbx_end_PDB_ins_code'][i]
+        endResnum = int(sheet_range_dict['end_auth_seq_id'][i])
+        if endICode != ' ' and initICode != '?':
+            for icode in alphas[:alphas.index(endICode)+1]:
+                sheet_range_info[(chid, endResnum, icode)] = value
+            endResnum -= 1
+        for resnum in range(initResnum, endResnum+1):
+            sheet_range_info[(chid, resnum, '')] = value
+    sheet["range"] = sheet_range_info
+    return sheet
+
+
+def _getChemicals(cif_dict):
+    return None
+
+def _getPolymers(cif_dict):
+    return None
+
+def _getReference(cif_dict):
+    return None
+
+def _getResolution(cif_dict):
+    
+    return None
+
+def _getBiomoltrans(cif_dict):
+    category_name = "struct_ncs_oper"
+    if category_name in cif_dict:
+        mat_dict = cif_dict[category_name]
+        num_trans_mat = len(mat_dict['id'])
+        biomolecule = {}  # defaultdict(list)
+        for i in range(num_trans_mat):
+            biomt = np.zeros((3,4))
+            for j in range(3):
+                for k in range(3):
+                    key  = 'matrix[{}][{}]'.format(j+1, k+1)
+                    biomt[j, k]= mat_dict[key][i]
+            for j in range(3):
+                key = 'vector[{}]'.format(j + 1)
+                biomt[j, -1] = mat_dict[key][i]
+            # Save to 
+            biomolecule[str(i)] = biomt
+        return biomolecule
+    return None
+
+def _getVersion(cif_dict):
+    if "audit_conform" in cif_dict:
+        dict_ = cif_dict["audit_conform"]
+        name = dict_["dict_name"][0].replace("'", "")
+        ver = dict_["dict_version"][0].replace("'", "")
+        return "{} v{}".format(name, ver)
+    return None
+
+def _getDepositDate(cif_dict):
+    category_name = "pdbx_database_status"
+    if category_name in cif_dict:
+        item_name = "recvd_initial_deposition_date"
+        dep_date = cif_dict[category_name][item_name][0]
+        return dep_date.replace("'", "")
+    return None
+
+def _getClassification(cif_dict):
+    category_name = "struct_keywords"
+    if category_name in cif_dict:
+        item_name = "pdbx_keywords"
+        cls_ = cif_dict[category_name][item_name][0]
+        return cls_.replace("'", "")
+    return None
+
+def _getIdentifier(cif_dict):
+    category_name = "entry"
+    if category_name in cif_dict:
+        item_name = "id"
+        identifier = cif_dict[category_name][item_name][0]
+        return identifier.replace("'", "")
+    return None
+
+def _getTitle(cif_dict):
+    category_name = "struct"
+    if category_name in cif_dict:
+        item_name = "title"
+        title = cif_dict[category_name][item_name][0]
+        return title.replace("'", "")
+    return None
+
+def _getExperiment(cif_dict):
+    category_name = "exptl"
+    if category_name in cif_dict:
+        item_name = "method"
+        exp_ = cif_dict[category_name][item_name][0]
+        return exp_.replace("'", "")
+    return None
+
+
+def _getAuthors(cif_dict):
+    return None
+
+def _getModelType(cif_dict):
+    return None
+
+def _getNumModels(cif_dict):
+    return None
+
+def _getSpaceGroup(cif_dict):
+    return None
+
+def _getUnitCell(cif_dict):
+    return None
+    
+# Make sure that lambda functions defined below won't raise exceptions
+_PDB_HEADER_MAP = {
+    'helix': _getHelix,
+    'sheet': _getSheet,
+    'chemicals': _getChemicals,
+    'polymers': _getPolymers,
+    'reference': _getReference,
+    'resolution': _getResolution,
+    'biomoltrans': _getBiomoltrans,
+    'version': _getVersion,
+    'deposition_date': _getDepositDate,
+    'classification': _getClassification,
+    'identifier': _getIdentifier,
+    'title': _getTitle,
+    'experiment': _getExperiment,
+    'authors': _getAuthors,
+    'model_type': _getModelType,
+    'n_models': _getNumModels,
+    'space_group': _getSpaceGroup,
+    'unitcell': _getUnitCell
+}
+
+def get_pdb_info(cif_dict, *keys):
+    pdbid = _PDB_HEADER_MAP['identifier'](cif_dict)
+    if keys:
+        keys = list(keys)
+        for k, key in enumerate(keys):
+            if key in _PDB_HEADER_MAP:
+                value = _PDB_HEADER_MAP[key](cif_dict)
+                keys[k] = value
+            else:
+                raise KeyError('{0} is not a valid data identifier'
+                               .format(repr(key)))
+            if key in ('chemicals', 'polymers'):
+                for component in value:
+                    component.pdbentry = pdbid
+        if len(keys) == 1:
+            return keys[0]
+        else:
+            return tuple(keys)
+    else:
+        header = {}
+        for key, func in _PDB_HEADER_MAP.items():  # PY3K: OK
+            value = func(cif_dict)
+            if value is not None:
+                header[key] = value
+        for chem in header.get('chemicals', []):
+            chem.pdbentry = pdbid
+            header[chem.resname] = chem
+        for poly in header.get('polymers', []):
+            poly.pdbentry = pdbid
+            header[poly.chid] = poly
+        return header
+        
 
 
 def cif_reader(cif, **kwargs):
@@ -322,7 +693,7 @@ def cif_reader(cif, **kwargs):
         if not len(atom_dict):
             raise ValueError('empty mmcif file or stream')
         if header or biomol or secondary:
-            hd, split = get_pdb_info(data)
+            hd = get_pdb_info(data)
     
         _addAtomSiteInfo(ag, atom_dict, model, chain, subset, altloc)
 
@@ -337,7 +708,7 @@ def cif_reader(cif, **kwargs):
             LOGGER.warn('Atomic data could not be parsed, please '
                             'check the input file.')
     elif header:
-        hd, split = get_pdb_info(data)
+        hd = get_pdb_info(data)
     
     if ag is not None and isinstance(hd, dict):
         if secondary:
@@ -542,66 +913,7 @@ def _addAtomSiteInfo(atomgroup, atom_dict, model, chain, subset, altloc_torf, fo
                     LOGGER.warn('failed to parse radius at line {0}'
                                 .format(i))
             acount += 1  
-            #if n_atoms == 0 and acount >= alength:
-            #    # if arrays are short extend them with zeros
-            #    alength += asize
-            #    coordinates = np.concatenate(
-            #        (coordinates, np.zeros((asize, 3), float)))
-            #    atomnames = np.concatenate((
-            #        atomnames,
-            #        np.zeros(asize, ATOMIC_FIELDS['name'].dtype)))
-            #    resnames = np.concatenate((
-            #        resnames,
-            #        np.zeros(asize, ATOMIC_FIELDS['resname'].dtype)))
-            #    resnums = np.concatenate((
-            #        resnums,
-            #        np.zeros(asize, ATOMIC_FIELDS['resnum'].dtype)))
-            #    chainids = np.concatenate((
-            #        chainids,
-            #        np.zeros(asize, ATOMIC_FIELDS['chain'].dtype)))
-            #    hetero = np.concatenate((hetero, np.zeros(asize, bool)))
-            #    termini = np.concatenate((termini, np.zeros(asize, bool)))
-            #    altlocs = np.concatenate((
-            #        altlocs,
-            #        np.zeros(asize, ATOMIC_FIELDS['altloc'].dtype)))
-            #    icodes = np.concatenate((
-            #        icodes,
-            #        np.zeros(asize, ATOMIC_FIELDS['icode'].dtype)))
-            #    serials = np.concatenate((
-            #        serials,
-            #        np.zeros(asize, ATOMIC_FIELDS['serial'].dtype)))
-            #    if isPDB:
-            #        bfactors = np.concatenate((
-            #            bfactors,
-            #            np.zeros(asize, ATOMIC_FIELDS['beta'].dtype)))
-            #        occupancies = np.concatenate((
-            #            occupancies,
-            #            np.zeros(asize, ATOMIC_FIELDS['occupancy'].dtype)))
-            #        segnames = np.concatenate((
-            #            segnames,
-            #            np.zeros(asize, ATOMIC_FIELDS['segment'].dtype)))
-            #        elements = np.concatenate((
-            #            elements,
-            #            np.zeros(asize, ATOMIC_FIELDS['element'].dtype)))
-            #        if anisou is not None:
-            #            anisou = np.concatenate((
-            #                anisou,
-            #                np.zeros(
-            #                    (asize, 6),
-            #                    ATOMIC_FIELDS['anisou'].dtype)))
-            #        if siguij is not None:
-            #            siguij = np.concatenate((
-            #                siguij,
-            #                np.zeros(
-            #                    (asize, 6),
-            #                    ATOMIC_FIELDS['siguij'].dtype)))
-            #    else:
-            #        charges = np.concatenate((
-            #            charges,
-            #            np.zeros(asize, ATOMIC_FIELDS['charge'].dtype)))
-            #        radii = np.concatenate((
-            #            radii,
-            #            np.zeros(asize, ATOMIC_FIELDS['radius'].dtype)))
+
         elif not onlycoords and nmodel != atom_dict['pdbx_PDB_model_num'][i]:  
             # (startswith == 'TER   ' or
             # startswith.strip() == 'TER'):
