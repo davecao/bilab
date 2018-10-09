@@ -6,6 +6,8 @@ import types
 import sysconfig
 from datetime import datetime
 
+from jinja2 import Environment, FileSystemLoader
+
 if sys.version_info[:2] < (2, 7):
     raise Exception('Python version less than 2.7')
 
@@ -28,6 +30,15 @@ __version__ = '1.0.0'
 _TIMESTAMP_FORMAT = '%Y-%m-%d-%H:%M:%S'
 _PY3K = PY3K = sys.version_info[0] > 2
 PY2K = not PY3K
+
+def is_float(n):
+    return isinstance(n, float)
+
+TPLPATH = "{}/templates/".format(os.path.dirname(__file__))
+jinja2_ENV = Environment(loader=FileSystemLoader(TPLPATH))
+jinja2_ENV.add_extension('jinja2.ext.loopcontrols')
+jinja2_ENV.tests['Float'] = is_float
+VERSION = __version__
 
 LOGGER = PackageLogger('bilab')
 SETTINGS = PackageSettings('bilab', logger=LOGGER)
