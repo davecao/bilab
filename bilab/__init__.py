@@ -20,6 +20,10 @@ else:
 from .utilities import PackageLogger, PackageSettings
 # from .utilities import getPackagePath, joinRepr, tabulate
 from jinja2 import Environment, FileSystemLoader
+
+def is_float(n):
+    return isinstance(n, float)
+
 TPLPATH = "{}/templates/".format(os.path.dirname(__file__))
 jinja2_ENV = Environment(loader=FileSystemLoader(TPLPATH))
 jinja2_ENV.add_extension('jinja2.ext.loopcontrols')
