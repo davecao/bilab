@@ -697,6 +697,7 @@ def cfg_to_args(path='setup.cfg'):
                     package_strcut_str = ".".join(split_path[:-1]).strip()
                     files = [f.split('/')[-1] for f in glob(line)]
                     datafiles[package_strcut_str] = files
+                    print(datafiles)
                 in_cfg_value = datafiles
                 kwargs['install_package_data'] = True
 
