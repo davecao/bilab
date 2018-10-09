@@ -35,7 +35,7 @@ or  specify the installation prefix
 Test
 -----
 
-    python -m bilab.apps.struct_interact --pdb 9mht.pdb --outfmt txt --out 9mht --distance 5.0 --source protein --target nucleic -v
+    python -m bilab.apps.struct_interact --pdb 9mht.pdb --outfmt txt --out 9mht.txt --distance 5.0 --source protein --target nucleic -v
 
 Output
 --------------
