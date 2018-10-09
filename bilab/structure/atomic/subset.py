@@ -33,7 +33,8 @@ class AtomSubset(AtomPointer):
         if not isinstance(indices, np.ndarray):
             indices = np.array(indices, int)
         # elif not indices.dtype == int:
-        elif not np.issubdtype(indices.dtype, int):
+        # elif not np.issubdtype(indices.dtype, int):
+        elif not np.issubdtype(indices.dtype, np.int64):
             indices = indices.astype(int)
 
         if kwargs.get('unique'):
