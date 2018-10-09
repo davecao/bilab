@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# pylint: disable=invalid-name
 """
 `prInteract` is an application used to find the interacted atoms pairs in
 a pdb file
@@ -84,7 +85,7 @@ class PDBInfo:
                  dep_date=None,
                  classification=None,
                  resolution=None,
-                 version=None, **kwargs):
+                 version=None):
         """Initialization"""
         self.title = title
         self.pdb_id = pdb_id
@@ -111,7 +112,8 @@ class ATOMInfo:
     """
     def __init__(self, at_obj):
         if not isinstance(at_obj, bilab.structure.atomic.Atom):
-            print("The should be an object of {}".format())
+            print("The should be an object of {}".format(
+                "bilab.structure.atomic.Atom"))
             sys.exit(0)
 
         self.at_name = at_obj.getName()
@@ -146,7 +148,7 @@ class ATOMInfo:
         return str_des
 
 
-class AtomInteraction(object):
+class AtomInteraction:
     """ store a pair of interacted atoms
 
     Args:
@@ -267,7 +269,6 @@ class Interactions(PDBInfo):
                                             distance,
                                             cov_bond_sum)
                 append_self(atom_pair)
-        # self.interact_list = self.__unique()
         seen = set()
         seen_add = seen.add
         results = [x for x in self.interact_list

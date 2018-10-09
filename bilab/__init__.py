@@ -2,7 +2,7 @@
 import os
 import sys
 import types
-# import warnings
+
 import sysconfig
 from datetime import datetime
 
@@ -19,6 +19,11 @@ else:
 
 from .utilities import PackageLogger, PackageSettings
 # from .utilities import getPackagePath, joinRepr, tabulate
+from jinja2 import Environment, FileSystemLoader
+TPLPATH = "{}/templates/".format(os.path.dirname(__file__))
+jinja2_ENV = Environment(loader=FileSystemLoader(TPLPATH))
+jinja2_ENV.add_extension('jinja2.ext.loopcontrols')
+jinja2_ENV.tests['Float'] = is_float
 
 __author__ = "Wei Cao"
 __contact__ = "davecao@bi.a.u-tokyo.ac.jp"
