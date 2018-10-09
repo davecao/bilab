@@ -219,7 +219,11 @@ if plat.system() == "Darwin":
     # clang on MacOS
     basic_extra_compile_args += ['-stdlib=libc++']
     basic_extra_link_args += ['-stdlib=libc++']
-    
+<<<<<<< HEAD
+
+=======
+
+>>>>>>> develop
     lfdfiles = Extension(
         'bilab.io._lfdfiles',
         sources=['bilab/io/_lfdfiles.pyx'],
@@ -228,14 +232,22 @@ elif plat.system() == "Linux":
     # gcc on Linux
     basic_extra_compile_args += ['-static-libstdc++']
     basic_extra_link_args += ['-static-libstdc++']
-    
+<<<<<<< HEAD
+
+=======
+
+>>>>>>> develop
     lfdfiles = Extension(
         'bilab.io._lfdfiles',
         sources=['bilab/io/_lfdfiles.pyx'],
         include_dirs=[np_include_dir],
         extra_compile_args=['-fopenmp'],
         extra_link_args=['-fopenmp'])
-    
+<<<<<<< HEAD
+
+=======
+
+>>>>>>> develop
 # could not compiled by distutils
 helanal = Extension(
     name='bilab.geometry._helanal',
@@ -398,7 +410,11 @@ gpmetis_wrap = Extension(
 #             'bilab/ml/NDR/tSNE/bhtsne.cpp',
 #             'bilab/ml/NDR/tSNE/sptree.cpp'])
 
-    
+<<<<<<< HEAD
+
+=======
+
+>>>>>>> develop
 # Cython version
 bhtsne_wrap = Extension(
     name='bilab.ml.NDR.tSNE._bhtsne_wrap',
@@ -699,7 +715,7 @@ def cfg_to_args(path='setup.cfg'):
                     datafiles[package_strcut_str] = files
                 in_cfg_value = datafiles
                 kwargs['install_package_data'] = True
-    
+
             if arg == 'resources' and in_cfg_value:
                 datafiles = []
                 for line in in_cfg_value:
@@ -732,19 +748,19 @@ general_settings.pop('resources')
 general_settings['cmdclass'] = {'build_ext': build_ext}
 # extensions
 general_settings['ext_modules'] = [
-    distance_wrap, 
-    kdtree_lib, 
-    bhtsne_wrap, 
+    distance_wrap,
+    kdtree_lib,
+    bhtsne_wrap,
     gpmetis_wrap,
-    lfdfiles, 
-    voroplusplus, 
+    lfdfiles,
+    voroplusplus,
     marching_cubes,
-#    netcdf_wrap, 
-#    MMTK_surface, 
-#    MMTK_minimization, 
+#    netcdf_wrap,
+#    MMTK_surface,
+#    MMTK_minimization,
 #    MMTK_trajectory,
-#    MMTK_universe, 
-#    MMTK_energy_term, 
+#    MMTK_universe,
+#    MMTK_energy_term,
 #    MMTK_force_field,
 #    crc32,
     mmcif
