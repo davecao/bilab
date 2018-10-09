@@ -211,6 +211,31 @@ netcdf_inc_dir = '/opt/local/include'
 #    print("Could not find Boost_LIBRARY_DIR; terminated!!!")
 #    sys.exit(0)
 
+basic_extra_compile_args = ['-ftemplate-backtrace-limit=64','-std=c++11']
+basic_extra_link_args = []
+# clang -fopenmp -I <path to omp.h> -L <LLVM OpenMP library path>
+lfdfiles = ""
+if plat.system() == "Darwin":
+    # clang on MacOS
+    basic_extra_compile_args += ['-stdlib=libc++']
+    basic_extra_link_args += ['-stdlib=libc++']
+
+    lfdfiles = Extension(
+        'bilab.io._lfdfiles',
+        sources=['bilab/io/_lfdfiles.pyx'],
+        include_dirs=[np_include_dir])
+elif plat.system() == "Linux":
+    # gcc on Linux
+    basic_extra_compile_args += ['-static-libstdc++']
+    basic_extra_link_args += ['-static-libstdc++']
+
+    lfdfiles = Extension(
+        'bilab.io._lfdfiles',
+        sources=['bilab/io/_lfdfiles.pyx'],
+        include_dirs=[np_include_dir],
+        extra_compile_args=['-fopenmp'],
+        extra_link_args=['-fopenmp'])
+
 # could not compiled by distutils
 helanal = Extension(
     name='bilab.geometry._helanal',
@@ -225,6 +250,8 @@ voroplusplus = Extension(
         'bilab/geometry/voro/voroplusplus.pyx',
         'bilab/geometry/voro/vpp.cpp',
         'bilab/geometry/voro/src/voro++.cc'],
+    extra_compile_args=basic_extra_compile_args,
+    extra_link_args=basic_extra_link_args,
     language="c++")
 
 crc32 = Extension(
@@ -234,21 +261,6 @@ crc32 = Extension(
         'bilab/utilities/_crc32.pyx'],
     language="c")
 
-# clang -fopenmp -I <path to omp.h> -L <LLVM OpenMP library path>
-lfdfiles = ""
-if plat.system() == "Darwin":
-    lfdfiles = Extension(
-        'bilab.io._lfdfiles',
-        sources=['bilab/io/_lfdfiles.pyx'],
-        include_dirs=[np_include_dir])
-elif plat.system() == "Linux":
-    lfdfiles = Extension(
-        'bilab.io._lfdfiles',
-        sources=['bilab/io/_lfdfiles.pyx'],
-        include_dirs=[np_include_dir],
-        extra_compile_args=['-fopenmp'],
-        extra_link_args=['-fopenmp'])
-
 distance_wrap = Extension(
     name='bilab.geometry._distance_wrap',
     define_macros=[('MAJOR_VERSION', '1'),
@@ -257,6 +269,7 @@ distance_wrap = Extension(
     # libraries = [''],
     # library_dirs = [''],
     sources=['bilab/geometry/distance/distance_wrap.c'])
+
 kdtree_lib = Extension(
     name='bilab.structure._CKDTree',
     define_macros=[('MAJOR_VERSION', '1'),
@@ -385,6 +398,7 @@ gpmetis_wrap = Extension(
 #             'bilab/ml/NDR/tSNE/bhtsne.cpp',
 #             'bilab/ml/NDR/tSNE/sptree.cpp'])
 
+
 # Cython version
 bhtsne_wrap = Extension(
     name='bilab.ml.NDR.tSNE._bhtsne_wrap',
@@ -393,8 +407,8 @@ bhtsne_wrap = Extension(
     include_dirs=[np_include_dir],
     # library_dirs=[boost_lib_dir],
     # libraries=['boost_python'],
-    extra_compile_args=['-ftemplate-backtrace-limit=64',
-                        '-std=c++11'],
+    extra_compile_args=basic_extra_compile_args,
+    extra_link_args=basic_extra_link_args,
     sources=['bilab/ml/NDR/tSNE/_bhtsne_wrap.pyx',
              'bilab/ml/NDR/tSNE/bhtsne.cpp',
              'bilab/ml/NDR/tSNE/sptree.cpp'],
@@ -537,7 +551,7 @@ mmcif_extra_link_args = ['-std=c++11']
 if plat.system() == "Darwin":
     # clang on MacOS
     mmcif_extra_compile_args += ['-stdlib=libc++']
-    mmcif_extra_link_args += ['-std=libc++']
+    mmcif_extra_link_args += ['-stdlib=libc++']
 elif plat.system() == "Linux":
     # gcc on Linux
     mmcif_extra_compile_args += ['-static-libstdc++']
@@ -601,6 +615,7 @@ def cfg_to_args(path='setup.cfg'):
                         "scripts": ("files",),
                         "resources": ("files",),
                         "py_modules": ("files", "modules"),  # **
+                        "package_data": ("files", "package_data"),
                         }
 
     MULTI_FIELDS = ("classifiers",
@@ -612,7 +627,8 @@ def cfg_to_args(path='setup.cfg'):
                     "scripts",
                     "py_modules",
                     "extension",
-                    "resources"
+                    "resources",
+                    "package_data"
                     )
 
     def has_get_option(config, section, option):
@@ -668,6 +684,22 @@ def cfg_to_args(path='setup.cfg'):
         if arg in MULTI_FIELDS:
             # support multiline options
             in_cfg_value = split_multiline(in_cfg_value)
+            if arg == 'packages' and in_cfg_value:
+                if 'package_dir' in kwargs:
+                    if kwargs['package_dir']['']:
+                        in_cfg_value = [
+                            kwargs['package_dir']['']+'.'+pack
+                            for pack in in_cfg_value]
+            if arg == 'package_data' and in_cfg_value:
+                datafiles = {}
+                for line in in_cfg_value:
+                    split_path = line.split('/')
+                    package_strcut_str = ".".join(split_path[:-1]).strip()
+                    files = [f.split('/')[-1] for f in glob(line)]
+                    datafiles[package_strcut_str] = files
+                in_cfg_value = datafiles
+                kwargs['install_package_data'] = True
+
             if arg == 'resources' and in_cfg_value:
                 datafiles = []
                 for line in in_cfg_value:
@@ -700,19 +732,19 @@ general_settings.pop('resources')
 general_settings['cmdclass'] = {'build_ext': build_ext}
 # extensions
 general_settings['ext_modules'] = [
-    distance_wrap, 
-    kdtree_lib, 
-    bhtsne_wrap, 
+    distance_wrap,
+    kdtree_lib,
+    bhtsne_wrap,
     gpmetis_wrap,
-    lfdfiles, 
-    voroplusplus, 
+    lfdfiles,
+    voroplusplus,
     marching_cubes,
-#    netcdf_wrap, 
-#    MMTK_surface, 
-#    MMTK_minimization, 
+#    netcdf_wrap,
+#    MMTK_surface,
+#    MMTK_minimization,
 #    MMTK_trajectory,
-#    MMTK_universe, 
-#    MMTK_energy_term, 
+#    MMTK_universe,
+#    MMTK_energy_term,
 #    MMTK_force_field,
 #    crc32,
     mmcif
@@ -721,7 +753,8 @@ general_settings['ext_modules'] = [
 general_settings['install_requires'] = [
     'scipy>0.15.0',
     'numpy',
-    'ete3'
+    'ete3',
+    'jinja2'
     ]
 #    'matplotlib>1.4.0',
 #    'numpy>1.9.0']
