@@ -85,7 +85,7 @@ class PDBInfo:
                  dep_date=None,
                  classification=None,
                  resolution=None,
-                 version=None):
+                 version=None, **kwargs):
         """Initialization"""
         self.title = title
         self.pdb_id = pdb_id
