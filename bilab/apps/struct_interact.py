@@ -11,7 +11,7 @@ Installation of bilab package:
 
 Usage:
 
-$ python -m bilab.apps.prInteract --pdb 9mht.pdb --source "not water" \
+$ python -m bilab.apps.struct_interact --pdb 9mht.pdb --source "not water" \
     --target "not water" -v
 
 --target :  not water and hetero
