@@ -211,7 +211,7 @@ netcdf_inc_dir = '/opt/local/include'
 #    print("Could not find Boost_LIBRARY_DIR; terminated!!!")
 #    sys.exit(0)
 
-basic_extra_compile_args = ['-ftemplate-backtrace-limit=64','-m64','-std=c++11']
+basic_extra_compile_args = ['-ftemplate-backtrace-limit=64','-std=c++11']
 basic_extra_link_args = []
 # clang -fopenmp -I <path to omp.h> -L <LLVM OpenMP library path>
 lfdfiles = ""
