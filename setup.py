@@ -219,11 +219,7 @@ if plat.system() == "Darwin":
     # clang on MacOS
     basic_extra_compile_args += ['-stdlib=libc++']
     basic_extra_link_args += ['-stdlib=libc++']
-<<<<<<< HEAD
 
-=======
-
->>>>>>> develop
     lfdfiles = Extension(
         'bilab.io._lfdfiles',
         sources=['bilab/io/_lfdfiles.pyx'],
@@ -232,22 +228,14 @@ elif plat.system() == "Linux":
     # gcc on Linux
     basic_extra_compile_args += ['-static-libstdc++']
     basic_extra_link_args += ['-static-libstdc++']
-<<<<<<< HEAD
 
-=======
-
->>>>>>> develop
     lfdfiles = Extension(
         'bilab.io._lfdfiles',
         sources=['bilab/io/_lfdfiles.pyx'],
         include_dirs=[np_include_dir],
         extra_compile_args=['-fopenmp'],
         extra_link_args=['-fopenmp'])
-<<<<<<< HEAD
 
-=======
-
->>>>>>> develop
 # could not compiled by distutils
 helanal = Extension(
     name='bilab.geometry._helanal',
@@ -410,11 +398,6 @@ gpmetis_wrap = Extension(
 #             'bilab/ml/NDR/tSNE/bhtsne.cpp',
 #             'bilab/ml/NDR/tSNE/sptree.cpp'])
 
-<<<<<<< HEAD
-
-=======
-
->>>>>>> develop
 # Cython version
 bhtsne_wrap = Extension(
     name='bilab.ml.NDR.tSNE._bhtsne_wrap',
