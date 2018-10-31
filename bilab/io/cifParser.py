@@ -34,41 +34,41 @@ C++ extensions _mmcifio.so provide a dictionary of mmcif data
 
 For example, '1a0s.cif' contains the following keys:(category name / Item name)
 
-1. atom_site                      
-    -- "group_PDB"         : ATOM                              
-    -- "id"                : 1                              
-    -- "type_symbol"       : N                               
-    -- "label_atom_id"     : N                              
-    -- "label_alt_id"      : .                              
-    -- "label_comp_id"     : SER                              
-    -- "label_asym_id"     : A                              
-    -- "label_entity_id"   : 1                              
-    -- "label_seq_id"      : 1                              
-    -- "pdbx_PDB_ins_code" : ?                               
-    -- "Cartn_x"           : -47.333                               
-    -- "Cartn_y"           : 0.941                              
-    -- "Cartn_z"           : 8.834                                
-    -- "occupancy"         : 1.00                              
-    -- "B_iso_or_equiv"    : 52.56                              
-    -- "pdbx_formal_charge": ?                              
-    -- "auth_seq_id"       : 71                              
-    -- "auth_comp_id"      : SER                               
-    -- "auth_asym_id"      : P                               
-    -- "auth_atom_id"      : N                              
-    -- "pdbx_PDB_model_num": 1  
+1. atom_site
+    -- "group_PDB"         : ATOM
+    -- "id"                : 1
+    -- "type_symbol"       : N
+    -- "label_atom_id"     : N
+    -- "label_alt_id"      : .
+    -- "label_comp_id"     : SER
+    -- "label_asym_id"     : A
+    -- "label_entity_id"   : 1
+    -- "label_seq_id"      : 1
+    -- "pdbx_PDB_ins_code" : ?
+    -- "Cartn_x"           : -47.333
+    -- "Cartn_y"           : 0.941
+    -- "Cartn_z"           : 8.834
+    -- "occupancy"         : 1.00
+    -- "B_iso_or_equiv"    : 52.56
+    -- "pdbx_formal_charge": ?
+    -- "auth_seq_id"       : 71
+    -- "auth_comp_id"      : SER
+    -- "auth_asym_id"      : P
+    -- "auth_atom_id"      : N
+    -- "pdbx_PDB_model_num": 1
 2. atom_sites
 3. atom_type
 4. audit_author
 5. audit_conform
-6. cell                           
-    -- "entry_id"        : 1A0S                              
-    -- "length_a"        : 112.100                               
-    -- "length_b"        : 112.100                               
-    -- "length_c"        : 147.000                              
-    -- "angle_alpha"     : 90.00                              
-    -- "angle_beta"      : 90.00                                
-    -- "angle_gamma"     : 120.00                              
-    -- "Z_PDB"           : 9                              
+6. cell
+    -- "entry_id"        : 1A0S
+    -- "length_a"        : 112.100
+    -- "length_b"        : 112.100
+    -- "length_c"        : 147.000
+    -- "angle_alpha"     : 90.00
+    -- "angle_beta"      : 90.00
+    -- "angle_gamma"     : 120.00
+    -- "Z_PDB"           : 9
     -- "pdbx_unique_axis": ?
 7. chem_comp
 8. citation
@@ -80,9 +80,9 @@ For example, '1a0s.cif' contains the following keys:(category name / Item name)
 14. diffrn_radiation
 15. diffrn_radiation_wavelength
 16. diffrn_source
-17. entity 
+17. entity
     -- "id"               : 1A0S
-    -- "pdbx_description" : 
+    -- "pdbx_description" :
     -- "pdbx_fragment"    :
     -- "pdbx_ec"          :
     -- "pdbx_mutation"    :
@@ -91,7 +91,7 @@ For example, '1a0s.cif' contains the following keys:(category name / Item name)
     -- "pdbx_strand_id" : P,Q,R
     -- "pdbx_target_identifier" : ?
     -- "pdbx_seq_one_letter_code" :
-        [';SGFEFHGYARSGVIMNDSGASTKSGAYITPAGETGGAIGRLGNQADTYVEMNLEHKQTLDNGATTRFKVMVADGQTSYND\nWTASTSDLNVRQAFVELGNLPTFAGPFKGSTLWAGKRFDRDNFDIHWIDSDVVFLAGTGGGIYDVKWNDGLRSNFSLYGR\nNFGDIDDSSNSVQNYILTMNHFAGPLQMMVSGLRAKDNDERKDSNGNLAKGDAANTGVHALLGLHNDSFYGLRDGSSKTA\nLLYGHGLGAEVKGIGSDGALRPGADTWRIASYGTTPLSENWSVAPAMLAQRSKDRYADGDSYQWATFNLRLIQAINQNFA\nLAYEGSYQYMDLKPEGYNDRQAVNGSFYKLTFAPTFKVGSIGDFFSRPEIRFYTSWMDWSKKLNNYASDDALGSDGFNSG\nGEWSFGVQMETWF\n;']   
+        [';SGFEFHGYARSGVIMNDSGASTKSGAYITPAGETGGAIGRLGNQADTYVEMNLEHKQTLDNGATTRFKVMVADGQTSYND\nWTASTSDLNVRQAFVELGNLPTFAGPFKGSTLWAGKRFDRDNFDIHWIDSDVVFLAGTGGGIYDVKWNDGLRSNFSLYGR\nNFGDIDDSSNSVQNYILTMNHFAGPLQMMVSGLRAKDNDERKDSNGNLAKGDAANTGVHALLGLHNDSFYGLRDGSSKTA\nLLYGHGLGAEVKGIGSDGALRPGADTWRIASYGTTPLSENWSVAPAMLAQRSKDRYADGDSYQWATFNLRLIQAINQNFA\nLAYEGSYQYMDLKPEGYNDRQAVNGSFYKLTFAPTFKVGSIGDFFSRPEIRFYTSWMDWSKKLNNYASDDALGSDGFNSG\nGEWSFGVQMETWF\n;']
 19. entity_poly_seq
 
 20. entity_src_gen
@@ -108,9 +108,9 @@ For example, '1a0s.cif' contains the following keys:(category name / Item name)
 27. pdbx_audit_revision_group
 28. pdbx_audit_revision_history
 29. pdbx_audit_revision_item
-30. pdbx_database_status          
-    -- "status_code" : REL                              
-    -- "entry_id"    : 1A0S                               
+30. pdbx_database_status
+    -- "status_code" : REL
+    -- "entry_id"    : 1A0S
     -- "recvd_initial_deposition_date" : 1997-12-07
 31. pdbx_entity_nonpoly
 32. pdbx_nonpoly_scheme
@@ -141,7 +141,7 @@ For example, '1a0s.cif' contains the following keys:(category name / Item name)
 51. reflns
 52. reflns_shell
 53. software
-    -- "name" : 
+    -- "name" :
 54. source
 55. struct
     -- "entry_id"                : 1A0S
@@ -156,21 +156,21 @@ For example, '1a0s.cif' contains the following keys:(category name / Item name)
     -- "conf_type_id"           : HELIX_P
     -- "id"                     : HELIX_P1, ...
     -- "pdbx_PDB_helix_id"      : AA1
-    -- "beg_label_comp_id"      : MET     
+    -- "beg_label_comp_id"      : MET
     -- "beg_label_asym_id"      : A
     -- "beg_label_seq_id"       : 132
-    -- "pdbx_beg_PDB_ins_code"  : ?   
-    -- "end_label_comp_id"      : LYS 
-    -- "end_label_asym_id"      : A 
+    -- "pdbx_beg_PDB_ins_code"  : ?
+    -- "end_label_comp_id"      : LYS
+    -- "end_label_asym_id"      : A
     -- "end_label_seq_id"       : 139
-    -- "pdbx_end_PDB_ins_code"  : ?  
-    -- "beg_auth_comp_id"       : MET 
-    -- "beg_auth_asym_id"       : A 
+    -- "pdbx_end_PDB_ins_code"  : ?
+    -- "beg_auth_comp_id"       : MET
+    -- "beg_auth_asym_id"       : A
     -- "beg_auth_seq_id"        : 132
-    -- "end_auth_comp_id"       : LYS 
-    -- "end_auth_asym_id"       : A 
-    -- "end_auth_seq_id"        : 139 
-    -- "pdbx_PDB_helix_class"   : 1   
+    -- "end_auth_comp_id"       : LYS
+    -- "end_auth_asym_id"       : A
+    -- "end_auth_seq_id"        : 139
+    -- "pdbx_PDB_helix_class"   : 1
                    Right-handed alpha (default)                1
                    Right-handed omega                          2
                    Right-handed pi                             3
@@ -181,9 +181,9 @@ For example, '1a0s.cif' contains the following keys:(category name / Item name)
                    Left-handed gamma                           8
                    27 ribbon/helix                             9
                    Polyproline                                10
-              
-    -- "details"                : ? 
-    -- "pdbx_PDB_helix_length"  : 8 
+
+    -- "details"                : ?
+    -- "pdbx_PDB_helix_length"  : 8
 
 59. struct_conf_type
     -- "id"        : HELIX_P
@@ -289,27 +289,27 @@ def _getHelix(cif_dict):
     # -- "conf_type_id"           : HELIX_P
     # -- "id"                     : HELIX_P1, ...
     # -- "pdbx_PDB_helix_id"      : AA1
-    # -- "beg_label_comp_id"      : MET     
+    # -- "beg_label_comp_id"      : MET
     # -- "beg_label_asym_id"      : A
     # -- "beg_label_seq_id"       : 132
-    # -- "pdbx_beg_PDB_ins_code"  : ?   
-    # -- "end_label_comp_id"      : LYS 
-    # -- "end_label_asym_id"      : A 
+    # -- "pdbx_beg_PDB_ins_code"  : ?
+    # -- "end_label_comp_id"      : LYS
+    # -- "end_label_asym_id"      : A
     # -- "end_label_seq_id"       : 139
-    # -- "pdbx_end_PDB_ins_code"  : ?  
-    # -- "beg_auth_comp_id"       : MET 
-    # -- "beg_auth_asym_id"       : A 
+    # -- "pdbx_end_PDB_ins_code"  : ?
+    # -- "beg_auth_comp_id"       : MET
+    # -- "beg_auth_asym_id"       : A
     # -- "beg_auth_seq_id"        : 132
-    # -- "end_auth_comp_id"       : LYS 
-    # -- "end_auth_asym_id"       : A 
-    # -- "end_auth_seq_id"        : 139 
-    # -- "pdbx_PDB_helix_class"   : 1   
+    # -- "end_auth_comp_id"       : LYS
+    # -- "end_auth_asym_id"       : A
+    # -- "end_auth_seq_id"        : 139
+    # -- "pdbx_PDB_helix_class"   : 1
     category_name = "struct_conf"
-    
+
     if category_name not in cif_dict:
         return None
     dict_ = cif_dict[category_name]
-    
+
     total_records = list(set([len(v) for v in dict_.values()]))
     # check integrity
     if len(total_records) != 1:
@@ -319,8 +319,8 @@ def _getHelix(cif_dict):
     for i in range(total_records[0]):
         try:
             chid = dict_['beg_auth_asym_id'][i]
-            #       helix class, serial number, identifier 
-            value = (int(dict_['pdbx_PDB_helix_class'][i]), 
+            #       helix class, serial number, identifier
+            value = (int(dict_['pdbx_PDB_helix_class'][i]),
                      int(dict_['id'][i].replace(dict_['conf_type_id'][i], "")),
                      dict_['pdbx_PDB_helix_id'][i])
         except:
@@ -396,15 +396,17 @@ def _getSheet(cif_dict):
     #   -- "range_2_auth_comp_id"  :  ILE
     #   -- "range_2_auth_asym_id"  :  A
     #   -- "range_2_auth_seq_id"   :  169
-    
+
     #categories = ['struct_sheet','struct_sheet_order', 'struct_sheet_range', 'pdbx_struct_sheet_hbond']
     #categories_mask = [
     #    True if categories[k] in cif_dict else False for k in enumerate(categories)
     #]
+
     category_name = "struct_sheet_range"
     category_second = "struct_sheet_order"   # sense
     category_third = "struct_sheet"          # number_strands
-    
+    if category_name not in cif_dict:
+        return None
     # sheet number_strands
     n_strands_info = {}
     if category_third in cif_dict:
@@ -424,15 +426,15 @@ def _getSheet(cif_dict):
             # sense: anti-parallel(-1), parallel(1), first strand (0)
             sense_type = 0
             if sense_str in _SHEET_TYPES:
-                sense_type = _SHEET_TYPES[sense_str] 
+                sense_type = _SHEET_TYPES[sense_str]
             sheet_order_info[(sId, rId1, rId2)] = sense_type
         sheet["sheet_order"] = sheet_order_info
-            
+
     sheet_range_dict = cif_dict[category_name]
-    
+
     total_records = set([len(v) for v in sheet_range_dict.values()])
     #total_records_2 = set([len(v) for v in sheet_order_info.values()])
-    
+
     # check integrity
     if len(total_records) != 1:
         print("Failed to parse mmcif for category {} and {}".format(category_name, category_second))
@@ -446,7 +448,7 @@ def _getSheet(cif_dict):
             sheet_id = sheet_range_dict['sheet_id'][i]
             # range1_id is found or not in dict_2['range_id_2']
             id_ = sheet_range_dict['id'][i]
-            #       strand number(start at 1), sheet_id    
+            #       strand number(start at 1), sheet_id
             value = (int(id_), sheet_id)
         except:
             continue
@@ -479,7 +481,7 @@ def _getReference(cif_dict):
     return None
 
 def _getResolution(cif_dict):
-    
+
     return None
 
 def _getBiomoltrans(cif_dict):
@@ -497,7 +499,7 @@ def _getBiomoltrans(cif_dict):
             for j in range(3):
                 key = 'vector[{}]'.format(j + 1)
                 biomt[j, -1] = mat_dict[key][i]
-            # Save to 
+            # Save to
             biomolecule[str(i)] = biomt
         return biomolecule
     return None
@@ -565,7 +567,7 @@ def _getSpaceGroup(cif_dict):
 
 def _getUnitCell(cif_dict):
     return None
-    
+
 # Make sure that lambda functions defined below won't raise exceptions
 _PDB_HEADER_MAP = {
     'helix': _getHelix,
@@ -619,7 +621,7 @@ def get_pdb_info(cif_dict, *keys):
             poly.pdbentry = pdbid
             header[poly.chid] = poly
         return header
-        
+
 
 
 def cif_reader(cif, **kwargs):
@@ -639,7 +641,7 @@ def cif_reader(cif, **kwargs):
     subset = kwargs.get('subset')
     altloc = kwargs.get('altloc', '.')
     cif_category = kwargs.get('category','atom_site')
-    
+
     if model is not None:
         if isinstance(model, int):
             if model < 0:
@@ -663,7 +665,7 @@ def cif_reader(cif, **kwargs):
         elif len(chain) == 0:
             raise ValueError('chain must not be an empty string')
         title_suffix = '_' + chain + title_suffix
-    
+
     ag = None
     if 'ag' in kwargs:
         ag = kwargs['ag']
@@ -680,7 +682,7 @@ def cif_reader(cif, **kwargs):
     if not secondary:
         auto_secondary = SETTINGS.get('auto_secondary')
         secondary = auto_secondary
-    
+
     split = 0
     hd = None
     if model != 0:
@@ -694,7 +696,7 @@ def cif_reader(cif, **kwargs):
             raise ValueError('empty mmcif file or stream')
         if header or biomol or secondary:
             hd = get_pdb_info(data)
-    
+
         _addAtomSiteInfo(ag, atom_dict, model, chain, subset, altloc)
 
         if ag.numAtoms() > 0:
@@ -709,7 +711,7 @@ def cif_reader(cif, **kwargs):
                             'check the input file.')
     elif header:
         hd = get_pdb_info(data)
-    
+
     if ag is not None and isinstance(hd, dict):
         if secondary:
             if auto_secondary:
@@ -729,7 +731,7 @@ def cif_reader(cif, **kwargs):
                 LOGGER.info(
                     'Biomolecular transformations were applied to the '
                     'coordinate data.')
-    
+
     if model != 0:
         if header:
             return ag, hd
@@ -748,7 +750,7 @@ def _addAtomSiteInfo(atomgroup, atom_dict, model, chain, subset, altloc_torf, fo
         isPDB = True
     else:
         isPDB = False
-    
+
     if subset:
         if subset == 'ca':
             subset = set(('CA',))
@@ -758,7 +760,7 @@ def _addAtomSiteInfo(atomgroup, atom_dict, model, chain, subset, altloc_torf, fo
             protein_resnames = flags.AMINOACIDS
     else:
         only_subset = False
-    
+
     if chain is None:
         only_chains = False
     else:
@@ -794,12 +796,12 @@ def _addAtomSiteInfo(atomgroup, atom_dict, model, chain, subset, altloc_torf, fo
     else:
         charges = np.zeros(asize, dtype=ATOMIC_FIELDS['charge'].dtype)
         radii = np.zeros(asize, dtype=ATOMIC_FIELDS['radius'].dtype)
-    
-    total_atoms = len(atom_dict['group_PDB']) 
+
+    total_atoms = len(atom_dict['group_PDB'])
     asize = 2000  # increase array length by this much when needed
     start = 0
     stop = total_atoms  #  len(atom_dict['group_PDB'])
-    
+
     nmodel = 0
     # if a specific model is requested, skip lines until that one
     if isPDB and model is not None and model != 1:
@@ -823,7 +825,7 @@ def _addAtomSiteInfo(atomgroup, atom_dict, model, chain, subset, altloc_torf, fo
     else:
         which_altlocs = ' .'
         altloc_torf = True
-    
+
     acount = 0
     altloc = defaultdict(list)
     i = start
@@ -842,7 +844,7 @@ def _addAtomSiteInfo(atomgroup, atom_dict, model, chain, subset, altloc_torf, fo
             else:
                 atomname = atom_dict['auth_atom_id'][i]
                 resname = atom_dict['auth_comp_id'][i]
-            
+
             chid = atom_dict['auth_asym_id'][i]
             if only_chains:
                 if chid not in chain:
@@ -880,7 +882,7 @@ def _addAtomSiteInfo(atomgroup, atom_dict, model, chain, subset, altloc_torf, fo
                 LOGGER.warn('Failed to parse serial number {0}.'
                                 .format(i))
                 serials[acount] = serials[acount - 1] + 1
-            
+
             altlocs[acount] = alt
             atomnames[acount] = atomname
             resnames[acount] = resname
@@ -912,9 +914,9 @@ def _addAtomSiteInfo(atomgroup, atom_dict, model, chain, subset, altloc_torf, fo
                 except:
                     LOGGER.warn('failed to parse radius at line {0}'
                                 .format(i))
-            acount += 1  
+            acount += 1
 
-        elif not onlycoords and nmodel != atom_dict['pdbx_PDB_model_num'][i]:  
+        elif not onlycoords and nmodel != atom_dict['pdbx_PDB_model_num'][i]:
             # (startswith == 'TER   ' or
             # startswith.strip() == 'TER'):
             termini[acount - 1] = True
