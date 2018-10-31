@@ -344,7 +344,12 @@ def _getHelix(cif_dict):
 
 def _getSheet(cif_dict):
     alphas = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    sheet = {}
+    #sheet = {}
+    # return a dict
+    sheet = {"number_strands" : "",
+             "range" : "",
+            "sheet_order" : ""
+    }
     # Sheet: related categories
     # struct_sheet
     #   -- "id"             : A
@@ -405,8 +410,7 @@ def _getSheet(cif_dict):
     category_name = "struct_sheet_range"
     category_second = "struct_sheet_order"   # sense
     category_third = "struct_sheet"          # number_strands
-    if category_name not in cif_dict:
-        return None
+
     # sheet number_strands
     n_strands_info = {}
     if category_third in cif_dict:
@@ -414,6 +418,7 @@ def _getSheet(cif_dict):
         for i in range(len(ss['id'])):
             n_strands_info[ss['id'][i]] = ss['number_strands'][i]
         sheet["number_strands"] = n_strands_info
+
     # struct_sheet_order
     sheet_order_info = {}
     if category_second in cif_dict:
@@ -430,15 +435,19 @@ def _getSheet(cif_dict):
             sheet_order_info[(sId, rId1, rId2)] = sense_type
         sheet["sheet_order"] = sheet_order_info
 
+    if category_name not in cif_dict:
+        return sheet
     sheet_range_dict = cif_dict[category_name]
-
     total_records = set([len(v) for v in sheet_range_dict.values()])
     #total_records_2 = set([len(v) for v in sheet_order_info.values()])
 
     # check integrity
     if len(total_records) != 1:
-        print("Failed to parse mmcif for category {} and {}".format(category_name, category_second))
-        sys.exit(1)
+        #print("Failed to parse mmcif for category {} and {}".format(
+        #      category_name, category_second))
+        #sys.exit(1)
+        return sheet
+
     sheet_range_info = {}
     for i in range(len(sheet_range_dict['sheet_id'])):
         try:
