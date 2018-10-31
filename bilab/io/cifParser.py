@@ -470,7 +470,7 @@ def _getSheet(cif_dict):
             initResnum += 1
         endICode = sheet_range_dict['pdbx_end_PDB_ins_code'][i]
         endResnum = int(sheet_range_dict['end_auth_seq_id'][i])
-        if endICode != ' ' and initICode != '?':
+        if endICode != ' ' and endICode != '?':
             for icode in alphas[:alphas.index(endICode)+1]:
                 sheet_range_info[(chid, endResnum, icode)] = value
             endResnum -= 1
