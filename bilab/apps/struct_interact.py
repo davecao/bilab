@@ -11,7 +11,7 @@ Installation of bilab package:
 
 Usage:
 
-$ python -m bilab.apps.struct_interact --pdb 9mht.pdb --source "not water" \
+$ python -m bilab.apps.prInteract --pdb 9mht.pdb --source "not water" \
     --target "not water" -v
 
 --target :  not water and hetero
@@ -110,7 +110,7 @@ class ATOMInfo:
         insert_code (str): Insert code. Default is "_".
         at_type (str): type of the atom. ["residue", "ligand"]
     """
-    def __init__(self, at_obj):
+    def __init__(self, at_obj, radius_X=-999.9):
         if not isinstance(at_obj, bilab.structure.atomic.Atom):
             print("The should be an object of {}".format(
                 "bilab.structure.atomic.Atom"))
@@ -120,7 +120,11 @@ class ATOMInfo:
         self.chain_id = at_obj.getChid()
         self.res_name = at_obj.getResname()
         self.res_num = at_obj.getResnum()
-
+        self.element = at_obj.getElement()
+        # Since the element might be X, no radius available.
+        self.covalent_radius = bilab.chemicals.get_covalent_radius(self.element)
+        if self.covalent_radius is None:
+            self.covalent_radius = radius_X
         # residue or heteros
         self.at_type = "protein" if at_obj.isprotein else "hetero"
         if at_obj.getIcode():
@@ -255,12 +259,10 @@ class Interactions(PDBInfo):
             atom1 = ATOMInfo(at1)
             atom2 = ATOMInfo(at2)
 
-            element1 = at1.getElement()
-            element2 = at2.getElement()
-
+            # Since the element might be X, no radius available.
+            # its radius will be set to -999.9
             # length of covalent bond
-            cov_bond_sum = bilab.chemicals.get_covalent_radius(element1) + \
-                bilab.chemicals.get_covalent_radius(element2)
+            cov_bond_sum = atom1.covalent_radius + atom2.covalent_radius
 
             # exclude covalent bonds
             if distance > cov_bond_sum:
