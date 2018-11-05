@@ -11,7 +11,7 @@ Installation of bilab package:
 
 Usage:
 
-$ python -m bilab.apps.struct_interact --pdb 9mht.pdb --source "not water" \
+$ python -m bilab.apps.prInteract --pdb 9mht.pdb --source "not water"
     --target "not water" -v
 
 --target :  not water and hetero
@@ -44,6 +44,8 @@ from __future__ import print_function
 import sys
 import os
 import argparse
+
+import gzip
 
 from datetime import datetime as dt
 from bilab import jinja2_ENV
@@ -110,7 +112,7 @@ class ATOMInfo:
         insert_code (str): Insert code. Default is "_".
         at_type (str): type of the atom. ["residue", "ligand"]
     """
-    def __init__(self, at_obj):
+    def __init__(self, at_obj, radius_X=-999.9):
         if not isinstance(at_obj, bilab.structure.atomic.Atom):
             print("The should be an object of {}".format(
                 "bilab.structure.atomic.Atom"))
@@ -120,7 +122,11 @@ class ATOMInfo:
         self.chain_id = at_obj.getChid()
         self.res_name = at_obj.getResname()
         self.res_num = at_obj.getResnum()
-
+        self.element = at_obj.getElement()
+        # Since the element might be X, no radius available.
+        self.covalent_radius = bilab.chemicals.get_covalent_radius(self.element)
+        if self.covalent_radius is None:
+            self.covalent_radius = radius_X
         # residue or heteros
         self.at_type = "protein" if at_obj.isprotein else "hetero"
         if at_obj.getIcode():
@@ -255,12 +261,10 @@ class Interactions(PDBInfo):
             atom1 = ATOMInfo(at1)
             atom2 = ATOMInfo(at2)
 
-            element1 = at1.getElement()
-            element2 = at2.getElement()
-
+            # Since the element might be X, no radius available.
+            # its radius will be set to -999.9
             # length of covalent bond
-            cov_bond_sum = bilab.chemicals.get_covalent_radius(element1) + \
-                bilab.chemicals.get_covalent_radius(element2)
+            cov_bond_sum = atom1.covalent_radius + atom2.covalent_radius
 
             # exclude covalent bonds
             if distance > cov_bond_sum:
@@ -275,7 +279,7 @@ class Interactions(PDBInfo):
                    if x not in seen and not seen_add(x)]
         self.interact_list = sorted(results)
 
-    def write(self, o_file='out'):
+    def write(self, o_file='out', compressed=False):
         """ neighbours
 
         Kwargs:
@@ -288,7 +292,10 @@ class Interactions(PDBInfo):
         """
         ofs = None
         if isinstance(o_file, bilab.string_types):
-            ofs = open(o_file, 'w')
+            if compressed:
+                ofs = gzip.open(o_file + '.gz', mode='wt')
+            else:
+                ofs = open(o_file, 'w')
         self.writer(o_file=ofs)
         ofs.close()
 
@@ -411,7 +418,7 @@ def main(cli_opts):
     inter_atoms_set.set_interaction_pair(neighbors)
     if cli_opts.outfilename == "out":
         cli_opts.outfilename += "." + cli_opts.outfmt
-    inter_atoms_set.write(o_file=cli_opts.outfilename)
+    inter_atoms_set.write(o_file=cli_opts.outfilename, compressed=cli_opts.compression)
 
 
 if __name__ == '__main__':
@@ -465,6 +472,10 @@ if __name__ == '__main__':
                         default='out',
                         help="output file name. If not specified, "
                              "the name will be composed of out.fmt")
+    parser.add_argument("--compress",
+                        action="store_true",
+                        dest="compression",
+                        help="Compress the output file to tar.gz")
 
     parser.add_argument("-v", "--verbose",
                         action="store_true",
