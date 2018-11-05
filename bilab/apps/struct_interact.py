@@ -11,7 +11,7 @@ Installation of bilab package:
 
 Usage:
 
-$ python -m bilab.apps.prInteract --pdb 9mht.pdb --source "not water" \
+$ python -m bilab.apps.prInteract --pdb 9mht.pdb --source "not water"
     --target "not water" -v
 
 --target :  not water and hetero
@@ -44,6 +44,8 @@ from __future__ import print_function
 import sys
 import os
 import argparse
+
+import gzip
 
 from datetime import datetime as dt
 from bilab import jinja2_ENV
@@ -277,7 +279,7 @@ class Interactions(PDBInfo):
                    if x not in seen and not seen_add(x)]
         self.interact_list = sorted(results)
 
-    def write(self, o_file='out'):
+    def write(self, o_file='out', compressed=False):
         """ neighbours
 
         Kwargs:
@@ -290,7 +292,10 @@ class Interactions(PDBInfo):
         """
         ofs = None
         if isinstance(o_file, bilab.string_types):
-            ofs = open(o_file, 'w')
+            if compressed:
+                ofs = gzip.open(o_file + '.gz', mode='wt')
+            else:
+                ofs = open(o_file, 'w')
         self.writer(o_file=ofs)
         ofs.close()
 
@@ -413,7 +418,7 @@ def main(cli_opts):
     inter_atoms_set.set_interaction_pair(neighbors)
     if cli_opts.outfilename == "out":
         cli_opts.outfilename += "." + cli_opts.outfmt
-    inter_atoms_set.write(o_file=cli_opts.outfilename)
+    inter_atoms_set.write(o_file=cli_opts.outfilename, compressed=cli_opts.compression)
 
 
 if __name__ == '__main__':
@@ -467,6 +472,10 @@ if __name__ == '__main__':
                         default='out',
                         help="output file name. If not specified, "
                              "the name will be composed of out.fmt")
+    parser.add_argument("--compress",
+                        action="store_true",
+                        dest="compression",
+                        help="Compress the output file to tar.gz")
 
     parser.add_argument("-v", "--verbose",
                         action="store_true",
