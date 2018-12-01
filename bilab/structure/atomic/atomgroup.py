@@ -999,7 +999,11 @@ class AtomGroup(Atomic):
 
             for j, distance in zip(*kdtree(r_ext, at_Coords)):
                 n1 = self.__getitem__(j)
-                ele1 = ElementData.get(n1.getName()[0].lower())
+                n1 = ''.join(i for i in n1.getName().lower() if i.isalpha())
+                ele1 = ElementData.get(n1[0])
+                if ele1 is None:
+                    print("Atom:{}".format(n1))
+                    continue
                 covalent_r1 = ele1.getCovalentRadius()[0]/100
                 if distance == 0.0:
                     continue
