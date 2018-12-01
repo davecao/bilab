@@ -992,15 +992,21 @@ class AtomGroup(Atomic):
         covalent_bonds_inx = {}
         for atom in self.__iter__():
             at_Coords = atom._getCoords()
-            ele = ElementData.get(atom.getName()[0].lower())
+            at_name_org = atom.getName().lower()
+            at_name = ''.join(i for i in at_name_org if i.isalpha())
+            ele = ElementData.get(at_name[0])
+            if ele is None:
+                print("Atom:{} not found".format(at_name_org))
+
             covalent_radius = ele.getCovalentRadius()[0]/100
             # r_ext = (covalent_r + 2) * PointsPerAngstrom * LEEWAY
             r_ext = (covalent_radius + MAXCOLVALENT) * LEEWAY
 
             for j, distance in zip(*kdtree(r_ext, at_Coords)):
                 n1 = self.__getitem__(j)
-                n1 = ''.join(i for i in n1.getName().lower() if i.isalpha())
-                ele1 = ElementData.get(n1[0])
+                n1_name_org = n1.getName().lower()
+                n1_name = ''.join(i for i in n1_name_org if i.isalpha())
+                ele1 = ElementData.get(n1_name[0])
                 if ele1 is None:
                     print("Atom:{}".format(n1))
                     continue
@@ -1019,7 +1025,7 @@ class AtomGroup(Atomic):
                     # append(p)
         # return covalent_bonds, covalent_bonds_inx
         # return covalent_bonds_inx
-        self.setBonds(covalent_bonds_inx.keys())
+        self.setBonds(list(covalent_bonds_inx.keys()))
         return self
 
     def setBonds(self, bonds):
