@@ -31,7 +31,7 @@ if PY2K:
     range = xrange
     integer_types = (int,)
 else:
-    integer_types = (long, int)
+    integer_types = (np.integer, int)
 
 def checkLabel(label):
     """Check suitability of *label* for labeling user data or flags."""
