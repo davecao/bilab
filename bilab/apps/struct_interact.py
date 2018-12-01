@@ -141,7 +141,7 @@ class ATOMInfo:
         return NotImplemented
 
     def __ne__(self, other):
-        return not self.__eq__()
+        return not self.__eq__(other)
 
     def __str__(self):
         # str_des = None

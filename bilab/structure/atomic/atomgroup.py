@@ -29,7 +29,9 @@ __all__ = ['AtomGroup']
 
 if PY2K:
     range = xrange
-
+    integer_types = (int,)
+else:
+    integer_types = (long, int)
 
 def checkLabel(label):
     """Check suitability of *label* for labeling user data or flags."""
@@ -172,7 +174,7 @@ class AtomGroup(Atomic):
 
         acsi = self._acsi
 
-        if isinstance(index, int):
+        if isinstance(index, integer_types):
             n_atoms = self._n_atoms
             if index >= n_atoms or index < -n_atoms:
                 raise IndexError('index out of bounds')
