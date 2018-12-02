@@ -256,6 +256,7 @@ class Interactions(PDBInfo):
         Returns:
             None
         """
+        LEEWAY = 1.1
         append_self = self.interact_list.append
         for at1, at2, distance in neighbours:
             atom1 = ATOMInfo(at1)
@@ -264,7 +265,8 @@ class Interactions(PDBInfo):
             # Since the element might be X, no radius available.
             # its radius will be set to -999.9
             # length of covalent bond
-            cov_bond_sum = atom1.covalent_radius + atom2.covalent_radius
+            # r_ext = (covalent_r + 2) * PointsPerAngstrom * LEEWAY
+            cov_bond_sum = (atom1.covalent_radius + atom2.covalent_radius) * LEEWAY
 
             # exclude covalent bonds
             if distance > cov_bond_sum:
