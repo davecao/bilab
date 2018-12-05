@@ -204,7 +204,6 @@ class AtomGroup(Atomic):
             raise TypeError('invalid index')
 
     def __len__(self):
-
         return self._n_atoms
 
     def __add__(self, other):

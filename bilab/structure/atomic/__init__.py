@@ -176,6 +176,7 @@ from . import atomgroup
 from . import selection
 
 from .chain import AAMAP, getSequence
+from .atomlookuptable import getAtomNomenclature
 
 #__all__.extend(functions.__all__)
 #__all__.extend(select.__all__)
