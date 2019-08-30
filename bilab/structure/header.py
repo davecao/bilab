@@ -15,7 +15,7 @@ from bilab.utilities import openFile
 
 #from .localpdb import fetchPDB
 
-__all__ = ['Chemical', 'Polymer', 'DBRef', 'parsePDBHeader',
+__all__ = ['Chemical', 'Polymer', 'DBRef', 'Site', 'parsePDBHeader',
            'assignSecstr', 'buildBiomolecules']
 
 
@@ -253,6 +253,83 @@ class UnitCell(object):
             self.a, self.b, self.c, self.alpha, self.beta, self.gamma)
 
 
+class Site(object):
+    """A data structure for storing information on properties in the molecule
+    such as environments surrounding a non-standard residue or the assembly of 
+    an active site. 
+    SITE records specify residues comprising catalytic, co-factor, anti-codon,
+    regulatory or other essential sites or environments surrounding ligands 
+    present in the structure.
+
+    A :class:`Site` instance has the following attributes:
+    ==========      ======  ====================================================
+    Attribute        Type    Description (RECORD TYPE)
+    ==========      ======  ====================================================
+    siteId           str     3-letter codes in a character range of AC1-ZZ9 
+                             if it is software determined.
+    site_res_num     int     The residue number of the site in structure
+    evidence_code    str     Type of evidence of the site. e.g., AUTHOR, SOFTWARE
+    description      str     Description of site. e.g.,
+                               BINDING SITE FOR RESIDUE MG C 1734
+    residues         list    (Residue_Name, ChainId, Residue_Number) as an 
+                             element of a list.
+    records          int     The number of residues surrounding the site 
+                             present in SITE
+    ==========      ======  ====================================================
+    """
+    __slots__ = ['siteId', 'site_res_num', 'evidence_code', 'description', 
+                 'residues', 'records']
+
+    def __init__(self, site_id, site_res_num=None, num_records=None,
+                 evi_code='', desc=''):
+        #: site identifier
+        self.siteId = site_id
+        # residue number of the site
+        self.site_res_num = site_res_num
+        #: evidence code
+        self.evidence_code = evi_code
+        #: description of site environment
+        self.description = desc
+        #: residues surrounding the site
+        self.residues = []
+        #: number of residues surrounding the site
+        self.records = num_records
+
+    def __str__(self):
+        return '<Site {0}: {1}>'.format(self.siteId, self.description)
+
+    def __repr__(self):
+        return '<Site: {0} surrounding {1} >'.format(self.siteId,
+                                                     len(self.residues))
+
+    def __len__(self):
+        return len(self.residues)
+
+    def setEviCode(self, evi_code):
+        self.evidence_code = evi_code
+
+    def setDesc(self, desc):
+        self.description = desc
+
+    def getEviCode(self):
+        return self.evidence_code
+
+    def getDesc(self):
+        return self.description
+
+    def setResidues(self, res):
+        self.residues.append(res)
+
+    def getResidues(self):
+        return self.residues
+
+    def setNumRecords(self, rec):
+        self.records = rec
+
+    def getNumRecords(self):
+        return self.records
+
+
 def cleanString(string, nows=False):
     """*nows* is no white space."""
 
@@ -306,6 +383,8 @@ def parsePDBHeader(pdb, *keys):
     REMARK 4     version           PDB file version
     REMARK 350   biomoltrans       biomolecular transformation lines
                                    (unprocessed)
+    REMARK 800   site              see :class:`Site`
+    SITE         site              see :class:`Site`
     CRYST1       unitcell          see :class:`UnitCell`
     ============ ================= ============================================
 
@@ -879,6 +958,82 @@ def _getUnitCell(lines):
     return unit_cell
 
 
+def _getSite(lines):
+    """
+    COLUMNS        DATA  TYPE    FIELD         DEFINITION
+    ---------------------------------------------------------------------------------
+     1 -  6        Record name   "SITE  "
+     8 - 10        Integer       seqNum        Sequence number.
+    12 - 14        LString(3)    siteID        Site name.
+    16 - 17        Integer       numRes        Number of residues that compose the site.
+    19 - 21        Residue name  resName1      Residue name for first residue that
+                                               creates the site.
+    23             Character     chainID1      Chain identifier for first residue of site.
+    24 - 27        Integer       seq1          Residue sequence number for first residue
+                                               of the  site.
+    28             AChar         iCode1        Insertion code for first residue of the site.
+    30 - 32        Residue name  resName2      Residue name for second residue that
+                                               creates the site.
+    34             Character     chainID2      Chain identifier for second residue of
+                                               the  site.
+    35 - 38        Integer       seq2          Residue sequence number for second
+                                               residue of the site.
+    39             AChar         iCode2        Insertion code for second residue
+                                               of the  site.
+    41 - 43        Residue name  resName3      Residue name for third residue that
+                                               creates  the site.
+    45             Character     chainID3      Chain identifier for third residue
+                                               of the site.
+    46 - 49        Integer       seq3          Residue sequence number for third
+                                               residue of the site.
+    50             AChar         iCode3        Insertion code for third residue
+                                               of the site.
+    52 - 54        Residue name  resName4      Residue name for fourth residue that
+                                               creates  the site.
+    56             Character     chainID4      Chain identifier for fourth residue
+                                               of the site.
+    57 - 60        Integer       seq4          Residue sequence number for fourth
+                                               residue of the site.
+    61             AChar         iCode4        Insertion code for fourth residue
+                                               of the site.
+    """
+    sites = defaultdict(list)
+    chunk = 9
+    c_key = ''
+    for i, line in lines['REMARK 800']:
+        if "SITE_IDENTIFIER" in line:
+            c_key = line.split(":")[1].strip()
+            sites[c_key] = Site(c_key)
+        elif "EVIDENCE_CODE" in line:
+            sites[c_key].setEviCode(line.split(":")[1].strip())
+        elif "SITE_DESCRIPTION" in line:
+            sites[c_key].setDesc(line.split(":")[1].strip())
+
+    for i, line in lines['SITE  ']:
+        site_sn = line[7:10].strip()
+        site_name = line[11:14].strip()
+        site_num_res = int(line[15:17].strip())
+
+        sites[site_name].setNumRecords(site_num_res)
+
+        # composite_residues = []
+        for i in range(18, 61, 11):
+            rec = line[i:i+chunk+1]
+            if not rec or not rec.strip():
+                continue
+            name = rec[:3].strip()
+            chid = rec[4].strip()
+            num = int(rec[5:9].strip())
+            icode = rec[9].strip()
+            if name and chid and num:
+                # composite_residues.append([name, chid, num, icode])
+                sites[site_name].setResidues([name, chid, num, icode])
+        #if (site_sn, site_name, site_num_res) in sites:
+        #    sites[(site_sn, site_name, site_num_res)].extend(composite_residues)
+        #else:
+        #    sites[(site_sn, site_name, site_num_res)] = composite_residues
+    return sites
+
 # Make sure that lambda functions defined below won't raise exceptions
 _PDB_HEADER_MAP = {
     'helix': _getHelix,
@@ -912,7 +1067,8 @@ _PDB_HEADER_MAP = {
                    ) if lines['MDLTYP'] else None,
     'n_models': _getNumModels,
     'space_group': _getSpaceGroup,
-    'unitcell': _getUnitCell
+    'unitcell': _getUnitCell,
+    'site': _getSite
 }
 
 mapHelix = {

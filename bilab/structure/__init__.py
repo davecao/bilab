@@ -18,6 +18,8 @@ from bilab.structure.contacts import *
 
 from bilab.structure.surface import *
 
+#from bilab.structure.secondary import *
+
 from bilab.structure.density import *
 
 from bilab.structure.vptree import *

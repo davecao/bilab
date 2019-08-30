@@ -52,9 +52,6 @@ try:
 except ImportError:
     from configparser import RawConfigParser
 
-# include_dirs = []
-# library_dirs = []
-
 pyincdir = dsc.get_python_inc(plat_specific=1)
 pylibdir = os.path.join('/', *pyincdir.split('/')[:-2] + ['lib'])
 
@@ -141,7 +138,7 @@ distance_wrap = Extension(
     sources=['bilab/geometry/distance/distance_wrap.c'])
 
 kdtree_lib = Extension(
-    name='bilab.structure._CKDTree',
+    name='bilab.structure.kdtree._CKDTree',
     define_macros=[('MAJOR_VERSION', '1'),
                    ('MINOR_VERSION', '0')],
     include_dirs=[np_include_dir],
@@ -444,6 +441,34 @@ mmcif = Extension(
     extra_link_args=mmcif_extra_link_args,
     language="c++")
 
+nsc = Extension(
+    name="bilab.structure.surface._nsc",
+    define_macros=[('MAJOR_VERSION', '1'),
+                   ('MINOR_VERSION', '0')],
+    include_dirs=['.',
+                  np_include_dir,
+                  'bilab/structure/surface'
+                  ],
+    sources=[
+        'bilab/structure/surface/nsc.c',
+        'bilab/structure/surface/NSCmodule.c'
+        ],
+    extra_compile_args="",
+    extra_link_args="",
+    language="c")
+
+secondary = Extension(
+    name="bilab.structure.secondary._secondary_cy",
+    include_dirs=[np_include_dir],
+    sources=[
+        'bilab/structure/secondary/donor.pyx'
+        ],
+    extra_compile_args=[],
+    extra_link_args=["-v"],
+    language="c++"
+    )
+
+
 def split_multiline(value):
     """Split a multiline string into a list, excluding blank lines."""
     val = value.encode('utf-8')
@@ -617,7 +642,9 @@ general_settings['ext_modules'] = [
 #   MMTK_energy_term,
 #   MMTK_force_field,
 #   crc32,
-    mmcif
+    mmcif,
+    nsc,
+#    secondary
 ]
 #                                   CWMatrix]
 general_settings['install_requires'] = [

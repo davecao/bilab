@@ -123,6 +123,7 @@ class ATOMInfo:
         self.res_name = at_obj.getResname()
         self.res_num = at_obj.getResnum()
         self.element = at_obj.getElement()
+        self.element = at_obj.getIcode()
         # Since the element might be X, no radius available.
         self.covalent_radius = bilab.chemicals.get_covalent_radius(self.element)
         if self.covalent_radius is None:

@@ -41,7 +41,10 @@ def density1d(mol, cutoff=10.0, save2file=False,
         # Student distribution degenerates difference of distances
         t_distMat = np.reciprocal(1+distMat*distMat)
         dens = []
-        result[ch_id] = {'org_dist':distMat, 'no_distMat':n_distMat,'t_dist':t_distMat, 'density':dens}
+        result[ch_id] = {'org_dist':distMat,
+                         'no_distMat':n_distMat,
+                         't_dist':t_distMat,
+                         'density':dens}
         if save2file:
             base_fname = mol_title + '_' + ch_id
             np.savetxt( base_fname + '_distMat.txt', distMat , delimiter=',', fmt="%8.3f")

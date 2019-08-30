@@ -2,10 +2,51 @@
 
 import sys
 import os
+import abc
+import re
 
 __all__ = ["FindBoostPackage"]
 
-class FindBoostPackage(object):
+DYNAMIC_LIBS_EXT = {
+    "darwin": 'dylib',
+    "linux": 'so',
+    "win32": 'dll'
+}
+
+PY3K = sys.version_info[0] > 2
+
+pj = os.path.join
+
+class FindPackage(abc.ABC):
+    """ Base class """
+    def __init__(self, env_var):
+        self.search_include_paths = [
+            "/usr/local/include",
+            "/opt/local/include"
+        ]
+        self.search_library_paths = [
+            "/usr/local/lib",
+            "/opt/local/lib"
+        ]
+        self.available = False
+        self.environ_var = None
+
+        if env_var in os.environ:
+            self.environ_var = os.environ[env_var]
+            if os.path.isdir(self.environ_var):
+                self.search_include_paths.append(self.environ_var)
+                self.search_library_paths.append(self.environ_var)
+
+        self.libext = None
+        if sys.platform in DYNAMIC_LIBS_EXT:
+           self.libext = DYNAMIC_LIBS_EXT[sys.platform]
+
+    @abc.abstractmethod
+    def __call__(self, inc_paths=None, lib_paths=None):
+        raise NotImplementedError
+
+
+class FindBoostPackage(FindPackage):
     """
     Find the include path and libraries path of Boost library
 
@@ -17,18 +58,19 @@ class FindBoostPackage(object):
         /usr/local/include
         /usr/local/lib
     """
-    def __init__(self, baseDirKey="BOOST_ROOT", minimal_version="1.55.0"):
-        super(FindBoostPackage, self).__init__()
+    def __init__(self,
+                 search_inc_paths=None,
+                 search_lib_paths=None,
+                 eviron_var_name="BOOST_ROOT",
+                 minimal_version="1.55.0"):
 
-        self.baseDirKey = baseDirKey
+        super(FindBoostPackage, self).__init__(eviron_var_name)
+
         self.minimal_version = minimal_version
         self.staged_version = False
-        self.available = False            # Track availability
-
-        # Need boost python
-        self.libext = '.dylib' if sys.platform == 'darwin' else '.so'
-        self.found_incs = None
-        self.found_lib_paths = None
+        self.available = False  # Track availability
+        self.baseDir = None
+        self.incDir = None
 
         # configurable options
         self.headerMap = {
@@ -38,9 +80,39 @@ class FindBoostPackage(object):
             'filesystem': 'boost/filesystem/path.hpp',
             'version': 'boost/version.hpp'
         }
-        self.baseDir = os.environ[self.baseDirKey]
-        self.incDir = None
-        self.setupLibrarySettings()
+
+    def __call__(self, inc_paths=None, lib_paths=None):
+        """ search
+
+        Args:
+            inc_paths (list):
+                a list of paths of include files
+            lib_paths (list):
+                a list of paths of libraries
+        """
+        if (inc_paths is not None) and isinstance(inc_paths, list):
+            self.search_include_paths.extend(inc_paths)
+
+
+    def find_boost_version(self, version_header_file):
+        """ Check the boost version from version.hpp """
+        if not os.path.isfile(version_header_file):
+            return
+        if PY3K:
+            ver_file = open(version_header_file)
+        else:
+            ver_file = file(version_header_file)
+        ver_match = re.search(
+                    "define\s+?BOOST_VERSION\s+?(\d*)",
+                    ver_file.read())
+        if not ver_match:
+            return None
+        found_ver_str = int(ver_match.group(1))
+        found_ver_str = "{}.{}.{}".format(
+            found_ver_str/100000,
+            found_ver_str/100 % 1000,
+            found_ver_str % 100)
+        return found_ver_str
 
     def setupLibrarySettings(self):
         # Map for extra libs needed for config test
@@ -115,6 +187,7 @@ class FindBoostPackage(object):
         elif os.path.isdir(pj(self.baseDir, 'stage/lib')):
             self.staged_version = True
             self.found_lib_paths = pj(self.baseDir, 'stage/lib')
+
 
     def dumpSettings(self):
         # Write out the settings

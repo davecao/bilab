@@ -408,9 +408,10 @@ class HierView(object):
 
     def numResidues(self):
         """Return number of residues."""
-
-        return (len(self._residues) if self._ag is self._atoms else
-                len(self._residues) - self._residues.count(None))
+        num_none = len([x for x in self._residues if x is not None])
+        # return (len(self._residues) if self._ag is self._atoms else
+        #        len(self._residues) - self._residues.count(None))
+        return (len(self._residues) if self._ag is self._atoms else num_none)
 
     def iterResidues(self):
         """Yield residues."""
@@ -467,7 +468,7 @@ class HierView(object):
         """Return number of chains."""
 
         return (len(self._chains) if self._ag is self._atoms else
-                len(self._chains) - self._chains.count(None))
+                len(self._chains) - len([b for b in self._residues if b is None]))
 
     def getSegment(self, segname):
         """Return segment with name *segname*, if it is present."""

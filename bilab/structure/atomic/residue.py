@@ -168,5 +168,13 @@ class Residue(AtomSubset):
 
     def getNext(self):
         """Return following residue in the atom group."""
-
-        return self._hv._getResidue(self.getResindex() + 1)
+        # return self._hv._getResidue(self.getResindex() + 1)
+        # The above code will return the first residue of next chain
+        currChId = self._hv._getResidue(self.getResindex()).getChid()
+        nextRes = self._hv._getResidue(self.getResindex() + 1)
+        if nextRes is None:
+            return None
+        nextChId = nextRes.getChid()
+        if currChId == nextChId:
+            return nextRes  # self._hv._getResidue(self.getResindex() + 1)
+        return None

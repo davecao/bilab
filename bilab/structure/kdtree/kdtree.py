@@ -7,7 +7,7 @@ from numpy import array, ndarray, concatenate
 from bilab import LOGGER
 
 try:
-    from bilab.structure._CKDTree import KDTree as CKDTree
+    from bilab.structure.kdtree._CKDTree import KDTree as CKDTree
 except ImportError:
     try:
         from Bio.KDTree._CKDTree import KDTree as CKDTree
